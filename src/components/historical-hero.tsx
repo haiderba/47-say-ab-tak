@@ -370,7 +370,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
 
             {/* Overlaid Real-Time Holographic Metadata HUD */}
-            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-5 sm:p-7 pb-6 sm:pb-8">
               {/* Top Row: Year & Milestone Tag */}
               <div className="flex items-start justify-between">
                 <div>
