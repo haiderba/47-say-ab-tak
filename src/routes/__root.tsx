@@ -99,9 +99,6 @@ function Root() {
             <main className="flex-1">
               <Outlet />
             </main>
-            <div className="mx-auto w-full max-w-5xl px-4 my-4">
-              <AdUnit format="footer_banner" label="Sitewide Sponsored Partner / Google Ad" />
-            </div>
             <SiteFooter />
             <MobileNav />
             <CommandPalette

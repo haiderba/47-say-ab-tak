@@ -22,7 +22,7 @@ export function MobileNav() {
       to: "/news",
       label: "News",
       icon: Newspaper,
-      badge: "Live",
+      badge: true,
       isActive: pathname.startsWith("/news"),
     },
     {
@@ -47,12 +47,12 @@ export function MobileNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-50 block md:hidden bg-surface/98 border-t border-border shadow-[0_-8px_25px_rgba(0,0,0,0.1)] backdrop-blur-2xl"
+      className="fixed bottom-0 inset-x-0 z-50 block md:hidden bg-surface/95 border-t border-border/80 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl"
       style={{
-        paddingBottom: "max(0.4rem, env(safe-area-inset-bottom, 0px))",
+        paddingBottom: "max(0.35rem, env(safe-area-inset-bottom, 0px))",
       }}
     >
-      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
+      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = item.isActive;
@@ -60,41 +60,39 @@ export function MobileNav() {
             <Link
               key={item.to}
               to={item.to as any}
-              className={`relative flex flex-col items-center justify-center rounded-xl py-1 px-3 transition-all duration-200 ${
-                active
-                  ? "text-primary font-black scale-105"
-                  : "text-muted hover:text-primary font-medium"
+              preload="intent"
+              className={`relative flex flex-1 flex-col items-center justify-center py-1 transition-all duration-150 active:scale-95 outline-none select-none ${
+                active ? "text-primary" : "text-muted hover:text-primary"
               }`}
             >
-              {/* Active illuminated top bar */}
+              {/* Active illuminated top line */}
               {active && (
-                <span className="absolute -top-1.5 h-1 w-6 rounded-full bg-primary" />
+                <span className="absolute -top-1 h-0.5 w-6 rounded-full bg-primary animate-in fade-in duration-200" />
               )}
 
               <div
-                className={`grid size-8 place-items-center rounded-xl transition-all ${
+                className={`relative grid size-8 place-items-center rounded-xl transition-all ${
                   active
-                    ? "bg-primary text-accent shadow-sm"
+                    ? "bg-primary text-[#ffe066] shadow-sm font-bold scale-105"
                     : "bg-transparent text-muted"
                 }`}
               >
                 <Icon className="size-4.5" />
+                {item.badge && !active && (
+                  <span className="absolute top-1 right-1 flex size-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                  </span>
+                )}
               </div>
 
               <span
                 className={`text-[10px] tracking-tight mt-0.5 ${
-                  active ? "text-primary font-black" : "text-muted"
+                  active ? "font-black text-primary" : "font-medium text-muted"
                 }`}
               >
                 {item.label}
               </span>
-
-              {item.badge && (
-                <span className="absolute top-1 right-2 flex size-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                </span>
-              )}
             </Link>
           );
         })}

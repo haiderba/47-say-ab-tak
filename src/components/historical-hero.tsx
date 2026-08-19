@@ -287,33 +287,33 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
             <span>47 SY AB TAK • 1947 → 2026 HISTORICAL JOURNEY</span>
           </div>
 
-          <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-md">
+          <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-md">
             Pakistan's Governance &amp;{" "}
             <span className="bg-gradient-to-r from-accent via-amber-200 to-white bg-clip-text text-transparent">
               Documentation Evolution
             </span>
           </h1>
 
-          <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-emerald-100/90 sm:text-base leading-relaxed">
-            Move your cursor horizontally or <strong className="text-accent">tilt your phone</strong> to travel through{" "}
-            <strong className="text-accent font-bold">1947 — 2026</strong> — from British-era manual paper ledgers to modern digital citizen portals.
+          <p className="mx-auto mt-2.5 max-w-2xl text-xs font-medium text-emerald-100/90 sm:text-base leading-relaxed">
+            Move cursor horizontally or <strong className="text-accent">tilt phone</strong> to explore{" "}
+            <strong className="text-accent font-bold">1947 — 2026</strong> from paper ledgers to digital citizen portals.
           </p>
 
           {/* GYROSCOPE MOTION ACTIVATOR BAR (Mobile Specific) */}
-          <div className="mt-5 block sm:hidden">
+          <div className="mt-4 block sm:hidden">
             {gyroActive ? (
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-950/80 px-4 py-1.5 text-xs font-bold text-emerald-300 shadow-md backdrop-blur-md animate-pulse">
-                <Compass className="size-4 text-accent animate-spin" style={{ animationDuration: "8s" }} />
-                <span>📱 Gyroscope 3D Active • Tilt Phone Left/Right to Travel</span>
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-950/80 px-4 py-1.5 text-[11px] font-bold text-emerald-300 shadow-md backdrop-blur-md animate-pulse">
+                <Compass className="size-3.5 text-accent animate-spin" style={{ animationDuration: "8s" }} />
+                <span>📱 Gyroscope Active • Tilt Left/Right to Travel</span>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={enableGyroscope}
-                className="inline-flex items-center gap-2 rounded-full border-2 border-accent bg-accent/20 px-5 py-2 text-xs font-black text-accent hover:bg-accent hover:text-primary transition-all shadow-lg backdrop-blur-md active:scale-95"
+                className="inline-flex items-center gap-2 rounded-full border border-accent/60 bg-accent/20 px-4 py-1.5 text-[11px] font-black text-accent hover:bg-accent hover:text-primary transition-all shadow-md backdrop-blur-md active:scale-95"
               >
-                <Smartphone className="size-4 text-accent animate-bounce" />
-                <span>⚡ Enable Phone Tilt (Gyroscope 3D Mode)</span>
+                <Smartphone className="size-3.5 text-accent" />
+                <span>⚡ Enable Phone Tilt Mode (3D Motion)</span>
               </button>
             )}
           </div>
@@ -325,17 +325,14 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onTouchMove={handleTouchMove}
-          className="relative mt-8 select-none cursor-ew-resize touch-pan-y"
+          className="relative mt-6 sm:mt-8 select-none cursor-ew-resize touch-pan-y"
           style={{ perspective: "1400px" }}
         >
-          {/* Instruction Pill Callout */}
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+          {/* Desktop-Only Top Instruction Pill */}
+          <div className="hidden sm:flex absolute -top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
             <div className="flex items-center gap-2 rounded-full border border-accent/60 bg-accent px-4 py-1.5 text-xs font-black uppercase tracking-wider text-primary shadow-xl animate-pulse">
               <MoveHorizontal className="size-4 text-primary" />
-              <span className="hidden sm:inline">Move Cursor to Explore 1947 — 2026</span>
-              <span className="sm:hidden">
-                {gyroActive ? "Tilt Phone Left / Right" : "Swipe Left / Right to Travel"}
-              </span>
+              <span>Move Cursor to Explore 1947 — 2026</span>
             </div>
           </div>
 
