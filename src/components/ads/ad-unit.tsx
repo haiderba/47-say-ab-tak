@@ -15,7 +15,7 @@ interface AdUnitProps {
   label?: string;
 }
 
-const ADSENSE_CLIENT_ID = "ca-pub-9428710482914820";
+const ADSENSE_CLIENT_ID = "ca-pub-6963163931040692";
 
 declare global {
   interface Window {

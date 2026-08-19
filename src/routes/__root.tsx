@@ -72,7 +72,7 @@ export const Route = createRootRoute({
     scripts: [
       {
         async: true,
-        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9428710482914820",
+        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6963163931040692",
         crossOrigin: "anonymous",
       },
       {
