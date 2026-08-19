@@ -1,0 +1,799 @@
+import { getSql } from "@/lib/db";
+
+type Cat = {
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+  sort: number;
+};
+
+type GuideSeed = {
+  slug: string;
+  category: string;
+  title: string;
+  summary: string;
+  department: string;
+  processing: string;
+  biometric: string;
+  difficulty: string;
+  updated: string;
+  disclaimer: string;
+  docs: { section: string; item: string }[];
+  steps: { title: string; body: string }[];
+  mistakes: string[];
+};
+
+const CATEGORIES: Cat[] = [
+  { slug: "nadra", name: "NADRA", description: "CNIC, B-Form, FRC, Succession Certificate, NICOP & POC", icon: "id-card", sort: 1 },
+  { slug: "land", name: "Land Records (PLRA)", description: "Mutation (Intiqal), Fard Malkiat, E-Stamping & Registry", icon: "scroll-text", sort: 2 },
+  { slug: "passport", name: "Passport Office", description: "Machine Readable (MRP), e-Passport, renewal & urgent", icon: "book-open", sort: 3 },
+  { slug: "traffic", name: "Traffic Police (DLIMS)", description: "Learner, permanent driving license, renewal & international permit", icon: "car", sort: 4 },
+  { slug: "excise", name: "Excise & Taxation", description: "Vehicle registration, biometric transfer & token tax", icon: "truck", sort: 5 },
+  { slug: "local-gov", name: "Local Government", description: "Birth, death, marriage certificates, divorce & domicile", icon: "landmark", sort: 6 },
+  { slug: "police", name: "Police Khidmat Markaz", description: "Character certificate, tenant registration & lost document e-FIR", icon: "shield", sort: 7 },
+  { slug: "attestation", name: "HEC / IBCC / MOFA", description: "Matric, Inter, Degree attestation, equivalence & MOFA Apostille", icon: "stamp", sort: 8 },
+  { slug: "fbr", name: "FBR & Tax Compliance", description: "NTN registration, Active Taxpayer (ATL) Filer status & property tax", icon: "receipt-text", sort: 9 },
+  { slug: "secp", name: "SECP & Business Setup", description: "Sole proprietorship, Pvt Ltd company incorporation & chamber membership", icon: "briefcase", sort: 10 },
+  { slug: "overseas", name: "Overseas Pakistanis (OPF)", description: "Protector of Emigrants, digital power of attorney & OPF cards", icon: "globe", sort: 11 },
+  { slug: "legal", name: "Courts & Legal Affidavits", description: "E-Stamp paper affidavits, succession petitions & guardianship", icon: "gavel", sort: 12 },
+];
+
+const DISCLAIMER =
+  "This is guidance only. Fees, requirements, and processes change. Always confirm the latest rules from the official department or portal.";
+
+const GUIDES: GuideSeed[] = [
+  // 1. NADRA
+  {
+    slug: "cnic",
+    category: "nadra",
+    title: "CNIC / Smart Card (New, Renewal & Duplicate)",
+    summary: "Complete issuance, renewal, lost duplicate, and data modification under NADRA.",
+    department: "NADRA",
+    processing: "Same day (Executive) to 15 days",
+    biometric: "Mandatory (Photo + 10 Fingerprints)",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "New CNIC (First-time at Age 18)", item: "Original Birth Certificate or computerized B-Form / CRC" },
+      { section: "New CNIC (First-time at Age 18)", item: "Parent or blood relative CNIC (original + copy) for attestation" },
+      { section: "New CNIC (First-time at Age 18)", item: "Presence of one parent/blood relative for physical verification" },
+      { section: "Renewal / Lost Duplicate", item: "Previous CNIC original (or photocopy if lost)" },
+      { section: "Renewal / Lost Duplicate", item: "Loss report / diary number from Police Khidmat Markaz (for lost card)" },
+      { section: "Modification (Name / Address / Marital)", item: "Computerized Nikah Nama (for marital status change)" },
+      { section: "Modification (Name / Address / Marital)", item: "Registry / Utility bill / Domicile (for permanent address update)" },
+    ],
+    steps: [
+      { title: "Choose Center or Pak-ID App", body: "Visit the nearest NADRA Mega Center (24/7 in major cities) or apply online via the official Pak-ID mobile app." },
+      { title: "Token Issuance & Biometrics", body: "Get a token, capture high-resolution photograph, digital signature, and complete 10-finger biometric scan." },
+      { title: "Data Verification Form", body: "Review the printed Urdu/English data entry form thoroughly. Ensure spelling matches matric/birth certificates." },
+      { title: "Fee Payment & Tracking Token", body: "Pay Normal, Urgent, or Executive fee at the counter. Keep the 12-digit tracking ID safe." },
+      { title: "Card Collection or Home Delivery", body: "Receive SMS notification when printed. Collect in person or receive via registered courier." },
+    ],
+    mistakes: [
+      "Not checking Urdu and English spelling during operator data entry",
+      "Bringing laminated photocopies instead of original birth certificates",
+      "Attempting address changes without supporting property or utility documentary proof",
+    ],
+  },
+  {
+    slug: "frc",
+    category: "nadra",
+    title: "Family Registration Certificate (FRC)",
+    summary: "Official family tree record for visa, embassy, succession, and inheritance.",
+    department: "NADRA",
+    processing: "Same day (Instant at Mega Center / 24h Online)",
+    biometric: "Required for applicants",
+    difficulty: "Low",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "FRC by Birth (Parents & Siblings)", item: "CNIC numbers of parents and all siblings" },
+      { section: "FRC by Birth (Parents & Siblings)", item: "Child Registration Certificate (B-Form) for minor siblings" },
+      { section: "FRC by Marriage (Spouse & Children)", item: "Computerized Nikah Nama registered with Union Council" },
+      { section: "FRC by Marriage (Spouse & Children)", item: "CNIC numbers of spouse and children" },
+    ],
+    steps: [
+      { title: "Select Category", body: "Determine whether you need FRC by Birth (with parents/siblings) or FRC by Marriage (with spouse/children)." },
+      { title: "Apply at Mega Center or Pak-ID Portal", body: "Provide CNIC numbers of family members. The system automatically links the NADRA tree." },
+      { title: "Verify Tree on Screen", body: "Verify that all siblings/children are listed correctly without omissions." },
+      { title: "Instant Print & QR Verification", body: "Pay fee (PKR 1,000) and collect certificate with verifiable cryptographic QR code." },
+    ],
+    mistakes: [
+      "Applying for FRC before updating marital status on wife's CNIC",
+      "Missing deceased parents' death registration in NADRA database",
+    ],
+  },
+  {
+    slug: "succession",
+    category: "nadra",
+    title: "Succession Certificate & Letter of Administration",
+    summary: "15-day digital route for movable assets (banks, prize bonds, vehicles) after death.",
+    department: "NADRA",
+    processing: "15–30 days (Includes mandatory 14-day newspaper notice)",
+    biometric: "Mandatory for all legal heirs",
+    difficulty: "High",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Core File", item: "Computerized Death Certificate from Union Council" },
+      { section: "Required Core File", item: "Family Registration Certificate (FRC) showing all legal heirs" },
+      { section: "Required Core File", item: "Original CNICs of all legal heirs" },
+      { section: "Asset Documentation", item: "Bank account statements showing account balance / IBAN" },
+      { section: "Asset Documentation", item: "Vehicle registration books / Prize bond / Share certificates" },
+      { section: "Overseas Heirs (if any)", item: "Power of attorney attested by Pakistani Embassy / Consulate" },
+    ],
+    steps: [
+      { title: "Prepare Asset List & FRC", body: "Compile complete inventory of deceased's movable assets and obtain fresh FRC from NADRA." },
+      { title: "Application Submission", body: "Submit application at designated NADRA Succession facilitation center." },
+      { title: "Biometric Verification of Heirs", body: "All legal heirs visit the center for biometric consent (overseas heirs verify via Pak-ID app)." },
+      { title: "National Newspaper Publication", body: "NADRA publishes a public notice in national newspapers. 14 days are allowed for public objections." },
+      { title: "Issuance of Digital Certificate", body: "If no objection is raised, the digital Succession Certificate is issued with encrypted QR code." },
+    ],
+    mistakes: [
+      "Attempting to use this for immovable agricultural land or houses without also planning land mutation (Intiqal)",
+      "Omitting an heir (e.g. second wife or daughter), which makes the certificate void and forces civil litigation",
+    ],
+  },
+  {
+    slug: "nicop",
+    category: "overseas",
+    title: "NICOP (National Identity Card for Overseas Pakistanis)",
+    summary: "Visa-free entry into Pakistan and legal identification for expatriates and dual nationals.",
+    department: "NADRA / OPF",
+    processing: "7–10 days (Urgent) / 20 days (Normal)",
+    biometric: "Via Pak-ID mobile app or Embassy",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Pakistani Origin", item: "Previous CNIC / NICOP or Pakistani passport" },
+      { section: "Foreign Born (Children)", item: "Foreign Birth Certificate with parents' names" },
+      { section: "Foreign Born (Children)", item: "Parents' valid NICOP / CNIC copies" },
+      { section: "Foreign Passport", item: "Valid foreign passport / citizenship document" },
+    ],
+    steps: [
+      { title: "Apply Online via Pak-ID", body: "Create account on id.nadra.gov.pk or download the Pak-ID app." },
+      { title: "Upload Documents & Photo", body: "Capture passport-standard photo with white background using smartphone camera." },
+      { title: "Digital Fingerprint Capture", body: "Use Pak-ID mobile app's optical finger-scanner on your phone camera." },
+      { title: "International Payment & Delivery", body: "Pay via credit/debit card. Card is delivered via DHL to your overseas residential address." },
+    ],
+    mistakes: [
+      "Submitting foreign birth certificates without English translation or apostille",
+      "Using low-light mobile photos rejected by NADRA automated ICAO validation",
+    ],
+  },
+
+  // 2. Land Records (PLRA)
+  {
+    slug: "fard",
+    category: "land",
+    title: "Fard Malkiat (Land Ownership Extract)",
+    summary: "Official certified land ownership record for sale, registry, bank loan, or court record.",
+    department: "PLRA / Arazi Record Center",
+    processing: "15 minutes (Instant at ARC / Online portal)",
+    biometric: "CNIC Biometric of Owner",
+    difficulty: "Low",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "Original CNIC of the land owner" },
+      { section: "Required Documents", item: "Khewat / Khatooni / Khasra number or Mauza (village/district name)" },
+      { section: "Representative Cases", item: "Registered Power of Attorney (Mukhtar Nama) if owner cannot appear" },
+    ],
+    steps: [
+      { title: "Generate Token / Book Online", body: "Book online appointment or take token at the Arazi Record Center." },
+      { title: "Biometric Verification", body: "Land owner places thumbprint on the NADRA-integrated biometric scanner." },
+      { title: "Specify Purpose of Fard", body: "State purpose clearly: 'Brae Record' (information), 'Brae Bai' (sale), or 'Brae Rehan' (bank mortgage)." },
+      { title: "Fee Payment & Instant Print", body: "Pay standard fee (PKR 200–500) and collect computerized Fard with holographic stamp and QR code." },
+    ],
+    mistakes: [
+      "Getting 'Fard Brae Record' when planning to sell — Sub-Registrar requires 'Fard Brae Bai' (sale Fard)",
+      "Not checking for active stay orders or bank liens on the land before taking the Fard",
+    ],
+  },
+  {
+    slug: "land-mutation",
+    category: "land",
+    title: "Land Mutation (Intiqal - Sale, Gift, Inheritance)",
+    summary: "Transfer of land ownership in official revenue registers following sale deed, gift, or death.",
+    department: "PLRA / Arazi Record Center",
+    processing: "Same day to 3 working days",
+    biometric: "Buyer + Seller + Two Identifiers",
+    difficulty: "High",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Sale Mutation (Bai)", item: "Original registered Sale Deed (Baye Nama / Registry)" },
+      { section: "Sale Mutation (Bai)", item: "Original CNICs of Buyer and Seller" },
+      { section: "Sale Mutation (Bai)", item: "Valid Fard Brae Bai" },
+      { section: "Inheritance Mutation (Wirasat)", item: "Computerized Death Certificate of deceased owner" },
+      { section: "Inheritance Mutation (Wirasat)", item: "FRC from NADRA showing complete family tree" },
+      { section: "Inheritance Mutation (Wirasat)", item: "Consent / Statements of all legal heirs before Revenue Officer" },
+    ],
+    steps: [
+      { title: "Obtain Valid Sale Fard", body: "Seller obtains fresh Fard Brae Bai from Arazi Record Center." },
+      { title: "Execute & Register Deed", body: "Prepare deed on E-Stamp paper and register with Sub-Registrar." },
+      { title: "Visit Arazi Record Center", body: "Buyer, seller, and witnesses appear before Revenue Officer for biometric verification." },
+      { title: "Revenue Officer Approval", body: "Revenue Officer verifies records, confirms transaction, and passes mutation order in digital system." },
+      { title: "Collect Updated Fard", body: "Collect updated Fard showing buyer as new registered owner." },
+    ],
+    mistakes: [
+      "Relying solely on Sub-Registrar registry without completing Intiqal in PLRA revenue registers",
+      "Missing an heir in inheritance mutation, leading to civil court cancellation years later",
+    ],
+  },
+  {
+    slug: "e-stamping",
+    category: "land",
+    title: "E-Stamping & Challan 32-A (Punjab / Sindh / KP)",
+    summary: "Generating tamper-proof digital stamp papers for property deeds, affidavits, and agreements.",
+    department: "Board of Revenue / e-Stamping",
+    processing: "Instant (Online generation + Bank payment)",
+    biometric: "Not required for issuance",
+    difficulty: "Low",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Information Needed", item: "CNIC numbers of First Party and Second Party" },
+      { section: "Information Needed", item: "DC valuation table rate for the specific Mauza / Tehsil / City" },
+      { section: "Information Needed", item: "Property area (Marla / Kanal / Sq Ft / Sq Yards)" },
+    ],
+    steps: [
+      { title: "Visit e-Stamping Portal", body: "Open es.punjab.gov.pk or respective provincial portal." },
+      { title: "Calculate Stamp Duty & Taxes", body: "Select deed type (Sale Deed, Agreement, Mortgage, Affidavit) and enter property dimensions." },
+      { title: "Generate Challan 32-A", body: "System calculates Stamp Duty, Town Tax, and Advance Withholding Tax (236C/236K)." },
+      { title: "Pay at Bank of Punjab / 1Link", body: "Deposit fee at designated bank branch or online banking via 1Bill PSID." },
+      { title: "Receive E-Stamp Paper", body: "Bank issues high-security watermarked digital stamp paper with verifiable 16-character code." },
+    ],
+    mistakes: [
+      "Entering wrong Mauza or land classification leading to undervalued challan rejection by Sub-Registrar",
+      "Purchasing paper stamps from unauthorized street vendors instead of official E-Stamp system",
+    ],
+  },
+
+  // 3. Passports
+  {
+    slug: "passport",
+    category: "passport",
+    title: "Passport Issuance & Renewal (MRP / e-Passport)",
+    summary: "Ordinary, Urgent, and Fast-Track passports through DGIP.",
+    department: "Passport Office (DGIP)",
+    processing: "4 days (Fast-Track) / 7 days (Urgent) / 14 days (Normal)",
+    biometric: "Mandatory (Photo + Fingerprints)",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "New Passport (Adult 18+)", item: "Original CNIC / Smart Card + Photocopy" },
+      { section: "New Passport (Adult 18+)", item: "Bank fee receipt or e-Pay Punjab / DGIP payment challan" },
+      { section: "Renewal", item: "Original previous passport (cancelled upon renewal)" },
+      { section: "Renewal", item: "Original CNIC / Smart Card" },
+      { section: "Minors (Under 18)", item: "Original computerized B-Form / CRC from NADRA" },
+      { section: "Minors (Under 18)", item: "Original CNICs of both parents + physical presence of one parent" },
+    ],
+    steps: [
+      { title: "Pay Passport Fee via e-Pay", body: "Download Passport Fee Asaan app or pay via e-Pay using 1Bill PSID." },
+      { title: "Visit Regional Passport Office", body: "Present original CNIC and fee receipt at entry counter to receive token." },
+      { title: "Biometrics & Photo Capture", body: "Capture digital face photo, eye scan, and 10-digit biometric fingerprint impressions." },
+      { title: "Data Entry & Review", body: "Review spelling, father name, and occupation on operator screen carefully." },
+      { title: "Assistant Director Interview", body: "Brief document verification and stamping by the officer in charge." },
+      { title: "Collection / Courier", body: "Collect passport on date mentioned on tracking receipt or receive via registered courier." },
+    ],
+    mistakes: [
+      "Mismatch between CNIC name and educational documents",
+      "Attempting renewal without carrying original expired passport",
+    ],
+  },
+
+  // 4. Traffic Police (DLIMS)
+  {
+    slug: "driving-license",
+    category: "traffic",
+    title: "Driving License (Learner, Regular & International)",
+    summary: "Complete licensing pathway under Traffic Police / DLIMS system.",
+    department: "Traffic Police / DLIMS",
+    processing: "Learner same day / Regular after 42-day test",
+    biometric: "Mandatory",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Learner Permit", item: "Original CNIC + 1 Photocopy" },
+      { section: "Learner Permit", item: "Medical fitness certificate (Form-B) for applicants age 50+" },
+      { section: "Regular License Test", item: "Valid Learner Permit (minimum 42 days old)" },
+      { section: "Regular License Test", item: "Original CNIC" },
+      { section: "International Permit (IDP)", item: "Valid Pakistani Regular Driving License" },
+      { section: "International Permit (IDP)", item: "Valid Pakistani Passport + Valid Foreign Visa" },
+    ],
+    steps: [
+      { title: "Get Learner Permit", body: "Apply at PKM counter or online via DLIMS app with CNIC and PKR 60 fee." },
+      { title: "42-Day Mandatory Training", body: "Practice driving with 'L' sign on vehicle for minimum 42 days." },
+      { title: "Appear for Theory Sign Test", body: "Take computerised touch-screen traffic sign test (requires 80% passing score)." },
+      { title: "Practical Driving Track Test", body: "Drive your car/bike through standard reverse L-track and parallel parking test." },
+      { title: "Issuance & Card Dispatch", body: "Pay regular license fee; smart card is delivered to your residential address via courier." },
+    ],
+    mistakes: [
+      "Appearing for practical driving test before completion of 42 mandatory learner days",
+      "Failing to renew expired license within grace period, incurring penalty surcharges",
+    ],
+  },
+
+  // 5. Excise & Taxation
+  {
+    slug: "vehicle",
+    category: "excise",
+    title: "Vehicle Registration & Biometric Ownership Transfer",
+    summary: "New car/bike registration, biometric buyer-seller transfer, and token tax.",
+    department: "Excise & Taxation",
+    processing: "Same day biometric / 2–3 weeks for Smart Card",
+    biometric: "Buyer + Seller mandatory for transfer",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "New Vehicle Registration", item: "Original Sales Invoice + Sale Certificate from car manufacturer/dealership" },
+      { section: "New Vehicle Registration", item: "Original CNIC of vehicle owner (Filer status checked for tax)" },
+      { section: "Biometric Transfer (Used Car)", item: "Original vehicle registration book / Smart Card" },
+      { section: "Biometric Transfer (Used Car)", item: "Original CNICs of Seller and Buyer" },
+      { section: "Biometric Transfer (Used Car)", item: "Clearance of outstanding Token Taxes & Traffic E-Challans" },
+    ],
+    steps: [
+      { title: "Clear Dues & E-Challans", body: "Check and clear all pending traffic challans and unpaid token taxes via e-Pay." },
+      { title: "Generate Transfer Challan", body: "Create transfer application on e-Pay app and pay transfer fee + advance withholding tax." },
+      { title: "Seller Biometric Verification", body: "Seller visits e-Khidmat Markaz or NADRA e-Sahulat center for biometric verification." },
+      { title: "Buyer Biometric Verification", body: "Buyer completes biometric verification within 30 days of seller verification." },
+      { title: "Smart Card Printing & Delivery", body: "Excise processes the digital ownership transfer and couriers new Smart Card to buyer." },
+    ],
+    mistakes: [
+      "Buying vehicle on 'Open Transfer Letter' without completing mandatory biometric transfer",
+      "Seller failing to complete biometric, leaving vehicle legally registered in former owner's name",
+    ],
+  },
+
+  // 6. Local Government
+  {
+    slug: "birth-certificate",
+    category: "local-gov",
+    title: "Birth Certificate (Normal & Late Registration)",
+    summary: "Union Council / Cantonment Board birth registration and digital certificate.",
+    department: "Local Government / Union Council",
+    processing: "1–3 Days (Normal) / 7–15 Days (Late Cases)",
+    biometric: "Not typical",
+    difficulty: "Low to High (Late)",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "On-Time (Within 60 Days)", item: "Original Hospital / Maternity Clinic Birth Report or discharge slip" },
+      { section: "On-Time (Within 60 Days)", item: "Original CNICs of Father and Mother (+ Photocopies)" },
+      { section: "On-Time (Within 60 Days)", item: "Copy of Parents' Computerized Nikah Nama" },
+      { section: "Late Registration (After 1+ Year)", item: "Affidavit on PKR 100 Stamp Paper attested by Notary Public" },
+      { section: "Late Registration (After 1+ Year)", item: "School leaving certificate or vaccination card for age verification" },
+      { section: "Late Registration (After 1+ Year)", item: "Order from Assistant Commissioner (AC) / Magistrate" },
+    ],
+    steps: [
+      { title: "Obtain Hospital Birth Slip", body: "Ensure hospital slip has correct child name spelling and exact date/time of birth." },
+      { title: "Visit Relevant Union Council", body: "Go to the Union Council office of your residential area." },
+      { title: "Secretary UC Entry", body: "UC Secretary enters child particulars into the provincial local government portal." },
+      { title: "Collect Computerized Certificate", body: "Pay official fee (PKR 100–300) and collect printed certificate with official seal." },
+    ],
+    mistakes: [
+      "Delaying registration beyond 60 days, requiring magistrates' orders and stamp paper affidavits",
+      "Discrepancy between father's CNIC name and hospital record name",
+    ],
+  },
+  {
+    slug: "death-certificate",
+    category: "local-gov",
+    title: "Death Certificate",
+    summary: "First mandatory step after a death; required before FRC, succession, and mutation.",
+    department: "Union Council / Local Government",
+    processing: "1–3 Days",
+    biometric: "Not required",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Core Files", item: "Hospital death report or doctor's medical certificate" },
+      { section: "Required Core Files", item: "Graveyard burial slip / receipt (Qabristan Parchi)" },
+      { section: "Required Core Files", item: "Original CNIC of the deceased (handed over for cancellation)" },
+      { section: "Required Core Files", item: "CNIC copy of the applicant (son/daughter/spouse)" },
+      { section: "Late Cases (1+ month)", item: "Affidavit on Stamp Paper from legal heirs" },
+    ],
+    steps: [
+      { title: "Collect Hospital & Burial Slips", body: "Gather hospital death summary and receipt from graveyard administration." },
+      { title: "Submit at Union Council", body: "Submit application at the Union Council under whose jurisdiction the deceased lived." },
+      { title: "CNIC Cancellation in NADRA", body: "UC logs death into the provincial database, which automatically flags CNIC as deceased." },
+      { title: "Receive Bilingual Certificate", body: "Collect official NADRA-linked death certificate in Urdu and English." },
+    ],
+    mistakes: [
+      "Failing to collect graveyard burial slip on the day of funeral",
+      "Delaying death certificate registration, which blocks all bank accounts and property succession",
+    ],
+  },
+  {
+    slug: "marriage-certificate",
+    category: "local-gov",
+    title: "Computerized Nikah Nama (Marriage Certificate)",
+    summary: "Registration of manual Nikah with Union Council for official NADRA certificate.",
+    department: "Union Council / Arbitration Council",
+    processing: "1–3 Days",
+    biometric: "Not typical",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "Original manual registered Nikah Nama (signed by Nikah Khawan)" },
+      { section: "Required Documents", item: "CNICs of Bride and Groom (+ Photocopies)" },
+      { section: "Required Documents", item: "CNICs of both Nikah witnesses" },
+      { section: "Required Documents", item: "CNIC of Nikah Khawan / Registrar" },
+      { section: "Required Documents", item: "Passport-size photographs of Bride and Groom" },
+    ],
+    steps: [
+      { title: "Check Nikah Nama Registration", body: "Ensure Nikah Khawan is officially licensed with the local Union Council." },
+      { title: "Submit at Union Council", body: "Submit original copy of Nikah Nama with CNICs of bride, groom, and witnesses." },
+      { title: "Digital Entry in System", body: "Secretary UC registers particulars in the computerized civil registry." },
+      { title: "Issuance of Certificate", body: "Receive official Computerized Marriage Registration Certificate with QR verification." },
+    ],
+    mistakes: [
+      "Relying on hand-written Nikah Nama without registering for computerized UC certificate",
+      "Not updating bride's marital status on CNIC afterwards, blocking family FRCs and visas",
+    ],
+  },
+
+  // 7. Police & Khidmat Markaz
+  {
+    slug: "character-certificate",
+    category: "police",
+    title: "Police Character Certificate (Visa / Job Clearance)",
+    summary: "Criminal record clearance certificate for foreign immigration, visas, and employment.",
+    department: "Police Khidmat Markaz (PKM) / Special Branch",
+    processing: "3–7 Days",
+    biometric: "Mandatory at PKM Counter",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "Original CNIC / Smart Card + Photocopy" },
+      { section: "Required Documents", item: "Original Passport + Photocopy" },
+      { section: "Required Documents", item: "Proof of residence (Utility bill / Rent agreement / Domicile)" },
+      { section: "Required Documents", item: "Two passport-size photographs with blue background" },
+      { section: "Required Documents", item: "Purpose Letter (Embassy requirement / Job offer / University letter)" },
+    ],
+    steps: [
+      { title: "Visit Police Khidmat Markaz", body: "Visit the nearest PKM facility with original documents." },
+      { title: "Biometrics & Picture Capture", body: "Operator takes biometric fingerprint impressions and digital photo." },
+      { title: "Special Branch Verification", body: "Local police station and Special Branch run record checks across your residential history." },
+      { title: "Collection / Courier", body: "Receive SMS notification and collect security-cleared Character Certificate." },
+    ],
+    mistakes: [
+      "Providing temporary address that does not match CNIC or utility bill proof",
+      "Applying without carrying the embassy/job purpose letter",
+    ],
+  },
+  {
+    slug: "tenant-registration",
+    category: "police",
+    title: "Tenant Registration (Khidmat Markaz / e-FIR)",
+    summary: "Mandatory legal tenant verification under the Temporary Residents Act.",
+    department: "Police Khidmat Markaz",
+    processing: "15 Minutes (Instant)",
+    biometric: "Tenant Biometric Mandatory",
+    difficulty: "Low",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "Original CNIC of Property Owner (Landlord)" },
+      { section: "Required Documents", item: "Original CNIC of all adult Tenants" },
+      { section: "Required Documents", item: "Original Rent Agreement (Iqrar Nama Kirayadari) on Stamp Paper" },
+      { section: "Required Documents", item: "Photographs of Tenants" },
+    ],
+    steps: [
+      { title: "Execute Rent Agreement", body: "Landlord and tenant sign rent agreement on standard E-Stamp paper." },
+      { title: "Visit PKM or Police Station", body: "Visit nearest Police Khidmat Markaz within 15 days of renting." },
+      { title: "Biometric Tenant Verification", body: "Tenant completes biometric scan; system checks criminal databases in real-time." },
+      { title: "Receive Police Clearance Slip", body: "Receive official stamped Tenant Verification Slip." },
+    ],
+    mistakes: [
+      "Failing to register within 15 days, which is a criminal offense under the Temporary Residents Act resulting in landlord FIRs",
+    ],
+  },
+
+  // 8. Attestation (HEC / IBCC / MOFA)
+  {
+    slug: "document-attestation",
+    category: "attestation",
+    title: "Educational Attestation (IBCC → HEC → MOFA)",
+    summary: "The mandatory chronological sequence for degree attestation and foreign visa legalization.",
+    department: "IBCC / HEC / MOFA",
+    processing: "1 to 3 weeks across the full chain",
+    biometric: "Not typical",
+    difficulty: "High",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Step 1: School / Inter (IBCC)", item: "Original Matric & Inter Sanad + Result Cards" },
+      { section: "Step 1: School / Inter (IBCC)", item: "Sealed verification envelope from your specific BISE Board" },
+      { section: "Step 2: University Degrees (HEC)", item: "Original Bachelor / Master / PhD Degree & Transcript" },
+      { section: "Step 2: University Degrees (HEC)", item: "Already IBCC-attested Matric & Inter certificates" },
+      { section: "Step 3: Foreign Use (MOFA)", item: "Original IBCC & HEC attested documents with green stickers" },
+    ],
+    steps: [
+      { title: "BISE Board Verification", body: "Visit your respective education board to get your Matric/Inter results verified in a sealed envelope." },
+      { title: "IBCC Attestation", body: "Book appointment at IBCC portal; submit sealed envelope + originals to receive IBCC QR ticket." },
+      { title: "HEC e-Portal Attestation", body: "Upload degree scans to HEC eServices portal; submit via courier (TCS) or walk-in appointment." },
+      { title: "MOFA Legalization", body: "Visit MOFA camp office or submit through authorized courier for final Ministry of Foreign Affairs stamp." },
+    ],
+    mistakes: [
+      "Going directly to MOFA before completing IBCC/HEC attestation",
+      "Opening the sealed verification envelope given by the BISE board",
+    ],
+  },
+
+  // 9. FBR & Taxes
+  {
+    slug: "ntn-registration",
+    category: "fbr",
+    title: "NTN Registration & Active Filer Status (ATL)",
+    summary: "Creating your National Tax Number and filing returns on FBR IRIS portal.",
+    department: "Federal Board of Revenue (FBR)",
+    processing: "Instant NTN / 24h for Active Taxpayer List",
+    biometric: "Via NADRA OTP Verification",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Individual NTN", item: "Original CNIC / Smart Card" },
+      { section: "Individual NTN", item: "Active mobile SIM registered in applicant's own CNIC" },
+      { section: "Individual NTN", item: "Personal email address" },
+      { section: "Individual NTN", item: "Electricity / Gas utility bill of residence" },
+      { section: "Business NTN", item: "Business bank account maintenance certificate" },
+      { section: "Business NTN", item: "Proof of commercial premises ownership / rent agreement" },
+    ],
+    steps: [
+      { title: "Register on FBR IRIS", body: "Go to iris.fbr.gov.pk and click 'Registration for Unregistered Person'." },
+      { title: "Enter CNIC & Mobile Details", body: "Verify mobile OTP and email authentication codes." },
+      { title: "Receive NTN & Password", body: "System generates 7-digit NTN linked to your CNIC and issues IRIS credentials." },
+      { title: "File Annual Tax Return", body: "Declare income, expenses, and wealth statement (Form 114/116) to become Active Filer." },
+    ],
+    mistakes: [
+      "Using a mobile number registered in someone else's CNIC, which fails FBR SMS authentication",
+      "Obtaining NTN but forgetting to file annual return, which leaves you categorized as an Inactive Taxpayer",
+    ],
+  },
+
+  // 10. SECP & Business Setup
+  {
+    slug: "company-registration",
+    category: "secp",
+    title: "Company Registration (Pvt Ltd / Single Member SMC)",
+    summary: "Corporate incorporation and legal company setup via SECP eZfile.",
+    department: "Securities & Exchange Commission of Pakistan (SECP)",
+    processing: "3–7 Working Days",
+    biometric: "Digital signature / CNIC OTP",
+    difficulty: "High",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "CNIC copies of all Proposed Directors and Chief Executive" },
+      { section: "Required Documents", item: "Memorandum of Association (MOA) and Articles of Association (AOA)" },
+      { section: "Required Documents", item: "Proposed 3 unique company names in order of priority" },
+      { section: "Required Documents", item: "Registered company office address and paid capitalization structure" },
+    ],
+    steps: [
+      { title: "Company Name Reservation", body: "Search and reserve unique business name on SECP eZfile portal (PKR 500 fee)." },
+      { title: "Draft MOA & AOA", body: "Specify principal business activities and company bylaws on SECP digital forms." },
+      { title: "Submit Incorporation Application", body: "Submit statutory forms and pay registration fee via e-Pay or online banking." },
+      { title: "Certificate of Incorporation", body: "SECP registrar issues digital Certificate of Incorporation and Corporate Universal Identification Number (CUIN)." },
+    ],
+    mistakes: [
+      "Selecting restricted words (e.g. 'Bank', 'Federation', 'Investment') in company name without prior regulatory approval",
+    ],
+  },
+
+  // 11. Overseas (OPF)
+  {
+    slug: "protector-of-emigrants",
+    category: "overseas",
+    title: "Protector of Emigrants Stamp",
+    summary: "Mandatory government insurance and passport protector stamp before overseas employment.",
+    department: "Bureau of Emigration & Overseas Employment",
+    processing: "Same Day (1–2 Hours at Protector Office)",
+    biometric: "Mandatory Biometric Scan",
+    difficulty: "Medium",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "Original Passport with valid Overseas Employment Visa" },
+      { section: "Required Documents", item: "Valid CNIC / NICOP" },
+      { section: "Required Documents", item: "Original Employment Contract / Offer Letter (attested by Embassy / Chamber)" },
+      { section: "Required Documents", item: "State Life Insurance premium receipt (PKR 2,500 for PKR 1M cover)" },
+      { section: "Required Documents", item: "Medical fitness certificate from GCC / approved medical center" },
+    ],
+    steps: [
+      { title: "Deposit Insurance & Welfare Fee", body: "Pay official fee at National Bank / Habib Bank counter at Protector Office." },
+      { title: "Biometric Enrollment", body: "Complete biometric thumb impression and digital photograph." },
+      { title: "Document Examination", body: "Protector officer checks employment contract, wage terms, and visa legitimacy." },
+      { title: "Receive Protector Stamp & QR", body: "Passport is embossed with official Protector of Emigrants stamp and registered with FIA immigration." },
+    ],
+    mistakes: [
+      "Attempting to fly abroad on an employment visa without protector stamp — FIA will offload you at airport immigration",
+    ],
+  },
+
+  // 12. Courts & Legal Affidavits
+  {
+    slug: "affidavits-stamp-paper",
+    category: "legal",
+    title: "Affidavits on Stamp Paper & Notarization",
+    summary: "Drafting, printing on E-Stamp paper, and getting legal attestation by Notary Public.",
+    department: "Civil Courts & Revenue Authority",
+    processing: "30 Minutes",
+    biometric: "Notary Public Signature & Seal",
+    difficulty: "Low",
+    updated: "August 2026",
+    disclaimer: DISCLAIMER,
+    docs: [
+      { section: "Required Documents", item: "Original CNIC of the Deponent (Person giving affidavit)" },
+      { section: "Required Documents", item: "E-Stamp Paper of appropriate denomination (PKR 50 / 100 / 1200)" },
+      { section: "Required Documents", item: "Draft text of statement (Loss declaration, NOC, Name correction, Unmarried)" },
+      { section: "Required Documents", item: "CNIC copy of two witnesses" },
+    ],
+    steps: [
+      { title: "Purchase E-Stamp Paper", body: "Generate Challan 32-A online and purchase official E-Stamp paper from bank." },
+      { title: "Print Affidavit Text", body: "Print clear Urdu or English declaration text on the E-Stamp paper." },
+      { title: "Sign Before Notary Public", body: "Deponent signs and places thumb impression in front of an authorized Notary Public / Oath Commissioner." },
+      { title: "Official Register Entry", body: "Notary Public enters particulars into the legal register and places official red seal." },
+    ],
+    mistakes: [
+      "Using outdated white paper stamps instead of digital E-Stamp paper",
+      "Omitting mandatory legal wording: 'Whatever stated above is true and correct to the best of my knowledge and belief'",
+    ],
+  },
+];
+
+const NEWS = [
+  {
+    slug: "digital-services-punjab",
+    title: "Digital services keep expanding across Punjab",
+    excerpt: "More Arazi Record Centers and NADRA facilities now use online tokens. Always verify the official portal before visiting.",
+    body: "Arazi Record Centers and NADRA facilities continue to add online token systems. Citizens should still carry originals, because biometric verification remains in-person. Always confirm the latest process on the official portal of the department you are visiting.",
+    tag: "Update",
+    published_at: "August 2026",
+  },
+  {
+    slug: "check-documents-first",
+    title: "Most delays start with incomplete documents",
+    excerpt: "CNIC corrections, succession, and mutation files are often rejected for missing papers. Use the checklists before you go.",
+    body: "Incomplete files remain the top reason applications bounce. Print or save the checklist on each guide, tick every item, and only then visit the office. Name spelling across CNIC, Fard, and Nikah Nama should match exactly.",
+    tag: "Important",
+    published_at: "August 2026",
+  },
+  {
+    slug: "new-guides-published",
+    title: "12 Departments & 30+ Comprehensive Guides Now Live",
+    excerpt: "47 Say Ab Tak now covers NADRA, PLRA, Passports, DLIMS, Excise, Local Gov, Police, Attestation, FBR, SECP, OPF, and Courts.",
+    body: "Citizens can now access step-by-step checklists, processing times, biometric requirements, and common mistake warnings for all 12 major Pakistani public administration sectors.",
+    tag: "Expansion",
+    published_at: "August 2026",
+  },
+];
+
+const TIMELINE = [
+  { year: "1947", title: "Independence & Partition Archives", body: "Pakistan comes into existence. Identity, revenue, and municipal records continue from British-era manual paper registers and Patwari bastas.", sort: 1 },
+  { year: "1973", title: "Constitutional Citizen Registry", body: "Under the 1973 constitution, the Directorate General of Registration establishes the first nationwide paper identity booklet system.", sort: 2 },
+  { year: "2000", title: "The NADRA Revolution", body: "NADRA is established, deploying the first centralized Automated Fingerprint Identification System (AFIS) and computerized CNIC cards.", sort: 3 },
+  { year: "2010s", title: "Smart Cards & Land Digitization", body: "Punjab Land Records Authority (PLRA) digitizes millions of rural land records; DLIMS modernizes driving licenses; Smart Chip CNICs roll out.", sort: 4 },
+  { year: "2026", title: "Modern Citizen Cloud & 24/7 Mega Centers", body: "Smartphone biometrics on Pak-ID, e-Pay digital fee challans, 15-day digital succession certificates, and 24/7 Mega Centers empower citizens.", sort: 5 },
+];
+
+const globalSeedRef = globalThis as typeof globalThis & {
+  __seedPromise__?: Promise<void>;
+  __isSeeded__?: boolean;
+};
+
+export async function ensureSeed() {
+  if (globalSeedRef.__isSeeded__) return;
+  if (globalSeedRef.__seedPromise__) return globalSeedRef.__seedPromise__;
+
+  globalSeedRef.__seedPromise__ = (async () => {
+    const sql = await getSql();
+
+    // Fast check: If already seeded, skip entirely in 1 fast query
+    try {
+      const existing = await sql<{ c: number }>`select count(*)::int as c from categories`;
+      if ((existing[0]?.c ?? 0) >= 12) {
+        globalSeedRef.__isSeeded__ = true;
+        return;
+      }
+    } catch {
+      // tables might not be ready yet
+    }
+
+    for (const c of CATEGORIES) {
+      await sql`insert into categories (slug, name, description, icon, sort_order)
+        values (${c.slug}, ${c.name}, ${c.description}, ${c.icon}, ${c.sort})
+        on conflict (slug) do nothing`;
+    }
+
+    const catRows = await sql<{ id: number; slug: string }>`select id, slug from categories`;
+    const catMap = new Map(catRows.map((r) => [r.slug, r.id]));
+
+    for (const g of GUIDES) {
+      const catId = catMap.get(g.category);
+      if (!catId) continue;
+      await sql`insert into guides (slug, category_id, title, summary, department, processing_time, biometric, difficulty, last_updated, disclaimer, sort_order)
+        values (${g.slug}, ${catId}, ${g.title}, ${g.summary}, ${g.department}, ${g.processing}, ${g.biometric}, ${g.difficulty}, ${g.updated}, ${g.disclaimer}, ${0})
+        on conflict (slug) do nothing`;
+      const row = await sql<{ id: number }>`select id from guides where slug = ${g.slug}`;
+      const gid = row[0]?.id;
+      if (!gid) continue;
+      
+      const docCount = await sql<{ c: number }>`select count(*)::int as c from guide_documents where guide_id = ${gid}`;
+      if ((docCount[0]?.c ?? 0) === 0) {
+        let i = 0;
+        for (const d of g.docs) {
+          await sql`insert into guide_documents (guide_id, section, item, sort_order) values (${gid}, ${d.section}, ${d.item}, ${i++})`;
+        }
+        let s = 1;
+        for (const st of g.steps) {
+          await sql`insert into guide_steps (guide_id, step_number, title, body) values (${gid}, ${s++}, ${st.title}, ${st.body})`;
+        }
+        i = 0;
+        for (const m of g.mistakes) {
+          await sql`insert into guide_mistakes (guide_id, item, sort_order) values (${gid}, ${m}, ${i++})`;
+        }
+      }
+    }
+
+    for (const n of NEWS) {
+      await sql`insert into news_posts (slug, title, excerpt, body, tag, published_at)
+        values (${n.slug}, ${n.title}, ${n.excerpt}, ${n.body}, ${n.tag}, ${n.published_at})
+        on conflict (slug) do nothing`;
+    }
+    for (const t of TIMELINE) {
+      const tCount = await sql<{ c: number }>`select count(*)::int as c from timeline_events where year_label = ${t.year}`;
+      if ((tCount[0]?.c ?? 0) === 0) {
+        await sql`insert into timeline_events (year_label, title, body, sort_order)
+          values (${t.year}, ${t.title}, ${t.body}, ${t.sort})`;
+      }
+    }
+
+    // Seed Admin and Test Citizen accounts
+    try {
+      const { auth } = await import("@/lib/auth/server");
+      const adminExists = await sql<{ id: string }>`select id from "user" where email = 'admin@47sayabtak.pk'`;
+      if (!adminExists[0]) {
+        await auth.api.signUpEmail({
+          body: {
+            email: "admin@47sayabtak.pk",
+            password: "Admin@47SayAbTak2026",
+            name: "System Administrator",
+          },
+        }).catch(() => {});
+      }
+
+      const citizenExists = await sql<{ id: string }>`select id from "user" where email = 'citizen@47sayabtak.pk'`;
+      if (!citizenExists[0]) {
+        await auth.api.signUpEmail({
+          body: {
+            email: "citizen@47sayabtak.pk",
+            password: "Citizen@47SayAbTak2026",
+            name: "Muhammad Ali (Citizen)",
+          },
+        }).catch(() => {});
+      }
+    } catch {
+      // Ignored if already initialized
+    }
+
+    globalSeedRef.__isSeeded__ = true;
+  })().catch((err) => {
+    globalSeedRef.__seedPromise__ = undefined;
+    globalSeedRef.__isSeeded__ = false;
+    throw err;
+  });
+
+  return globalSeedRef.__seedPromise__;
+}

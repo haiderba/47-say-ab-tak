@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Production Build
+dist/
+.output/
+.vinxi/
+.tanstack-start/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Logs & System
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
