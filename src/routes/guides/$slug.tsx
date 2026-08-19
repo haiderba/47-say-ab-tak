@@ -83,7 +83,7 @@ function GuidePage() {
 
     if (user) {
       try {
-        await toggleSavedCheck({ data: { guideSlug: guide.slug, itemKey: key } });
+        await toggleSavedCheck({ data: { guideSlug: guide.slug, checkKey: key, checked: next.has(key) } });
       } catch {
         /* guest/offline-safe */
       }

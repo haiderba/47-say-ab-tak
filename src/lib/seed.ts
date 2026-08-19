@@ -24,7 +24,7 @@ type GuideSeed = {
   mistakes: string[];
 };
 
-const CATEGORIES: Cat[] = [
+export const CATEGORIES: Cat[] = [
   { slug: "nadra", name: "NADRA", description: "CNIC, B-Form, FRC, Succession Certificate, NICOP & POC", icon: "id-card", sort: 1 },
   { slug: "land", name: "Land Records (PLRA)", description: "Mutation (Intiqal), Fard Malkiat, E-Stamping & Registry", icon: "scroll-text", sort: 2 },
   { slug: "passport", name: "Passport Office", description: "Machine Readable (MRP), e-Passport, renewal & urgent", icon: "book-open", sort: 3 },
@@ -39,10 +39,10 @@ const CATEGORIES: Cat[] = [
   { slug: "legal", name: "Courts & Legal Affidavits", description: "E-Stamp paper affidavits, succession petitions & guardianship", icon: "gavel", sort: 12 },
 ];
 
-const DISCLAIMER =
+export const DISCLAIMER =
   "This is guidance only. Fees, requirements, and processes change. Always confirm the latest rules from the official department or portal.";
 
-const GUIDES: GuideSeed[] = [
+export const GUIDES: GuideSeed[] = [
   // 1. NADRA
   {
     slug: "cnic",
