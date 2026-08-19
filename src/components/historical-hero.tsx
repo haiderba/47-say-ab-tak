@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
 import {
+  Compass,
   History,
   MoveHorizontal,
   Search,
+  Smartphone,
   Sparkles,
+  Zap,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const MILESTONES = [
   { year: 1947, label: "Independence & Manual Era" },
@@ -45,6 +49,8 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [gyroActive, setGyroActive] = useState(false);
+  const [gyroSupported, setGyroSupported] = useState(false);
 
   // Animation Refs
   const targetProgressRef = useRef<number>(0);
@@ -56,20 +62,86 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
   const isInteractingRef = useRef<boolean>(false);
   const animFrameRef = useRef<number | null>(null);
 
-  // Check if video is already ready or setup fallback
+  // Check if video is already ready
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
       if (video.readyState >= 1) {
         setVideoLoaded(true);
       }
-      // Safety timeout to ensure user never gets stuck
       const timer = setTimeout(() => {
         setVideoLoaded(true);
       }, 1200);
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Check device orientation / Gyroscope support
+  useEffect(() => {
+    if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
+      setGyroSupported(true);
+      // On Android / non-iOS, try listening automatically
+      const isIos = typeof (window.DeviceOrientationEvent as any).requestPermission === "function";
+      if (!isIos) {
+        const testHandler = (e: DeviceOrientationEvent) => {
+          if (e.gamma !== null || e.beta !== null) {
+            setGyroActive(true);
+            window.removeEventListener("deviceorientation", testHandler);
+          }
+        };
+        window.addEventListener("deviceorientation", testHandler, { once: true });
+      }
+    }
+  }, []);
+
+  // Gyroscope orientation listener
+  useEffect(() => {
+    if (!gyroActive || typeof window === "undefined") return;
+
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma === null || e.beta === null) return;
+
+      // gamma is left-to-right tilt (-30 deg to +30 deg)
+      const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
+      const normProgress = (clampedGamma + 30) / 60; // 0 (1947) to 1 (2026)
+      targetProgressRef.current = normProgress;
+
+      // 3D Card tilt calculation
+      targetRotYRef.current = (clampedGamma / 30) * 8; // -8deg to +8deg
+
+      // beta is forward/backward tilt (typical holding angle: 45deg)
+      const clampedBeta = Math.max(15, Math.min(75, e.beta));
+      const betaOffset = clampedBeta - 45;
+      targetRotXRef.current = (-betaOffset / 30) * 6; // -6deg to +6deg
+
+      if (!hasInteracted) setHasInteracted(true);
+    };
+
+    window.addEventListener("deviceorientation", handleOrientation, { passive: true });
+    return () => window.removeEventListener("deviceorientation", handleOrientation);
+  }, [gyroActive, hasInteracted]);
+
+  // Request iOS / Mobile Gyroscope Permission
+  const enableGyroscope = async () => {
+    if (typeof window === "undefined") return;
+
+    if (typeof (window.DeviceOrientationEvent as any)?.requestPermission === "function") {
+      try {
+        const state = await (window.DeviceOrientationEvent as any).requestPermission();
+        if (state === "granted") {
+          setGyroActive(true);
+          toast.success("Gyroscope enabled! Tilt your phone left & right to travel through history.");
+        } else {
+          toast.error("Gyroscope permission denied.");
+        }
+      } catch (err) {
+        console.warn("DeviceOrientation error:", err);
+      }
+    } else {
+      setGyroActive(true);
+      toast.success("Gyroscope enabled! Tilt your phone left & right.");
+    }
+  };
 
   // Main Smooth Lerp Loop via requestAnimationFrame
   useEffect(() => {
@@ -98,37 +170,41 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
         }
       }
 
-      // Calculate Year & Milestone
-      const year = Math.round(1947 + p * (2026 - 1947));
-      const milestone = getClosestMilestone(year);
+      // Calculate Year (1947 to 2026)
+      const exactYear = 1947 + p * (2026 - 1947);
+      const currentYear = Math.round(exactYear);
+      const closest = getClosestMilestone(currentYear);
 
+      // Update Year text
       if (yearDisplay) {
-        yearDisplay.textContent = String(year);
+        yearDisplay.textContent = String(currentYear);
       }
       if (milestoneDisplay) {
-        milestoneDisplay.textContent = milestone.label;
+        milestoneDisplay.textContent = closest.label;
       }
+
+      // Update Progress Bar
+      const percent = p * 100;
       if (progressFill) {
-        progressFill.style.width = `${(p * 100).toFixed(2)}%`;
+        progressFill.style.width = `${percent}%`;
       }
       if (progressThumb) {
-        progressThumb.style.left = `${(p * 100).toFixed(2)}%`;
+        progressThumb.style.left = `${percent}%`;
       }
 
-      // 2. 3D Tilt Interpolation (Desktop only)
+      // 2. Smooth 3D Rotation (lerp)
       if (!prefersReducedMotion && card) {
-        const rotXDiff = targetRotXRef.current - currentRotXRef.current;
-        const rotYDiff = targetRotYRef.current - currentRotYRef.current;
-        currentRotXRef.current += rotXDiff * 0.1;
-        currentRotYRef.current += rotYDiff * 0.1;
+        currentRotXRef.current += (targetRotXRef.current - currentRotXRef.current) * 0.1;
+        currentRotYRef.current += (targetRotYRef.current - currentRotYRef.current) * 0.1;
 
-        card.style.transform = `perspective(1400px) rotateX(${currentRotXRef.current.toFixed(2)}deg) rotateY(${currentRotYRef.current.toFixed(2)}deg)`;
-      }
+        card.style.transform = `perspective(1200px) rotateX(${currentRotXRef.current}deg) rotateY(${currentRotYRef.current}deg)`;
 
-      // Glare reflection update
-      if (glare && isInteractingRef.current) {
-        glare.style.opacity = "0.45";
-        glare.style.background = `radial-gradient(circle at ${(p * 100).toFixed(1)}% 40%, rgba(201, 162, 39, 0.25) 0%, rgba(255, 255, 255, 0.1) 35%, transparent 70%)`;
+        if (glare) {
+          const glareX = percent;
+          const glareY = 50 + currentRotXRef.current * 4;
+          glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)`;
+          glare.style.opacity = isInteractingRef.current || gyroActive ? "1" : "0";
+        }
       }
 
       animFrameRef.current = requestAnimationFrame(loop);
@@ -139,7 +215,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, []);
+  }, [gyroActive]);
 
   // Desktop Mouse Movement
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -212,211 +288,187 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           </div>
 
           <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-md">
-            Pakistan's Governance &{" "}
+            Pakistan's Governance &amp;{" "}
             <span className="bg-gradient-to-r from-accent via-amber-200 to-white bg-clip-text text-transparent">
               Documentation Evolution
             </span>
           </h1>
 
-          <p className="mt-3.5 max-w-2xl text-sm sm:text-base text-neutral-200 leading-relaxed font-normal">
-            Move your cursor horizontally across the screen to travel through <strong className="text-accent font-bold">1947 — 2026</strong> — from British-era manual paper ledgers to modern digital citizen portals.
+          <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-emerald-100/90 sm:text-base leading-relaxed">
+            Move your cursor horizontally or <strong className="text-accent">tilt your phone</strong> to travel through{" "}
+            <strong className="text-accent font-bold">1947 — 2026</strong> — from British-era manual paper ledgers to modern digital citizen portals.
           </p>
+
+          {/* GYROSCOPE MOTION ACTIVATOR BAR (Mobile Specific) */}
+          <div className="mt-5 block sm:hidden">
+            {gyroActive ? (
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-950/80 px-4 py-1.5 text-xs font-bold text-emerald-300 shadow-md backdrop-blur-md animate-pulse">
+                <Compass className="size-4 text-accent animate-spin" style={{ animationDuration: "8s" }} />
+                <span>📱 Gyroscope 3D Active • Tilt Phone Left/Right to Travel</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={enableGyroscope}
+                className="inline-flex items-center gap-2 rounded-full border-2 border-accent bg-accent/20 px-5 py-2 text-xs font-black text-accent hover:bg-accent hover:text-primary transition-all shadow-lg backdrop-blur-md active:scale-95"
+              >
+                <Smartphone className="size-4 text-accent animate-bounce" />
+                <span>⚡ Enable Phone Tilt (Gyroscope 3D Mode)</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* 🌟 3D FLOATING INTERACTIVE HISTORICAL WINDOW */}
+        {/* 3D INTERACTIVE HERO VIEWER */}
         <div
           ref={containerRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          onTouchStart={() => setHasInteracted(true)}
           onTouchMove={handleTouchMove}
-          className="relative mx-auto mt-8 w-full max-w-5xl cursor-ew-resize select-none"
+          className="relative mt-8 select-none cursor-ew-resize touch-pan-y"
           style={{ perspective: "1400px" }}
         >
-          {/* Main 3D Card */}
+          {/* Instruction Pill Callout */}
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+            <div className="flex items-center gap-2 rounded-full border border-accent/60 bg-accent px-4 py-1.5 text-xs font-black uppercase tracking-wider text-primary shadow-xl animate-pulse">
+              <MoveHorizontal className="size-4 text-primary" />
+              <span className="hidden sm:inline">Move Cursor to Explore 1947 — 2026</span>
+              <span className="sm:hidden">
+                {gyroActive ? "Tilt Phone Left / Right" : "Swipe Left / Right to Travel"}
+              </span>
+            </div>
+          </div>
+
+          {/* Holographic 3D Card Shell */}
           <div
             ref={cardRef}
-            className="relative overflow-hidden rounded-3xl border-2 border-accent/30 bg-neutral-950 p-2 sm:p-3 shadow-2xl transition-shadow duration-300"
+            className="relative mx-auto aspect-[16/9] max-h-[520px] w-full max-w-4xl overflow-hidden rounded-3xl border-2 border-accent/40 bg-black shadow-[0_20px_60px_-15px_rgba(1,65,28,0.7)] transition-all duration-200"
             style={{
               transformStyle: "preserve-3d",
-              boxShadow: "0 30px 90px -15px rgba(1, 65, 28, 0.6), 0 0 0 1px rgba(201, 162, 39, 0.25)",
             }}
           >
-            {/* Dynamic Glare Overlay */}
-            <div
-              ref={glareRef}
-              className="pointer-events-none absolute inset-0 z-20 rounded-3xl transition-opacity duration-300 opacity-0"
+            {/* Scrubber Video Track */}
+            <video
+              ref={videoRef}
+              src="/historical-hero.mp4"
+              muted
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover"
             />
 
-            {/* Video Container (16:9 Aspect Ratio) */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-neutral-900">
-              {/* HTML5 Paused Timeline Video */}
-              <video
-                ref={videoRef}
-                muted
-                playsInline
-                preload="auto"
-                onLoadedMetadata={() => setVideoLoaded(true)}
-                onLoadedData={() => setVideoLoaded(true)}
-                onCanPlay={() => setVideoLoaded(true)}
-                className="h-full w-full object-cover"
-                style={{ filter: "contrast(1.05) saturate(1.1)" }}
-              >
-                <source src="/historical-hero.mp4" type="video/mp4" />
-                <source src="/3d%20Landing%20.mp4" type="video/mp4" />
-                Your browser does not support HTML5 video.
-              </video>
+            {/* Holographic Light Glare Reflection */}
+            <div
+              ref={glareRef}
+              className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+              style={{ mixBlendMode: "overlay", opacity: 0 }}
+            />
 
-              {/* Top Dynamic Year & Milestone HUD Overlay */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between bg-gradient-to-b from-black/85 via-black/45 to-transparent p-4 sm:p-6 text-white">
+            {/* Subtle Vignette Overlay */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+
+            {/* Overlaid Real-Time Holographic Metadata HUD */}
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
+              {/* Top Row: Year & Milestone Tag */}
+              <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-accent flex items-center gap-1.5">
-                    <History className="size-3.5" /> Historical Era
-                  </div>
-                  <div className="mt-0.5 flex items-baseline gap-2">
+                  <span className="text-xs font-black uppercase tracking-widest text-accent/90">
+                    HISTORICAL ERA
+                  </span>
+                  <div className="flex items-baseline gap-2">
                     <span
                       ref={yearDisplayRef}
-                      className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white drop-shadow-lg"
+                      className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]"
                     >
                       1947
                     </span>
-                    <span className="text-xs font-bold text-neutral-300">A.D.</span>
+                    <span className="text-xs font-bold text-accent">A.D.</span>
                   </div>
                 </div>
 
                 <div className="text-right max-w-[200px] sm:max-w-xs">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-accent">
-                    Milestone Marker
-                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-accent/90">
+                    MILESTONE MARKER
+                  </span>
                   <span
                     ref={milestoneDisplayRef}
-                    className="mt-0.5 block font-display text-xs sm:text-sm font-bold text-white drop-shadow-lg"
+                    className="block font-display text-sm sm:text-lg font-extrabold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                   >
-                    Independence & Manual Era
+                    Independence &amp; Manual Era
                   </span>
                 </div>
               </div>
 
-              {/* Bottom Interactive Hover Indicator */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-gradient-to-t from-black/90 via-black/45 to-transparent p-4 sm:p-5 text-white">
-                <span className="rounded-md bg-black/70 border border-white/10 px-2.5 py-1 text-[11px] font-bold text-accent backdrop-blur-md">
-                  1947: Manual Paper Basta
-                </span>
-
-                <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                  <MoveHorizontal className="size-4 text-accent animate-pulse" />
-                  <span className="hidden sm:inline">Move cursor across screen to scrub timeline</span>
-                  <span className="sm:hidden">Swipe left / right to travel</span>
+              {/* Bottom Row: Quick Era Jump Cards */}
+              <div className="flex items-end justify-between">
+                <div className="rounded-xl border border-white/20 bg-black/60 px-3.5 py-1.5 backdrop-blur-md">
+                  <span className="text-[10px] font-bold text-emerald-300">1947: Manual</span>
+                  <p className="text-xs font-black text-white">Paper Basta</p>
                 </div>
 
-                <span className="rounded-md bg-black/70 border border-white/10 px-2.5 py-1 text-[11px] font-bold text-emerald-400 backdrop-blur-md">
-                  2026: Digital Citizen Cloud
-                </span>
-              </div>
-
-              {/* Loading Poster / Spinner before metadata loads */}
-              {!videoLoaded && (
-                <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-neutral-950 text-white">
-                  <div className="size-10 rounded-full border-2 border-accent border-t-transparent animate-spin" />
-                  <span className="mt-3 text-xs font-semibold tracking-wider text-neutral-300">
-                    Loading 1947 → 2026 Historical Archive...
+                <div className="hidden sm:block text-center">
+                  <span className="rounded-full bg-accent/20 px-3 py-1 text-[11px] font-bold text-accent border border-accent/40 backdrop-blur-md">
+                    {gyroActive ? "📱 Tilting Phone Controls Time" : "↔ Swipe left / right to travel"}
                   </span>
                 </div>
-              )}
+
+                <div className="text-right rounded-xl border border-white/20 bg-black/60 px-3.5 py-1.5 backdrop-blur-md">
+                  <span className="text-[10px] font-bold text-accent">2026: Digital</span>
+                  <p className="text-xs font-black text-white">Citizen Cloud</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Interactive Instruction Banner (Gently fades after first interaction) */}
-          {!hasInteracted && (
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 animate-bounce">
-              <span className="rounded-full bg-accent px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-neutral-950 shadow-2xl flex items-center gap-1.5">
-                ↔ Move Cursor to Explore 1947 — 2026
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* 🌟 MINIMAL INTERACTIVE SCRUBBER TIMELINE */}
-        <div className="mx-auto mt-6 max-w-4xl px-2">
-          {/* Clickable Scrubber Bar */}
+          {/* Interactive Progress Bar Scrubber */}
           <div
             onClick={handleTimelineSeek}
-            className="group relative h-4 w-full cursor-pointer flex items-center"
-            title="Click or drag to seek through history"
+            className="group relative mx-auto mt-6 max-w-4xl cursor-pointer py-3"
           >
-            {/* Background Track */}
-            <div className="h-1.5 w-full rounded-full bg-border/80 group-hover:h-2 transition-all">
+            {/* Base Line */}
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/15 backdrop-blur-sm">
               {/* Progress Fill */}
               <div
                 ref={progressFillRef}
-                className="h-full rounded-full bg-gradient-to-r from-accent via-amber-300 to-emerald-500"
+                className="h-full bg-gradient-to-r from-accent via-amber-300 to-emerald-400"
                 style={{ width: "0%" }}
               />
             </div>
 
-            {/* Scrubber Pin Thumb */}
+            {/* Draggable Illuminated Thumb Handle */}
             <div
               ref={progressThumbRef}
-              className="absolute -top-1.5 size-6 -translate-x-1/2 rounded-full border-2 border-accent bg-neutral-900 shadow-xl group-hover:scale-125 transition-transform flex items-center justify-center"
+              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 size-5 rounded-full border-2 border-white bg-accent shadow-[0_0_15px_rgba(201,162,39,0.9)] transition-transform group-hover:scale-125"
               style={{ left: "0%" }}
-            >
-              <div className="size-2 rounded-full bg-accent" />
-            </div>
-          </div>
+            />
 
-          {/* Milestone Labels Grid */}
-          <div className="mt-3 flex justify-between text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-            <span className="text-accent font-extrabold">1947 (Founding)</span>
-            <span className="hidden sm:inline">1973 (ID Cards)</span>
-            <span className="hidden md:inline">2000 (NADRA)</span>
-            <span className="hidden sm:inline">2010 (PLRA Fard)</span>
-            <span className="text-emerald-400 font-extrabold">2026 (Digital Pakistan)</span>
+            {/* Era Milestone Dots */}
+            <div className="mt-3 flex items-center justify-between px-1 text-[10px] font-bold text-emerald-200/70">
+              <span>1947</span>
+              <span>1965</span>
+              <span>1973</span>
+              <span>1990</span>
+              <span>2000</span>
+              <span>2010</span>
+              <span>2026</span>
+            </div>
           </div>
         </div>
 
-        {/* 🌟 QUICK SEARCH & CIVIC SHORTCUT BAR */}
-        <div className="mx-auto mt-10 max-w-3xl">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const q = (e.currentTarget.elements.namedItem("search") as HTMLInputElement)?.value;
-              if (q && onSearch) onSearch(q);
-            }}
-            className="flex items-center gap-3 rounded-full border-2 border-accent/40 bg-surface px-4 py-2 shadow-2xl focus-within:border-accent transition-all"
+        {/* Quick Action Navigation CTAs */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            to="/timeline"
+            className="flex items-center gap-2 rounded-full bg-accent px-7 py-3 text-xs font-black text-primary hover:bg-accent-hover transition-transform hover:scale-105 shadow-xl"
           >
-            <Search className="size-5 text-accent shrink-0" />
-            <input
-              name="search"
-              placeholder="Search 30+ official citizen guides (CNIC, FRC, Mutation, Passport, Driving License, Tax)..."
-              className="h-10 w-full bg-transparent text-xs sm:text-sm text-fg outline-none placeholder:text-muted"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-surface hover:bg-primary-light transition-colors shrink-0"
-            >
-              Search Guides
-            </button>
-          </form>
-
-          {/* Trending Search Pills */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-300">
-            <span className="font-semibold text-accent">Trending:</span>
-            {[
-              { label: "Smart CNIC", to: "/guides/cnic" },
-              { label: "Succession Certificate", to: "/guides/succession" },
-              { label: "Land Mutation (Intiqal)", to: "/guides/land-mutation" },
-              { label: "Machine Readable Passport", to: "/guides/passport" },
-              { label: "Driving License (DLIMS)", to: "/guides/driving-license" },
-            ].map((p) => (
-              <Link
-                key={p.label}
-                to={p.to as any}
-                className="rounded-full border border-border bg-bg px-3 py-1 text-[11px] font-medium text-fg hover:border-accent hover:text-accent transition-colors"
-              >
-                {p.label}
-              </Link>
-            ))}
-          </div>
+            <History className="size-4" /> Open 79-Year Evolution Timeline
+          </Link>
+          <Link
+            to="/tools"
+            className="flex items-center gap-2 rounded-full border-2 border-accent/40 bg-surface/10 px-7 py-3 text-xs font-black text-white hover:bg-surface/20 transition-all backdrop-blur-md"
+          >
+            <Sparkles className="size-4 text-accent" /> Open 2026 Encrypted Vault
+          </Link>
         </div>
       </div>
     </section>
