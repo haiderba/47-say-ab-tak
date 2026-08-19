@@ -5,8 +5,6 @@ import {
   Home,
   Lock,
   Newspaper,
-  Shield,
-  Sparkles,
 } from "lucide-react";
 
 export function MobileNav() {
@@ -48,8 +46,13 @@ export function MobileNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 block md:hidden border-t border-border/80 bg-surface/95 backdrop-blur-xl shadow-2xl safe-area-bottom">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
+    <nav
+      className="fixed bottom-0 inset-x-0 z-50 block md:hidden bg-surface/98 border-t border-border shadow-[0_-8px_25px_rgba(0,0,0,0.1)] backdrop-blur-2xl"
+      style={{
+        paddingBottom: "max(0.4rem, env(safe-area-inset-bottom, 0px))",
+      }}
+    >
+      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = item.isActive;
@@ -57,19 +60,19 @@ export function MobileNav() {
             <Link
               key={item.to}
               to={item.to as any}
-              className={`relative flex flex-col items-center justify-center rounded-2xl py-1.5 px-3 transition-all duration-200 ${
+              className={`relative flex flex-col items-center justify-center rounded-xl py-1 px-3 transition-all duration-200 ${
                 active
                   ? "text-primary font-black scale-105"
                   : "text-muted hover:text-primary font-medium"
               }`}
             >
-              {/* Active illuminated indicator */}
+              {/* Active illuminated top bar */}
               {active && (
-                <span className="absolute -top-2 size-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="absolute -top-1.5 h-1 w-6 rounded-full bg-primary" />
               )}
 
               <div
-                className={`grid size-9 place-items-center rounded-xl transition-colors ${
+                className={`grid size-8 place-items-center rounded-xl transition-all ${
                   active
                     ? "bg-primary text-accent shadow-sm"
                     : "bg-transparent text-muted"
@@ -78,7 +81,11 @@ export function MobileNav() {
                 <Icon className="size-4.5" />
               </div>
 
-              <span className="mt-0.5 text-[10px] tracking-tight">
+              <span
+                className={`text-[10px] tracking-tight mt-0.5 ${
+                  active ? "text-primary font-black" : "text-muted"
+                }`}
+              >
                 {item.label}
               </span>
 
