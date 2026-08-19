@@ -339,23 +339,25 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
             </div>
           </div>
 
-          {/* Holographic 3D Card Shell */}
+          {/* Holographic 3D Luxury Rounded Bezel Frame Shell */}
           <div
             ref={cardRef}
-            className="relative mx-auto aspect-[16/9] max-h-[520px] w-full max-w-4xl overflow-hidden rounded-3xl border-2 border-accent/40 bg-black shadow-[0_20px_60px_-15px_rgba(1,65,28,0.7)] transition-all duration-200"
+            className="relative mx-auto aspect-[16/9] max-h-[520px] w-full max-w-4xl rounded-[36px] sm:rounded-[52px] p-2.5 sm:p-3.5 bg-gradient-to-b from-[#ffe066]/40 via-[#01411c]/90 to-[#c9a227]/30 border-2 border-[#ffe066]/60 shadow-[0_30px_70px_-15px_rgba(1,65,28,0.85),inset_0_2px_5px_rgba(255,255,255,0.4)] backdrop-blur-2xl transition-all duration-200"
             style={{
               transformStyle: "preserve-3d",
             }}
           >
-            {/* Scrubber Video Track */}
-            <video
-              ref={videoRef}
-              src="/historical-hero.mp4"
-              muted
-              playsInline
-              preload="auto"
-              className="h-full w-full object-cover"
-            />
+            {/* Inner Precision Bezel Screen Window */}
+            <div className="relative h-full w-full overflow-hidden rounded-[28px] sm:rounded-[42px] bg-black border border-white/20 shadow-inner">
+              {/* Scrubber Video Track */}
+              <video
+                ref={videoRef}
+                src="/historical-hero.mp4"
+                muted
+                playsInline
+                preload="auto"
+                className="h-full w-full object-cover rounded-[28px] sm:rounded-[42px]"
+              />
 
             {/* Holographic Light Glare Reflection */}
             <div
@@ -419,6 +421,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
               </div>
             </div>
           </div>
+        </div>
 
           {/* Interactive Progress Bar Scrubber */}
           <div
