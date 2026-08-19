@@ -27,7 +27,6 @@ export function AdUnit({
   format = "leaderboard",
   adSlotId = "1234567890",
   className = "",
-  label = "Sponsored / Advertisement",
 }: AdUnitProps) {
   const adRef = useRef<HTMLDivElement>(null);
 
@@ -37,35 +36,23 @@ export function AdUnit({
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       }
     } catch (e) {
-      // Ignore push errors in SPA navigation
+      // Handled silently
     }
   }, [format]);
 
-  // Size styling maps
+  // Clean slot-aware responsive container classes
   const sizeMap: Record<AdFormat, string> = {
-    leaderboard: "min-h-[90px] w-full max-w-4xl mx-auto",
-    rectangle: "min-h-[250px] w-full max-w-[320px] mx-auto",
-    skyscraper: "min-h-[500px] w-full max-w-[320px] mx-auto",
-    in_feed: "min-h-[120px] w-full",
-    in_article: "min-h-[140px] w-full my-6",
-    footer_banner: "min-h-[90px] w-full max-w-5xl mx-auto",
+    leaderboard: "w-full max-w-4xl mx-auto my-4 text-center overflow-hidden",
+    rectangle: "w-full max-w-[336px] mx-auto my-4 text-center overflow-hidden",
+    skyscraper: "w-full max-w-[336px] mx-auto my-4 text-center overflow-hidden",
+    in_feed: "w-full my-4 text-center overflow-hidden",
+    in_article: "w-full my-6 text-center overflow-hidden",
+    footer_banner: "w-full max-w-5xl mx-auto my-4 text-center overflow-hidden",
   };
 
   return (
-    <div
-      ref={adRef}
-      className={`relative my-6 overflow-hidden rounded-2xl border border-dashed border-border/80 bg-surface/60 p-3 sm:p-4 text-center select-none backdrop-blur-xs transition-all ${sizeMap[format]} ${className}`}
-    >
-      {/* Top Header Tag */}
-      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted/70 mb-2 border-b border-border/40 pb-1">
-        <span className="flex items-center gap-1">
-          <span className="size-1.5 rounded-full bg-accent animate-pulse" />
-          {label}
-        </span>
-        <span className="font-mono text-[9px] text-muted/60">Google AdSense Space</span>
-      </div>
-
-      {/* Google AdSense ins tag */}
+    <div ref={adRef} className={`adsense-container ${sizeMap[format]} ${className}`}>
+      {/* Official Clean Google AdSense Placement Tag (No visual placeholders) */}
       <ins
         className="adsbygoogle"
         style={{ display: "block", textAlign: "center" }}
@@ -74,26 +61,6 @@ export function AdUnit({
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
-
-      {/* High-Converting Polished Placeholder */}
-      <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border border-border/50 p-4 min-h-[70px]">
-        <div className="flex items-center gap-1.5 text-xs font-extrabold text-primary/80">
-          <span className="rounded-md bg-accent/20 px-2 py-0.5 text-[10px] font-black uppercase text-primary">
-            AD
-          </span>
-          <span className="font-display tracking-wide">
-            {format === "leaderboard" && "Leaderboard Display (728 × 90)"}
-            {format === "rectangle" && "Medium Rectangle (300 × 250)"}
-            {format === "skyscraper" && "Half Page Skyscraper (300 × 600)"}
-            {format === "in_feed" && "Native In-Feed Sponsored Stream"}
-            {format === "in_article" && "In-Article Content Display Slot"}
-            {format === "footer_banner" && "Sitewide Anchor Banner (970 × 90)"}
-          </span>
-        </div>
-        <p className="mt-1 text-[11px] text-muted">
-          High-yield monetization slot ready for Google AdSense &amp; Programmatic Ads
-        </p>
-      </div>
     </div>
   );
 }
