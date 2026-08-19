@@ -86,67 +86,12 @@ function getSiteBadgeColor(site: string) {
  * Google AdSense Ready Component Slot
  * Automatically monetizes when AdSense Client ID / Script is configured in HTML head
  */
-function AdSenseUnit({
-  slotType = "horizontal",
-  className = "",
-  label = "Advertisement",
-}: {
+function AdSenseUnit(_props: {
   slotType?: "horizontal" | "sidebar_square" | "sidebar_tall" | "in_article";
   className?: string;
   label?: string;
 }) {
-  return (
-    <div className={`relative my-6 overflow-hidden rounded-2xl border border-dashed border-border/80 bg-surface/50 p-4 text-center select-none ${className}`}>
-      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted/80 mb-2 border-b border-border/40 pb-1">
-        <span>{label}</span>
-        <span className="font-mono text-[9px] text-muted/60">Google AdSense Space</span>
-      </div>
-
-      {slotType === "horizontal" && (
-        <div className="flex h-24 sm:h-28 w-full items-center justify-center rounded-xl bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border border-border/60">
-          <div className="space-y-1">
-            <span className="font-display text-xs font-black text-primary/70 tracking-wider">
-              Responsive Leaderboard Ad Unit (728 × 90)
-            </span>
-            <p className="text-[11px] text-muted">Auto-optimized for High CPM &amp; AdSense Auto Ads</p>
-          </div>
-        </div>
-      )}
-
-      {slotType === "sidebar_square" && (
-        <div className="flex h-60 w-full items-center justify-center rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-border/60 p-4">
-          <div className="space-y-1">
-            <span className="font-display text-xs font-black text-primary/70 tracking-wider block">
-              Medium Rectangle (300 × 250)
-            </span>
-            <p className="text-[11px] text-muted">High-CTR Sidebar Display Placement</p>
-          </div>
-        </div>
-      )}
-
-      {slotType === "sidebar_tall" && (
-        <div className="flex h-96 w-full items-center justify-center rounded-xl bg-gradient-to-b from-primary/5 via-accent/5 to-primary/5 border border-border/60 p-4">
-          <div className="space-y-2">
-            <span className="font-display text-xs font-black text-primary/70 tracking-wider block">
-              Half Page Skyscraper (300 × 600)
-            </span>
-            <p className="text-[11px] text-muted">Sticky High-Yield Unit</p>
-          </div>
-        </div>
-      )}
-
-      {slotType === "in_article" && (
-        <div className="flex h-32 w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-500/5 to-primary/5 border border-border/60 p-4">
-          <div className="space-y-1">
-            <span className="font-display text-xs font-black text-primary/70 tracking-wider block">
-              In-Article Native Ad Unit
-            </span>
-            <p className="text-[11px] text-muted">Seamlessly embedded in reader content stream</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return null;
 }
 
 function NewsBlogPage() {
