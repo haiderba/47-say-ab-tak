@@ -112,7 +112,7 @@ function GuidesIndex() {
 
       {/* 🎯 GOOGLE ADSENSE LEADERBOARD AD */}
       <div className="my-8">
-        <AdUnit format="leaderboard" label="Sponsored Official Resources / Google Ad" />
+        
       </div>
 
       {/* Guides Grid */}

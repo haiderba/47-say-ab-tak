@@ -164,7 +164,7 @@ function GuidePage() {
 
       {/* 🎯 GOOGLE ADSENSE IN-GUIDE STEP AD */}
       <div className="my-8">
-        <AdUnit format="in_article" label="Citizen Legal Sponsor / Google Ad" />
+        
       </div>
 
       <section className="mt-8">

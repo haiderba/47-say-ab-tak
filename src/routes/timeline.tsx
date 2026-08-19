@@ -487,7 +487,7 @@ function TimelinePage() {
 
         {/* 🎯 GOOGLE ADSENSE LEADERBOARD AD */}
         <div className="my-8">
-          <AdUnit format="leaderboard" label="National Heritage Sponsor / Google Ad" />
+          
         </div>
 
         {/* 3D WEBGL PAKISTANI FLAG VIEWER */}

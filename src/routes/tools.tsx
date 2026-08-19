@@ -183,7 +183,7 @@ function ToolsPage() {
 
         {/* 🎯 GOOGLE ADSENSE LEADERBOARD AD */}
         <div className="mx-auto max-w-4xl my-8">
-          <AdUnit format="leaderboard" label="Citizen Utility Sponsor / Google Ad" />
+          
         </div>
       </div>
 

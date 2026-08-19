@@ -57,7 +57,7 @@ function FlowPage() {
 
       {/* 🎯 GOOGLE ADSENSE IN-ARTICLE AD */}
       <div className="mt-8">
-        <AdUnit format="in_article" label="Citizen Legal Sponsor / Google Ad" />
+        
       </div>
 
       {/* Interactive Succession Engines Callout */}

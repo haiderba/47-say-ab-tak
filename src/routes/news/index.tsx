@@ -255,7 +255,7 @@ function NewsBlogPage() {
 
       <div className="mx-auto max-w-7xl px-4 pt-8">
         {/* TOP LEADERBOARD AD BANNER (Google AdSense Slot 1) */}
-        <AdSenseUnit slotType="horizontal" label="Featured Sponsor / Google Ad" />
+        
 
         {/* Magazine Masthead & Search */}
         <div className="mt-6 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/80 pb-6">
@@ -310,21 +310,21 @@ function NewsBlogPage() {
 
         {/* HERO EDITORIAL FEATURE (Magazine Lead Section) */}
         {featuredArticle && (
-          <div className="mt-8 grid gap-8 lg:grid-cols-12 items-start">
+          <div className="mt-6 grid gap-6 lg:grid-cols-12 items-stretch">
             {/* Primary Feature Story */}
             <div
               onClick={() => setSelectedArticle(featuredArticle)}
-              className="group relative cursor-pointer overflow-hidden rounded-3xl border border-border bg-surface shadow-lg transition-all duration-300 hover:border-primary hover:shadow-2xl lg:col-span-8 flex flex-col justify-between"
+              className="group relative cursor-pointer overflow-hidden rounded-3xl border-2 border-primary/20 bg-surface shadow-lg transition-all duration-300 hover:border-primary hover:shadow-2xl lg:col-span-8 flex flex-col justify-between"
             >
-              {featuredArticle.image && (
-                <div className="relative h-72 sm:h-96 w-full overflow-hidden bg-primary/10">
+              {featuredArticle.image ? (
+                <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-primary/10">
                   <img
                     src={featuredArticle.image}
                     alt={featuredArticle.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                   <div className="absolute top-4 left-4 flex items-center gap-2">
                     <span className="rounded-full bg-primary px-3.5 py-1 text-xs font-bold text-accent shadow-md">
                       ★ Top Breaking Story
@@ -343,10 +343,27 @@ function NewsBlogPage() {
                     </h2>
                   </div>
                 </div>
+              ) : (
+                <div className="bg-gradient-to-br from-primary via-primary-light to-primary p-6 sm:p-8 text-surface">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-black text-primary uppercase tracking-wider">
+                      ★ Top Breaking Story
+                    </span>
+                    <span className="font-mono text-xs font-bold uppercase px-2.5 py-0.5 rounded-md bg-white/20 text-white">
+                      {featuredArticle.site}
+                    </span>
+                    <span className="text-xs text-accent ml-auto">
+                      {formatNewsDate(featuredArticle.published)}
+                    </span>
+                  </div>
+                  <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-surface group-hover:text-accent transition-colors leading-tight">
+                    {featuredArticle.title}
+                  </h2>
+                </div>
               )}
 
-              <div className="p-6 sm:p-8 space-y-4">
-                <p className="text-xs sm:text-sm text-fg/80 leading-relaxed line-clamp-3">
+              <div className="p-6 sm:p-7 space-y-4 flex-1 flex flex-col justify-between">
+                <p className="text-xs sm:text-sm text-fg/80 leading-relaxed line-clamp-3 font-medium">
                   {featuredArticle.summary}
                 </p>
 
@@ -498,11 +515,6 @@ function NewsBlogPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Native In-Feed AdSlot inserted seamlessly between blog articles */}
-                    {(idx + 1) % 4 === 0 && (
-                      <AdSenseUnit slotType="horizontal" label="Sponsored Editorial / Google AdSense" className="my-8" />
-                    )}
                   </div>
                 ))}
               </div>
@@ -512,7 +524,7 @@ function NewsBlogPage() {
           {/* RIGHT 4 COLUMNS: HIGH-MONETIZATION STICKY SIDEBAR */}
           <div className="lg:col-span-4 lg:sticky lg:top-20 space-y-8">
             {/* GOOGLE ADSENSE SIDEBAR DISPLAY AD (300x250) */}
-            <AdSenseUnit slotType="sidebar_square" label="Display Advertisement" />
+            
 
             {/* TRENDING & MOST READ HEADLINES */}
             <div className="rounded-3xl border border-border bg-surface p-6 shadow-sm space-y-4">
@@ -604,7 +616,7 @@ function NewsBlogPage() {
             </div>
 
             {/* STICKY SKYSCRAPER AD UNIT (300x600) */}
-            <AdSenseUnit slotType="sidebar_tall" label="Sponsored Promotion" />
+            
           </div>
         </div>
 
@@ -723,7 +735,7 @@ function NewsBlogPage() {
               )}
 
               {/* IN-ARTICLE GOOGLE ADSENSE MONETIZATION SLOT */}
-              <AdSenseUnit slotType="in_article" label="Sponsored Story / Google AdSense" />
+              
 
               {/* FULL MULTI-PARAGRAPH ARTICLE CONTENT BODY */}
               <div className="space-y-5 pt-2">

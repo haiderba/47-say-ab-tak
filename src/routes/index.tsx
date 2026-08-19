@@ -390,7 +390,7 @@ function Home() {
 
       {/* 🎯 GOOGLE ADSENSE MID-PAGE LEADERBOARD UNIT */}
       <div className="mx-auto max-w-5xl px-4 my-6">
-        <AdUnit format="leaderboard" label="Sponsored Citizen Resources / Google Ad" />
+        
       </div>
 
       {/* 🗺️ INHERITANCE PROCESS MAP CALLOUT */}
