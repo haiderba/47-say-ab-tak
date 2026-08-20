@@ -127,31 +127,191 @@ async function createPgliteSql(): Promise<Sql> {
   });
   const pg = await globalRef.__pgliteInstance__;
 
-  // Apply migrations/ (the single schema source) so preview matches production.
-  // SQL is inlined by the bundler via import.meta.glob (no runtime fs); applied
-  // files are tracked in _migrations. Runs once per module instance — so an HMR
-  // reload after adding a migration file applies it live — with passes
-  // serialized on a global chain so concurrent callers never double-apply.
+  const STATIC_MIGRATIONS = [
+    {
+      name: "0001_auth.sql",
+      sql: `
+create table if not exists "user" (
+  "id" text not null primary key,
+  "name" text not null,
+  "email" text not null unique,
+  "emailVerified" boolean not null,
+  "image" text,
+  "createdAt" timestamptz default CURRENT_TIMESTAMP not null,
+  "updatedAt" timestamptz default CURRENT_TIMESTAMP not null
+);
+
+create table if not exists "session" (
+  "id" text not null primary key,
+  "expiresAt" timestamptz not null,
+  "token" text not null unique,
+  "createdAt" timestamptz default CURRENT_TIMESTAMP not null,
+  "updatedAt" timestamptz not null,
+  "ipAddress" text,
+  "userAgent" text,
+  "userId" text not null references "user" ("id") on delete cascade
+);
+
+create table if not exists "account" (
+  "id" text not null primary key,
+  "accountId" text not null,
+  "providerId" text not null,
+  "userId" text not null references "user" ("id") on delete cascade,
+  "accessToken" text,
+  "refreshToken" text,
+  "idToken" text,
+  "accessTokenExpiresAt" timestamptz,
+  "refreshTokenExpiresAt" timestamptz,
+  "scope" text,
+  "password" text,
+  "createdAt" timestamptz default CURRENT_TIMESTAMP not null,
+  "updatedAt" timestamptz not null
+);
+
+create table if not exists "verification" (
+  "id" text not null primary key,
+  "identifier" text not null,
+  "value" text not null,
+  "expiresAt" timestamptz not null,
+  "createdAt" timestamptz default CURRENT_TIMESTAMP not null,
+  "updatedAt" timestamptz default CURRENT_TIMESTAMP not null
+);
+
+create index if not exists "session_userId_idx" on "session" ("userId");
+create index if not exists "account_userId_idx" on "account" ("userId");
+create index if not exists "verification_identifier_idx" on "verification" ("identifier");
+      `,
+    },
+    {
+      name: "0002_guides.sql",
+      sql: `
+create table if not exists categories (
+  id          serial primary key,
+  slug        text not null unique,
+  name        text not null,
+  description text not null,
+  icon        text not null,
+  sort_order  integer not null default 0
+);
+
+create table if not exists guides (
+  id               serial primary key,
+  slug             text not null unique,
+  category_id      integer not null references categories(id),
+  title            text not null,
+  summary          text not null,
+  department       text not null,
+  processing_time  text not null,
+  biometric        text not null,
+  difficulty       text not null,
+  last_updated     text not null,
+  disclaimer       text not null,
+  sort_order       integer not null default 0
+);
+
+create table if not exists guide_documents (
+  id        serial primary key,
+  guide_id  integer not null references guides(id) on delete cascade,
+  section   text not null,
+  item      text not null,
+  sort_order integer not null default 0
+);
+
+create table if not exists guide_steps (
+  id          serial primary key,
+  guide_id    integer not null references guides(id) on delete cascade,
+  step_number integer not null,
+  title       text not null,
+  body        text not null
+);
+
+create table if not exists guide_mistakes (
+  id        serial primary key,
+  guide_id  integer not null references guides(id) on delete cascade,
+  item      text not null,
+  sort_order integer not null default 0
+);
+
+create table if not exists news_posts (
+  id           serial primary key,
+  slug         text not null unique,
+  title        text not null,
+  excerpt      text not null,
+  body         text not null,
+  tag          text not null,
+  published_at text not null
+);
+
+create table if not exists timeline_events (
+  id         serial primary key,
+  year_label text not null,
+  title      text not null,
+  body       text not null,
+  sort_order integer not null default 0
+);
+
+create table if not exists saved_checks (
+  id         serial primary key,
+  user_id    text not null,
+  guide_slug text not null,
+  item_key   text not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, guide_slug, item_key)
+);
+create index if not exists saved_checks_user_idx on saved_checks (user_id);
+      `,
+    },
+    {
+      name: "0003_user_vault_and_admin.sql",
+      sql: `
+create table if not exists user_documents (
+  id serial primary key,
+  user_id text not null,
+  title text not null,
+  category text not null,
+  document_number_masked text not null,
+  encrypted_data text not null,
+  file_name text not null,
+  file_size_bytes integer not null default 0,
+  file_mime_type text not null,
+  file_sha256 text not null,
+  issue_date text,
+  expiry_date text,
+  notes text,
+  is_verified boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists user_documents_user_idx on user_documents (user_id);
+create index if not exists user_documents_expiry_idx on user_documents (expiry_date);
+
+create table if not exists audit_logs (
+  id serial primary key,
+  actor_user_id text not null,
+  actor_email text not null,
+  action text not null,
+  target_user_id text,
+  details text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists audit_logs_created_idx on audit_logs (created_at desc);
+      `,
+    },
+  ];
+
+  // Apply migrations automatically on startup so preview and serverless match production
   const migrate = async (): Promise<void> => {
-    const migrations = import.meta.glob("/migrations/*.sql", {
-      query: "?raw",
-      import: "default",
-      eager: true,
-    }) as Record<string, string>;
     const doneRows = await pg.query<{ name: string }>(
       "select name from _migrations",
     );
     const done = new Set(doneRows.rows.map((r) => r.name));
-    for (const [path, text] of Object.entries(migrations).sort(([a], [b]) =>
-      a.localeCompare(b),
-    )) {
-      const name = path.split("/").pop() as string;
-      if (done.has(name)) continue;
-      // Apply + record atomically (parity with scripts/migrate.mjs) so a failed
-      // statement can't leave a file half-applied but untracked.
+    for (const m of STATIC_MIGRATIONS) {
+      if (done.has(m.name)) continue;
       await pg.transaction(async (tx) => {
-        await tx.exec(text);
-        await tx.query("insert into _migrations (name) values ($1)", [name]);
+        await tx.exec(m.sql);
+        await tx.query("insert into _migrations (name) values ($1)", [m.name]);
       });
     }
   };
