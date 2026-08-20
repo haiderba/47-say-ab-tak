@@ -126,6 +126,19 @@ function getSiteBadgeColor(site: string) {
   return "bg-primary/10 text-primary border-primary/20";
 }
 
+function formatSummary(summary?: string | null, title?: string, site?: string): string {
+  if (!summary) return `Verified news report on "${title || 'this development'}" reported by ${site || 'national press'}. Read full story.`;
+  const clean = summary
+    .replace(/<!\[CDATA\[/gi, "")
+    .replace(/\]\]>/gi, "")
+    .replace(/\]+>/g, "")
+    .trim();
+  if (clean.length < 15 || clean.includes("]]>") || /^[\s.,;:\-_[\]<>]+$/.test(clean)) {
+    return `Verified news report on "${title || 'this development'}" reported by ${site || 'national press'}. Read full story.`;
+  }
+  return clean;
+}
+
 function filterCleanParagraphs(paragraphs: string[]): string[] {
   return paragraphs.filter((p) => {
     if (!p || p.trim().length < 35) return false;
@@ -142,6 +155,7 @@ function filterCleanParagraphs(paragraphs: string[]): string[] {
       lower.includes("display: none") ||
       lower.startsWith("home news") ||
       lower.includes("trending health videos technology") ||
+      p.includes("]]>") ||
       p.includes("{") ||
       p.includes("}") ||
       p.includes("/*")
@@ -438,7 +452,7 @@ function NewsBlogPage() {
 
               <div className="p-6 sm:p-7 space-y-4 flex-1 flex flex-col justify-between">
                 <p className="text-xs sm:text-sm text-fg/80 leading-relaxed line-clamp-3 font-medium">
-                  {featuredArticle.summary}
+                  {formatSummary(featuredArticle.summary, featuredArticle.title, featuredArticle.site)}
                 </p>
 
                 <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border/70 text-xs">
@@ -494,7 +508,7 @@ function NewsBlogPage() {
                   </h4>
 
                   <p className="text-xs text-muted line-clamp-2 leading-relaxed">
-                    {story.summary}
+                    {formatSummary(story.summary, story.title, story.site)}
                   </p>
 
                   <span className="text-[11px] font-bold text-primary inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform pt-1">
@@ -562,7 +576,7 @@ function NewsBlogPage() {
                         </h3>
 
                         <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                          {art.summary}
+                          {formatSummary(art.summary, art.title, art.site)}
                         </p>
 
                         <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs">

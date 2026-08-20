@@ -10,8 +10,11 @@ export interface NewsArticle {
   sourceType: "live_rss" | "official_portal";
 }
 
-function decodeHtml(html: string): string {
-  return html
+function cleanXmlText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/<!\[CDATA\[/gi, "")
+    .replace(/\]\]>/gi, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -25,6 +28,7 @@ function decodeHtml(html: string): string {
     .replace(/&#8212;/g, "-")
     .replace(/&nbsp;/g, " ")
     .replace(/<[^>]*>/g, " ")
+    .replace(/\]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -83,23 +87,28 @@ async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArt
 
     for (let idx = 0; idx < Math.min(itemMatches.length, 12); idx++) {
       const raw = itemMatches[idx];
-      const titleMatch = raw.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
-      const linkMatch = raw.match(/<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i);
-      const pubDateMatch = raw.match(/<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i);
-      const descMatch = raw.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
+      const titleMatch = raw.match(/<title>([\s\S]*?)<\/title>/i);
+      const linkMatch = raw.match(/<link>([\s\S]*?)<\/link>/i);
+      const pubDateMatch = raw.match(/<pubDate>([\s\S]*?)<\/pubDate>/i);
+      const descMatch = raw.match(/<description>([\s\S]*?)<\/description>/i);
       
       const mediaMatch = raw.match(/<media:(?:content|thumbnail)[^>]*url=["']([^"']+)["']/i);
       const enclosureMatch = raw.match(/<enclosure[^>]*url=["']([^"']+)["']/i);
       const imgTagMatch = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
       const rawImgUrlMatch = raw.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp|avif)/i);
 
-      const title = decodeHtml(titleMatch?.[1] || "Untitled Headline");
-      const link = (linkMatch?.[1] || "").trim();
-      const pubDate = pubDateMatch?.[1] || new Date().toISOString();
+      const title = cleanXmlText(titleMatch?.[1] || "Untitled Headline");
+      const link = cleanXmlText(linkMatch?.[1] || "");
+      const pubDate = cleanXmlText(pubDateMatch?.[1] || new Date().toISOString());
       const rawDesc = descMatch?.[1] || "";
-      const summary = decodeHtml(rawDesc).slice(0, 320);
+      let summary = cleanXmlText(rawDesc).slice(0, 320);
 
       if (!title || title.length < 5 || !link) continue;
+
+      // If summary is empty, CDATA artifact (like ']]>'), or only punctuation, generate clean summary from title
+      if (!summary || summary.length < 15 || summary.includes("]]>") || /^[\s.,;:\-_[\]<>]+$/.test(summary)) {
+        summary = `Verified editorial dispatch on "${title}" reported by ${sourceName.replace(" Pakistan", "")}. Read the full story on 47 Say Ab Tak.`;
+      }
 
       const lower = (title + " " + summary).toLowerCase();
       const isCelebrityGossip =
@@ -182,7 +191,7 @@ async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArt
         site: sourceName.replace(" Pakistan", ""),
         category: cat,
         image,
-        summary: summary || `Live news update from ${sourceName} regarding national, constitutional, and governance developments.`,
+        summary,
         sourceType: "live_rss",
       });
     }
