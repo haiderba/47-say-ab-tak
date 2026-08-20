@@ -49,8 +49,6 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [gyroActive, setGyroActive] = useState(false);
-  const [gyroSupported, setGyroSupported] = useState(false);
 
   // Animation Refs
   const targetProgressRef = useRef<number>(0);
@@ -75,73 +73,6 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
       return () => clearTimeout(timer);
     }
   }, []);
-
-  // Check device orientation / Gyroscope support
-  useEffect(() => {
-    if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
-      setGyroSupported(true);
-      // On Android / non-iOS, try listening automatically
-      const isIos = typeof (window.DeviceOrientationEvent as any).requestPermission === "function";
-      if (!isIos) {
-        const testHandler = (e: DeviceOrientationEvent) => {
-          if (e.gamma !== null || e.beta !== null) {
-            setGyroActive(true);
-            window.removeEventListener("deviceorientation", testHandler);
-          }
-        };
-        window.addEventListener("deviceorientation", testHandler, { once: true });
-      }
-    }
-  }, []);
-
-  // Gyroscope orientation listener
-  useEffect(() => {
-    if (!gyroActive || typeof window === "undefined") return;
-
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma === null || e.beta === null) return;
-
-      // gamma is left-to-right tilt (-30 deg to +30 deg)
-      const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
-      const normProgress = (clampedGamma + 30) / 60; // 0 (1947) to 1 (2026)
-      targetProgressRef.current = normProgress;
-
-      // 3D Card tilt calculation
-      targetRotYRef.current = (clampedGamma / 30) * 8; // -8deg to +8deg
-
-      // beta is forward/backward tilt (typical holding angle: 45deg)
-      const clampedBeta = Math.max(15, Math.min(75, e.beta));
-      const betaOffset = clampedBeta - 45;
-      targetRotXRef.current = (-betaOffset / 30) * 6; // -6deg to +6deg
-
-      if (!hasInteracted) setHasInteracted(true);
-    };
-
-    window.addEventListener("deviceorientation", handleOrientation, { passive: true });
-    return () => window.removeEventListener("deviceorientation", handleOrientation);
-  }, [gyroActive, hasInteracted]);
-
-  // Request iOS / Mobile Gyroscope Permission
-  const enableGyroscope = async () => {
-    if (typeof window === "undefined") return;
-
-    if (typeof (window.DeviceOrientationEvent as any)?.requestPermission === "function") {
-      try {
-        const state = await (window.DeviceOrientationEvent as any).requestPermission();
-        if (state === "granted") {
-          setGyroActive(true);
-          toast.success("Gyroscope enabled! Tilt your phone left & right to travel through history.");
-        } else {
-          toast.error("Gyroscope permission denied.");
-        }
-      } catch (err) {
-        console.warn("DeviceOrientation error:", err);
-      }
-    } else {
-      setGyroActive(true);
-      toast.success("Gyroscope enabled! Tilt your phone left & right.");
-    }
-  };
 
   // Main Smooth Lerp Loop via requestAnimationFrame
   useEffect(() => {
@@ -203,7 +134,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           const glareX = percent;
           const glareY = 50 + currentRotXRef.current * 4;
           glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)`;
-          glare.style.opacity = isInteractingRef.current || gyroActive ? "1" : "0";
+          glare.style.opacity = isInteractingRef.current ? "1" : "0";
         }
       }
 
@@ -215,7 +146,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [gyroActive]);
+  }, []);
 
   // Desktop Mouse Movement
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -295,28 +226,9 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           </h1>
 
           <p className="mx-auto mt-2.5 max-w-2xl text-xs font-medium text-emerald-100/90 sm:text-base leading-relaxed">
-            Move cursor horizontally or <strong className="text-accent">tilt phone</strong> to explore{" "}
+            Move cursor or <strong className="text-accent">swipe horizontally</strong> to explore{" "}
             <strong className="text-accent font-bold">1947 — 2026</strong> from paper ledgers to digital citizen portals.
           </p>
-
-          {/* GYROSCOPE MOTION ACTIVATOR BAR (Mobile Specific) */}
-          <div className="mt-4 block sm:hidden">
-            {gyroActive ? (
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-950/80 px-4 py-1.5 text-[11px] font-bold text-emerald-300 shadow-md backdrop-blur-md animate-pulse">
-                <Compass className="size-3.5 text-accent animate-spin" style={{ animationDuration: "8s" }} />
-                <span>📱 Gyroscope Active • Tilt Left/Right to Travel</span>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={enableGyroscope}
-                className="inline-flex items-center gap-2 rounded-full border border-accent/60 bg-accent/20 px-4 py-1.5 text-[11px] font-black text-accent hover:bg-accent hover:text-primary transition-all shadow-md backdrop-blur-md active:scale-95"
-              >
-                <Smartphone className="size-3.5 text-accent" />
-                <span>⚡ Enable Phone Tilt Mode (3D Motion)</span>
-              </button>
-            )}
-          </div>
         </div>
 
         {/* 3D INTERACTIVE HERO VIEWER */}
@@ -407,7 +319,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
 
                 <div className="hidden sm:block text-center">
                   <span className="rounded-full bg-accent/20 px-3 py-1 text-[11px] font-bold text-accent border border-accent/40 backdrop-blur-md">
-                    {gyroActive ? "📱 Tilting Phone Controls Time" : "↔ Swipe left / right to travel"}
+                    ↔ Swipe left / right to travel
                   </span>
                 </div>
 
