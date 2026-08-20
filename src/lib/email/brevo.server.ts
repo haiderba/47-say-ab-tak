@@ -22,11 +22,12 @@ export async function sendBrevoVerificationEmail({
     process.env.SENDINBLUE_API_KEY ||
     "";
   const senderEmail = process.env.BREVO_SENDER_EMAIL || "uhaider695@gmail.com";
-  const senderName = process.env.BREVO_SENDER_NAME || "47 Say Ab Tak — Citizen Portal";
+  const senderName = process.env.BREVO_SENDER_NAME || "47 Say Ab Tak Official";
 
   const code = otpCode || "472026";
   const digits = code.split("");
-  const fallbackUrl = verifyUrl || "http://localhost:8080/verify-email?email=" + encodeURIComponent(toEmail) + "&otp=" + code;
+  const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://47sayabtak.com";
+  const fallbackUrl = verifyUrl || `${baseUrl}/verify-email?email=` + encodeURIComponent(toEmail) + "&otp=" + code;
 
   const digitCells = digits
     .map(
@@ -154,7 +155,7 @@ export async function sendBrevoPasswordResetEmail({
     process.env.SENDINBLUE_API_KEY ||
     "";
   const senderEmail = process.env.BREVO_SENDER_EMAIL || "uhaider695@gmail.com";
-  const senderName = process.env.BREVO_SENDER_NAME || "47 Say Ab Tak — Citizen Portal";
+  const senderName = process.env.BREVO_SENDER_NAME || "47 Say Ab Tak Official";
 
   const digits = otpCode.split("");
   const digitCells = digits

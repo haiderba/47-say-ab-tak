@@ -15,7 +15,8 @@ export const sendEmailOtp = createServerFn({ method: "POST" })
     await sql`delete from verification where identifier = ${"otp:" + email}`;
     await sql`insert into verification (id, identifier, value, "expiresAt") values (${recordId}, ${"otp:" + email}, ${otpCode}, ${expiresAt})`;
 
-    const verifyUrl = "http://localhost:8080/verify-email?email=" + encodeURIComponent(email) + "&otp=" + otpCode;
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://47sayabtak.com";
+    const verifyUrl = `${baseUrl}/verify-email?email=` + encodeURIComponent(email) + "&otp=" + otpCode;
     const emailResult = await sendBrevoVerificationEmail({ toEmail: email, toName: name, otpCode, verifyUrl });
     return { success: true, message: "6-digit code sent via Brevo", simulated: emailResult.simulated };
   });
