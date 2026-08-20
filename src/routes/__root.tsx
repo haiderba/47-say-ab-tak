@@ -105,6 +105,7 @@ export const Route = createRootRoute({
       },
       {
         async: true,
+        defer: true,
         src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6963163931040692",
         crossOrigin: "anonymous",
       },

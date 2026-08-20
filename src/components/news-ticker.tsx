@@ -5,7 +5,15 @@ import { getAggregatedNews } from "@/lib/news/get-news";
 import { NewsArticle } from "@/lib/news/rss.server";
 
 export function NewsTicker() {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [articles, setArticles] = useState<NewsArticle[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("news_ticker_cache");
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -16,7 +24,11 @@ export function NewsTicker() {
     getAggregatedNews({ data: "all" })
       .then((res) => {
         if (isMounted && res && res.articles.length > 0) {
-          setArticles(res.articles.slice(0, 20));
+          const top20 = res.articles.slice(0, 20);
+          setArticles(top20);
+          try {
+            localStorage.setItem("news_ticker_cache", JSON.stringify(top20));
+          } catch {}
         }
       })
       .catch(() => {});

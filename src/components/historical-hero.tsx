@@ -262,9 +262,10 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
               <video
                 ref={videoRef}
                 src="/historical-hero.mp4"
+                poster="/monument_thumb.jpg"
                 muted
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="h-full w-full object-cover rounded-[28px] sm:rounded-[42px]"
               />
 
