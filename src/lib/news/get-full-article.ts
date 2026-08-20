@@ -13,6 +13,19 @@ export interface FullArticleData {
 const articleCache = new Map<string, { data: FullArticleData; timestamp: number }>();
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes cache for full articles
 
+function cleanHtmlTags(html: string): string {
+  return html
+    // 1. Remove all scripts, styles, noscript, svg, nav, headers, footers and comments
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ")
+    .replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, " ")
+    .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, " ")
+    .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, " ")
+    .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, " ")
+    .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ");
+}
+
 function decodeHtml(html: string): string {
   return html
     .replace(/&amp;/g, "&")
@@ -30,6 +43,64 @@ function decodeHtml(html: string): string {
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function isValidParagraph(text: string): boolean {
+  if (!text || text.length < 45) return false;
+
+  const lower = text.toLowerCase();
+
+  // Reject JS / CSS code leakages
+  if (
+    lower.includes("document.getelementbyid") ||
+    lower.includes("addeventlistener") ||
+    lower.includes("classlevel") ||
+    lower.includes("classlist.") ||
+    lower.includes(".loader") ||
+    lower.includes("@keyframes") ||
+    lower.includes("-webkit-") ||
+    lower.includes("function (") ||
+    lower.includes("function()") ||
+    lower.includes("display: none") ||
+    lower.includes("border-radius:") ||
+    lower.includes("animation:") ||
+    lower.includes("transform:") ||
+    text.includes("{") ||
+    text.includes("}") ||
+    text.includes("/*") ||
+    text.includes("*/")
+  ) {
+    return false;
+  }
+
+  // Reject navigation breadcrumb headers (e.g. "Home News World Sports...")
+  if (
+    lower.startsWith("home news") ||
+    lower.startsWith("home >") ||
+    lower.includes("trending health videos technology") ||
+    lower.includes("royal trending")
+  ) {
+    return false;
+  }
+
+  // Reject boilerplate, copyright, and subscriptions
+  if (
+    lower.includes("copyright") ||
+    lower.includes("all rights reserved") ||
+    lower.includes("subscribe") ||
+    lower.includes("join our whatsapp") ||
+    lower.includes("read more:") ||
+    lower.includes("follow us on") ||
+    lower.includes("googletag") ||
+    lower.includes("terms of service") ||
+    lower.includes("privacy policy") ||
+    lower.startsWith("photo courtesy") ||
+    lower.startsWith("listen to article")
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export const getFullArticleContent = createServerFn({ method: "POST" })
@@ -59,13 +130,29 @@ export const getFullArticleContent = createServerFn({ method: "POST" })
       clearTimeout(timeoutId);
 
       if (!res.ok) return null;
-      const html = await res.text();
+      let rawHtml = await res.text();
+
+      // Extract image before stripping tags
+      const ogImageMatch =
+        rawHtml.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i) ||
+        rawHtml.match(/<meta[^>]*name="twitter:image"[^>]*content="([^"]+)"/i);
+      const image = ogImageMatch?.[1] || null;
+
+      // Extract author / byline
+      const authorMatch =
+        rawHtml.match(/<meta[^>]*name="author"[^>]*content="([^"]+)"/i) ||
+        rawHtml.match(/<span[^>]*class="[^"]*story__byline[^"]*"[^>]*>([\s\S]*?)<\/span>/i) ||
+        rawHtml.match(/<a[^>]*rel="author"[^>]*>([\s\S]*?)<\/a>/i);
+      const author = authorMatch ? decodeHtml(authorMatch[1]) : undefined;
+
+      // Clean HTML from all script/style/nav/header/footer tags
+      const cleanHtml = cleanHtmlTags(rawHtml);
 
       // Extract title
       const titleMatch =
-        html.match(/<h1[^>]*class="[^"]*story__title[^"]*"[^>]*>([\s\S]*?)<\/h1>/i) ||
-        html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) ||
-        html.match(/<title>([\s\S]*?)<\/title>/i);
+        cleanHtml.match(/<h1[^>]*class="[^"]*story__title[^"]*"[^>]*>([\s\S]*?)<\/h1>/i) ||
+        cleanHtml.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) ||
+        cleanHtml.match(/<title>([\s\S]*?)<\/title>/i);
       const title = decodeHtml(titleMatch?.[1] || "News Story");
 
       // Extract publisher / site name from domain
@@ -76,40 +163,20 @@ export const getFullArticleContent = createServerFn({ method: "POST" })
       else if (parsedUrl.hostname.includes("thenews.com.pk")) siteName = "The News International";
       else if (parsedUrl.hostname.includes("dailytimes.com.pk")) siteName = "Daily Times";
 
-      // Extract image
-      const ogImageMatch =
-        html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i) ||
-        html.match(/<meta[^>]*name="twitter:image"[^>]*content="([^"]+)"/i);
-      const image = ogImageMatch?.[1] || null;
+      // Try finding story body container first
+      const containerMatch =
+        cleanHtml.match(/<article[\s\S]*?<\/article>/i) ||
+        cleanHtml.match(/<div[^>]*class="[^"]*(?:story__content|story-content|story-text|story-body|story-detail|detail-content|story_detail|detail-body)[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
 
-      // Extract author / byline
-      const authorMatch =
-        html.match(/<meta[^>]*name="author"[^>]*content="([^"]+)"/i) ||
-        html.match(/<span[^>]*class="[^"]*story__byline[^"]*"[^>]*>([\s\S]*?)<\/span>/i) ||
-        html.match(/<a[^>]*rel="author"[^>]*>([\s\S]*?)<\/a>/i);
-      const author = authorMatch ? decodeHtml(authorMatch[1]) : undefined;
+      const targetHtml = containerMatch ? containerMatch[0] : cleanHtml;
 
       // Extract story paragraphs
-      const pMatches = html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
+      const pMatches = targetHtml.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || cleanHtml.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
       const paragraphs: string[] = [];
 
       for (const p of pMatches) {
         const cleaned = decodeHtml(p);
-        // Filter out boilerplate, short lines, ads, comments, copyright
-        if (
-          cleaned.length > 55 &&
-          !cleaned.toLowerCase().includes("copyright") &&
-          !cleaned.toLowerCase().includes("all rights reserved") &&
-          !cleaned.toLowerCase().includes("subscribe") &&
-          !cleaned.toLowerCase().includes("join our whatsapp") &&
-          !cleaned.toLowerCase().includes("read more:") &&
-          !cleaned.toLowerCase().includes("follow us on") &&
-          !cleaned.toLowerCase().includes("googletag") &&
-          !cleaned.toLowerCase().includes("terms of service") &&
-          !cleaned.toLowerCase().includes("privacy policy") &&
-          !cleaned.startsWith("Photo courtesy") &&
-          !cleaned.startsWith("Listen to article")
-        ) {
+        if (isValidParagraph(cleaned)) {
           paragraphs.push(cleaned);
         }
       }

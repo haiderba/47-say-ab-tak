@@ -126,16 +126,30 @@ function getSiteBadgeColor(site: string) {
   return "bg-primary/10 text-primary border-primary/20";
 }
 
-/**
- * Google AdSense Ready Component Slot
- * Automatically monetizes when AdSense Client ID / Script is configured in HTML head
- */
-function AdSenseUnit(_props: {
-  slotType?: "horizontal" | "sidebar_square" | "sidebar_tall" | "in_article";
-  className?: string;
-  label?: string;
-}) {
-  return null;
+function filterCleanParagraphs(paragraphs: string[]): string[] {
+  return paragraphs.filter((p) => {
+    if (!p || p.trim().length < 35) return false;
+    const lower = p.toLowerCase();
+    if (
+      lower.includes("document.getelementbyid") ||
+      lower.includes("addeventlistener") ||
+      lower.includes("classlist.") ||
+      lower.includes(".loader") ||
+      lower.includes("@keyframes") ||
+      lower.includes("-webkit-") ||
+      lower.includes("function (") ||
+      lower.includes("function()") ||
+      lower.includes("display: none") ||
+      lower.startsWith("home news") ||
+      lower.includes("trending health videos technology") ||
+      p.includes("{") ||
+      p.includes("}") ||
+      p.includes("/*")
+    ) {
+      return false;
+    }
+    return true;
+  });
 }
 
 function NewsBlogPage() {
@@ -814,8 +828,8 @@ function NewsBlogPage() {
                   </div>
                 ) : (
                   <div className={`space-y-4 leading-relaxed text-fg/90 font-medium ${fontSizeClass}`}>
-                    {fullArticleData && fullArticleData.paragraphs.length > 0 ? (
-                      fullArticleData.paragraphs.map((p, idx) => (
+                    {fullArticleData && filterCleanParagraphs(fullArticleData.paragraphs).length > 0 ? (
+                      filterCleanParagraphs(fullArticleData.paragraphs).map((p, idx) => (
                         <p
                           key={idx}
                           className={`${
@@ -828,7 +842,7 @@ function NewsBlogPage() {
                         </p>
                       ))
                     ) : (
-                      <p>{selectedArticle.summary}</p>
+                      <p>{filterCleanParagraphs([selectedArticle.summary])[0] || selectedArticle.summary}</p>
                     )}
                   </div>
                 )}
