@@ -37,11 +37,12 @@ let cachedFeed: CacheEntry | null = null;
 const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes cache for live breaking speed
 
 const FEED_SOURCES = [
-  { name: "DAWN News", url: "https://www.dawn.com/feeds/home" },
   { name: "DAWN Pakistan", url: "https://www.dawn.com/feeds/pakistan" },
+  { name: "DAWN National", url: "https://www.dawn.com/feeds/home" },
+  { name: "DAWN Business", url: "https://www.dawn.com/feeds/business" },
   { name: "The Express Tribune", url: "https://tribune.com.pk/feed/pakistan" },
-  { name: "The News International", url: "https://www.thenews.com.pk/rss/1/1" },
-  { name: "Daily Times", url: "https://dailytimes.com.pk/feed/" },
+  { name: "The News National", url: "https://www.thenews.com.pk/rss/1/1" },
+  { name: "The News Business", url: "https://www.thenews.com.pk/rss/1/2" },
 ];
 
 export const CATEGORY_DEFAULT_IMAGES: Record<NewsArticle["category"], string> = {
@@ -100,9 +101,27 @@ async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArt
 
       if (!title || title.length < 5 || !link) continue;
 
+      const lower = (title + " " + summary).toLowerCase();
+      const isCelebrityGossip =
+        lower.includes("hollywood") ||
+        lower.includes("bollywood") ||
+        lower.includes("box office") ||
+        lower.includes("actress") ||
+        lower.includes("actor") ||
+        lower.includes("hathaway") ||
+        lower.includes("kardashian") ||
+        lower.includes("movie") ||
+        lower.includes("film review") ||
+        lower.includes("grammy") ||
+        lower.includes("oscars") ||
+        lower.includes("celebrity") ||
+        lower.includes("gossip") ||
+        lower.includes("horoscope");
+
+      if (isCelebrityGossip) continue;
+
       // Smart topic categorization
       let cat: NewsArticle["category"] = "National";
-      const lower = (title + " " + summary).toLowerCase();
       if (
         lower.includes("court") ||
         lower.includes("supreme court") ||
