@@ -10,6 +10,90 @@ export const Route = createFileRoute("/guides/$slug")({
     if (!guide) throw notFound();
     return { guide };
   },
+  head: ({ loaderData }) => {
+    const guide = loaderData?.guide;
+    if (!guide) return {};
+    const canonicalUrl = `https://47sayabtak.com/guides/${guide.slug}`;
+    const pageTitle = `${guide.title} — Step-by-Step Guide & Requirements | 47 Say Ab Tak`;
+
+    const howToSchema = {
+      "@context": "https://schema.org",
+      "@type": ["HowTo", "GovernmentService"],
+      "name": guide.title,
+      "description": guide.summary,
+      "serviceType": guide.category_name,
+      "provider": {
+        "@type": "GovernmentOrganization",
+        "name": guide.department,
+      },
+      "totalTime": guide.processing_time,
+      "url": canonicalUrl,
+      "supply": guide.documents.map((d) => ({
+        "@type": "HowToSupply",
+        "name": d.item,
+      })),
+      "step": guide.steps.map((s) => ({
+        "@type": "HowToStep",
+        "position": s.step_number,
+        "name": s.title,
+        "text": s.body,
+      })),
+    };
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://47sayabtak.com/",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Citizen Guides",
+          "item": "https://47sayabtak.com/guides",
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": guide.title,
+          "item": canonicalUrl,
+        },
+      ],
+    };
+
+    return {
+      meta: [
+        { title: pageTitle },
+        { name: "description", content: guide.summary },
+        {
+          name: "keywords",
+          content: `${guide.title}, ${guide.department}, ${guide.category_name}, Pakistan government official procedure, required documents, processing fee 2026, 47 Say Ab Tak`,
+        },
+        { property: "og:title", content: pageTitle },
+        { property: "og:description", content: guide.summary },
+        { property: "og:url", content: canonicalUrl },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: pageTitle },
+        { name: "twitter:description", content: guide.summary },
+      ],
+      links: [{ rel: "canonical", href: canonicalUrl }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(howToSchema),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(breadcrumbSchema),
+        },
+      ],
+    };
+  },
   component: GuidePage,
   notFoundComponent: () => (
     <div className="mx-auto max-w-xl px-4 py-20 text-center">
@@ -83,7 +167,7 @@ function GuidePage() {
 
     if (user) {
       try {
-        await toggleSavedCheck({ data: { guideSlug: guide.slug, checkKey: key, checked: next.has(key) } });
+        await toggleSavedCheck({ data: { guideSlug: guide.slug, itemKey: key, checked: next.has(key) } });
       } catch {
         /* guest/offline-safe */
       }

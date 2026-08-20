@@ -1,0 +1,35 @@
+# 47 Say Ab Tak - Pakistan Citizen Documentation & Governance Portal
+# Optimized for Google, Bing, and Next-Gen AI Search Engines (Perplexity, ChatGPT, Gemini, Claude)
+
+User-agent: *
+Allow: /
+Disallow: /api/auth/
+Disallow: /admin
+Disallow: /profile
+
+# AI Search & Retrieval Crawlers (Generative Engine Optimization - GEO)
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+Sitemap: https://47sayabtak.com/sitemap.xml
+Sitemap: https://47-say-ab-tak-app.vercel.app/sitemap.xml

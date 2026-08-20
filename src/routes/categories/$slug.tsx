@@ -8,6 +8,53 @@ export const Route = createFileRoute("/categories/$slug")({
     if (!data.category) throw notFound();
     return data;
   },
+  head: ({ loaderData }) => {
+    const category = loaderData?.category;
+    if (!category) return {};
+    const canonicalUrl = `https://47sayabtak.com/categories/${category.slug}`;
+    const pageTitle = `${category.name} Official Process Guides & Documentation | 47 Say Ab Tak`;
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://47sayabtak.com/",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": category.name,
+          "item": canonicalUrl,
+        },
+      ],
+    };
+
+    return {
+      meta: [
+        { title: pageTitle },
+        { name: "description", content: category.description },
+        {
+          name: "keywords",
+          content: `${category.name}, ${category.slug}, Pakistan official documentation, citizen guides, NADRA, PLRA, 47 Say Ab Tak`,
+        },
+        { property: "og:title", content: pageTitle },
+        { property: "og:description", content: category.description },
+        { property: "og:url", content: canonicalUrl },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: canonicalUrl }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(breadcrumbSchema),
+        },
+      ],
+    };
+  },
   component: CategoryPage,
 });
 

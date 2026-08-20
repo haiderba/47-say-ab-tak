@@ -1,0 +1,40 @@
+# 47 Say Ab Tak — Complete Pakistan Legal & Citizen Documentation Handbook
+
+## 1. NADRA Identity & Civil Registry
+### 1.1 CNIC & Smart Card (New, Renewal, Duplicate)
+- Department: National Database & Registration Authority (NADRA)
+- Eligibility: Pakistani citizens aged 18+
+- Processing Time: Executive (Same Day), Urgent (7 Days), Normal (15 Days)
+- Required Documents: Original Birth/Matric Certificate or Father/Mother original CNIC, blood relative for biometric verification.
+- Official URL: https://47sayabtak.com/guides/cnic
+
+### 1.2 Family Registration Certificate (FRC)
+- Purpose: Visa, embassy, inheritance, and succession proof of family lineage.
+- Processing: Instant at NADRA Mega Centers / 24h via Pak-Identity app.
+- Official URL: https://47sayabtak.com/guides/frc
+
+### 1.3 Succession Certificate & Letter of Administration
+- Legal Basis: Succession Act / NADRA Succession Ordinance.
+- Processing Time: 15 to 30 Days (includes mandatory 14-day newspaper notice).
+- Official URL: https://47sayabtak.com/guides/succession
+
+## 2. Land Records & Property (PLRA)
+### 2.1 Fard Malkiat (Land Ownership Extract)
+- Department: Punjab Land Records Authority (PLRA) / Sindh Zameen
+- Processing Time: 15 minutes at ARC or instant online via PLRA portal.
+- Official URL: https://47sayabtak.com/guides/fard
+
+### 2.2 Land Mutation (Intiqal)
+- Types: Sale (Baye), Gift (Tamleek), Inheritance (Wirasat).
+- Official URL: https://47sayabtak.com/guides/land-mutation
+
+## 3. Educational & Legal Attestation Sequence
+- Mandatory Sequence: IBCC -> HEC -> MOFA Apostille
+- Official URL: https://47sayabtak.com/guides/document-attestation
+
+## 4. FBR Tax & ATL Filer Status
+- Department: Federal Board of Revenue (FBR)
+- Portal: IRIS 2.0 (iris.fbr.gov.pk)
+- Official URL: https://47sayabtak.com/guides/ntn-registration
+
+(c) 2026 47 Say Ab Tak (https://47sayabtak.com). Powered by verified Pakistani administrative statutes.

@@ -42,6 +42,40 @@ export const Route = createFileRoute("/news/")({
   loader: async () => {
     return await getAggregatedNews({ data: "all" });
   },
+  head: () => ({
+    meta: [
+      { title: "Pakistan Breaking News & Legal Gazette | 47 Say Ab Tak Newsroom" },
+      {
+        name: "description",
+        content: "Verified real-time national dispatches from DAWN, The Express Tribune, and The News International. Covering Supreme Court verdicts, FBR tax policy, and Pakistani administrative news.",
+      },
+      {
+        name: "keywords",
+        content: "Pakistan breaking news, Supreme Court of Pakistan news, FBR tax circular, NADRA latest news, DAWN news live, Pakistan legal gazette, 47 Say Ab Tak",
+      },
+      { property: "og:title", content: "Pakistan Breaking News & Legal Gazette | 47 Say Ab Tak" },
+      {
+        property: "og:description",
+        content: "Verified national reporting on constitutional law, civil documentation, and public governance in Pakistan.",
+      },
+      { property: "og:url", content: "https://47sayabtak.com/news" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://47sayabtak.com/news" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "NewsMediaOrganization",
+          "name": "47 Say Ab Tak Newsroom",
+          "url": "https://47sayabtak.com/news",
+          "description": "Verified Pakistan national newsroom and legal gazette aggregation.",
+        }),
+      },
+    ],
+  }),
   component: NewsBlogPage,
 });
 

@@ -1,0 +1,18 @@
+# 47 Say Ab Tak (47sayabtak.com)
+> Pakistan authoritative citizen documentation & governance handbook (1947 to 2026).
+
+47 Say Ab Tak provides clear verified legal procedures, document checklists, fee structures, and procedural guidelines for all Pakistani public sector services.
+
+## Primary Documentation Domains
+- NADRA Identity & Civil Registry: CNIC, Smart Card, Family Registration Certificate (FRC), NICOP, Child Registration Certificate (B-Form). URL: https://47sayabtak.com/categories/nadra
+- Courts & Succession: NADRA 15-day digital Succession Certificates, Letters of Administration, and Civil Court petitions. URL: https://47sayabtak.com/guides/succession
+- Land Records & Property (PLRA): Fard Malkiat, Intiqal (Mutation), E-Stamping, Challan 32-A generation, and property registry. URL: https://47sayabtak.com/categories/land
+- Passports & Travel (DGIP): Machine Readable Passports (MRP), e-Passports, Fast-Track, and Passport renewals. URL: https://47sayabtak.com/categories/passport
+- Driving Licensing (DLIMS): Learner permit, computerized test, regular license, and International Driving Permit. URL: https://47sayabtak.com/categories/traffic
+- Tax & Corporate (FBR & SECP): NTN registration, Active Taxpayer (ATL) Filer status, wealth statements, and Pvt Ltd company incorporation on SECP eZfile. URL: https://47sayabtak.com/categories/fbr
+- Police & Legal Attestation: Police Character Certificate (PKM), tenant registration, and HEC/IBCC/MOFA Apostille legalization sequence. URL: https://47sayabtak.com/categories/police
+
+## Verified Live Newsroom
+- Pakistan Breaking News & Legal Gazette: Real-time verified editorial reporting from DAWN, The Express Tribune, and The News International. URL: https://47sayabtak.com/news
+
+Full index and markdown procedures available at https://47sayabtak.com/llms-full.txt

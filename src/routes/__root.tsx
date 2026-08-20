@@ -71,6 +71,38 @@ export const Route = createRootRoute({
     ],
     scripts: [
       {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://47sayabtak.com/#website",
+              "url": "https://47sayabtak.com/",
+              "name": "47 Say Ab Tak — Pakistan Citizen Documentation & Governance Portal",
+              "description": "Comprehensive legal procedures, step-by-step document issuance guides, verified national news, and historical documentation evolution in Pakistan (1947–2026).",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://47sayabtak.com/guides?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+              "inLanguage": ["en-PK", "ur-PK"],
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://47sayabtak.com/#organization",
+              "name": "47 Say Ab Tak",
+              "url": "https://47sayabtak.com/",
+              "logo": "https://47sayabtak.com/logo.png",
+              "sameAs": [
+                "https://github.com/haiderba/47-say-ab-tak",
+                "https://twitter.com/47sayabtak",
+              ],
+            },
+          ],
+        }),
+      },
+      {
         async: true,
         src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6963163931040692",
         crossOrigin: "anonymous",
