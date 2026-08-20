@@ -98,97 +98,65 @@ function ToolsPage() {
           Upload and seal your citizen documents with AES-256-GCM encryption, audit physical files, track document expiries, locate 24/7 Mega Centers, calculate fees, and draft affidavits.
         </p>
 
-        {/* Master Tool Switcher */}
-        <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-primary/20 bg-surface p-2 shadow-card">
-          <button
-            type="button"
-            onClick={() => setActiveTool("vault")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "vault" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <Lock className="size-4 text-accent" /> Encrypted Vault
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("fee")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "fee" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <Calculator className="size-4 text-accent" /> Fee & Tax Calculator
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("readiness")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "readiness" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <FileCheck2 className="size-4 text-accent" /> "Check My File"
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("tracker")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "tracker" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <Calendar className="size-4 text-accent" /> Expiry Tracker
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("centers")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "centers" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <MapPin className="size-4 text-accent" /> 24/7 Centers & Mouza
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("scams")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "scams" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <ShieldAlert className="size-4 text-accent" /> Agent Scam Radar
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("inheritance")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "inheritance" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <Scale className="size-4 text-accent" /> Inheritance (Faraid)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool("affidavit")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
-              activeTool === "affidavit" ? "bg-primary text-surface shadow-md" : "text-muted hover:text-primary"
-            }`}
-          >
-            <FileCheck className="size-4 text-accent" /> Affidavit Generator
-          </button>
-        </div>
-
-        {/* 🎯 GOOGLE ADSENSE LEADERBOARD AD */}
-        <div className="mx-auto max-w-4xl my-8">
-          
+        {/* Master Tool Switcher Grid (Responsive 2-col on mobile, 4-col on desktop) */}
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 rounded-3xl border-2 border-primary/20 bg-surface p-2.5 sm:p-3 shadow-card">
+          {[
+            { id: "vault", name: "Encrypted Vault", icon: Lock, desc: "AES-256 Vault" },
+            { id: "affidavit", name: "Affidavit Drafter", icon: FileCheck, desc: "E-Stamp Paper" },
+            { id: "fee", name: "Fee Calculator", icon: Calculator, desc: "Tax & Stamping" },
+            { id: "readiness", name: "Check My File", icon: FileCheck2, desc: "File Audit" },
+            { id: "tracker", name: "Expiry Tracker", icon: Calendar, desc: "Document Expiry" },
+            { id: "centers", name: "24/7 Centers", icon: MapPin, desc: "NADRA Centers" },
+            { id: "scams", name: "Scam Radar", icon: ShieldAlert, desc: "Agent Scam Check" },
+            { id: "inheritance", name: "Inheritance", icon: Scale, desc: "Faraid Calculator" },
+          ].map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTool === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  setActiveTool(t.id as any);
+                  const el = document.getElementById("active-utility-section");
+                  if (el && window.innerWidth < 768) {
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+                className={
+                  "flex flex-col sm:flex-row items-start sm:items-center gap-2 rounded-2xl p-2.5 sm:p-3 text-left transition-all border " +
+                  (isActive
+                    ? "bg-primary text-surface border-primary shadow-md scale-[1.02]"
+                    : "bg-bg/40 hover:bg-bg border-border text-fg hover:border-primary/40")
+                }
+              >
+                <div
+                  className={
+                    "grid size-8 place-items-center rounded-xl shrink-0 " +
+                    (isActive ? "bg-white/20 text-accent" : "bg-primary/10 text-primary")
+                  }
+                >
+                  <Icon className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="block text-xs font-bold truncate">{t.name}</span>
+                  <span
+                    className={
+                      "hidden sm:block text-[10px] truncate " +
+                      (isActive ? "text-white/80" : "text-muted")
+                    }
+                  >
+                    {t.desc}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Active Civic Utility */}
-      <div className="mt-8">
+      <div id="active-utility-section" className="mt-8 scroll-mt-20">
         {activeTool === "vault" && <CitizenVault />}
         {activeTool === "fee" && <FeeCalculator />}
         {activeTool === "readiness" && <FileReadinessChecker />}
