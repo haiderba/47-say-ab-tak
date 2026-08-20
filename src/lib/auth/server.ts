@@ -97,32 +97,65 @@ const previewAllowedHosts: string[] = [...PREVIEW_ALLOWED_HOSTS];
 // Local `npm run dev` (port 8080 contract). Browsers may send Origin as any of
 // these for the same server — trusting only `localhost` rejects `127.0.0.1` and
 // breaks email/password with "Invalid origin".
-const LOCAL_DEV_ORIGINS: string[] = [
-  "http://localhost:8080",
-  "http://127.0.0.1:8080",
-  "http://[::1]:8080",
+const DEPLOYED_HOSTS = [
+  "47-say-ab-tak-app.vercel.app",
+  "47-say-ab-tak.vercel.app",
+  "47sayabtak.com",
+  "www.47sayabtak.com",
+  ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
+  ...(process.env.VITE_PUBLIC_HOSTNAME ? [process.env.VITE_PUBLIC_HOSTNAME] : []),
 ];
+
+const DEPLOYED_ORIGINS = [
+  "https://47-say-ab-tak-app.vercel.app",
+  "https://47-say-ab-tak.vercel.app",
+  "https://47sayabtak.com",
+  "https://www.47sayabtak.com",
+  "http://47sayabtak.com",
+  "http://www.47sayabtak.com",
+  ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+  ...(process.env.VITE_PUBLIC_HOSTNAME ? [`https://${process.env.VITE_PUBLIC_HOSTNAME}`, `http://${process.env.VITE_PUBLIC_HOSTNAME}`] : []),
+];
+
 const baseURL = explicitBaseURL ?? {
   // Include loopback hosts so dynamic baseURL resolves for local email/password
   // (not only the preview wildcard).
-  allowedHosts: [...previewAllowedHosts, "localhost", "127.0.0.1", "[::1]"],
+  allowedHosts: [
+    ...previewAllowedHosts,
+    ...DEPLOYED_HOSTS,
+    "localhost",
+    "127.0.0.1",
+    "[::1]",
+  ],
   // `auto` → trust both http:// and https:// expansions of allowedHosts
   // (preview is https; local dev is http).
   protocol: "auto" as const,
   fallback: "http://localhost:8080",
 };
 
-// Origins Better Auth accepts on credentialed POSTs (sign-up/sign-in, etc.).
-// Missing entries here surface as FORBIDDEN "Invalid origin".
-const trustedOrigins: string[] = explicitBaseURL
-  ? [explicitBaseURL, ...LOCAL_DEV_ORIGINS]
-  : [
-      // Host wildcards (matched against Origin's host)
-      ...previewAllowedHosts,
-      // Full-origin wildcards (matched against Origin)
-      ...previewAllowedHosts.flatMap((host) => [`https://${host}`, `http://${host}`]),
-      ...LOCAL_DEV_ORIGINS,
-    ];
+const LOCAL_DEV_ORIGINS: string[] = [
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
+  "http://[::1]:8080",
+];
+
+// Dynamic origin validation: automatically trusts current request Origin / Host,
+// production Vercel domains, custom domain 47sayabtak.com, and local development.
+const trustedOrigins = (request?: Request): string[] => {
+  const origin = request?.headers?.get("origin");
+  const host = request?.headers?.get("host");
+
+  const origins = new Set<string>([
+    ...(origin ? [origin] : []),
+    ...(host ? [`https://${host}`, `http://${host}`] : []),
+    ...(explicitBaseURL ? [explicitBaseURL] : []),
+    ...DEPLOYED_ORIGINS,
+    ...LOCAL_DEV_ORIGINS,
+    ...previewAllowedHosts.flatMap((h) => [`https://${h}`, `http://${h}`]),
+  ]);
+
+  return Array.from(origins).filter(Boolean);
+};
 
 const databaseUrl = env("DATABASE_URL");
 
