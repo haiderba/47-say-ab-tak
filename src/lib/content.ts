@@ -93,7 +93,7 @@ for (let i = 0; i < GUIDES.length; i++) {
     last_updated: seedGuide.updated,
     disclaimer: seedGuide.disclaimer || DISCLAIMER,
     documents: seedGuide.docs,
-    steps: seedGuide.steps.map((s, idx) => ({ step_number: idx + 1, title: s.title, body: s.body })),
+    steps: seedGuide.steps.map((s: { title: string; body: string }, idx: number) => ({ step_number: idx + 1, title: s.title, body: s.body })),
     mistakes: seedGuide.mistakes,
   });
 }

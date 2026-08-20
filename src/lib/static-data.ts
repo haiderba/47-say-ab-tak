@@ -1,4 +1,28 @@
 // 47 Say Ab Tak pure static datasets (Zero server-only imports)
+export type Cat = {
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+  sort: number;
+};
+
+export type GuideSeed = {
+  slug: string;
+  category: string;
+  title: string;
+  summary: string;
+  department: string;
+  processing: string;
+  biometric: string;
+  difficulty: string;
+  updated: string;
+  disclaimer: string;
+  docs: { section: string; item: string }[];
+  steps: { title: string; body: string }[];
+  mistakes: string[];
+};
+
 export const CATEGORIES: Cat[] = [
   { slug: "nadra", name: "NADRA", description: "CNIC, B-Form, FRC, Succession Certificate, NICOP & POC", icon: "id-card", sort: 1 },
   { slug: "land", name: "Land Records (PLRA)", description: "Mutation (Intiqal), Fard Malkiat, E-Stamping & Registry", icon: "scroll-text", sort: 2 },

@@ -44,6 +44,22 @@ const FEED_SOURCES = [
   { name: "Daily Times", url: "https://dailytimes.com.pk/feed/" },
 ];
 
+export const CATEGORY_DEFAULT_IMAGES: Record<NewsArticle["category"], string> = {
+  "Breaking News": "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?q=80&w=800&auto=format&fit=crop",
+  "National": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=800&auto=format&fit=crop",
+  "Legal & Courts": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=800&auto=format&fit=crop",
+  "Economy & Trade": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=800&auto=format&fit=crop",
+  "Citizen & Tech": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop",
+  "Official Announcement": "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=800&auto=format&fit=crop",
+};
+
+export function getCategoryFallbackImage(cat?: string | null): string {
+  if (cat && cat in CATEGORY_DEFAULT_IMAGES) {
+    return CATEGORY_DEFAULT_IMAGES[cat as NewsArticle["category"]];
+  }
+  return "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?q=80&w=800&auto=format&fit=crop";
+}
+
 async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArticle[]> {
   try {
     const controller = new AbortController();
@@ -70,17 +86,17 @@ async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArt
       const linkMatch = raw.match(/<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i);
       const pubDateMatch = raw.match(/<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i);
       const descMatch = raw.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
-      const imgMatch =
-        raw.match(/<media:content[^>]*url="([^"]+)"/i) ||
-        raw.match(/<enclosure[^>]*url="([^"]+)"/i) ||
-        raw.match(/<img[^>]*src="([^"]+)"/i);
+      
+      const mediaMatch = raw.match(/<media:(?:content|thumbnail)[^>]*url=["']([^"']+)["']/i);
+      const enclosureMatch = raw.match(/<enclosure[^>]*url=["']([^"']+)["']/i);
+      const imgTagMatch = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
+      const rawImgUrlMatch = raw.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp|avif)/i);
 
       const title = decodeHtml(titleMatch?.[1] || "Untitled Headline");
       const link = (linkMatch?.[1] || "").trim();
       const pubDate = pubDateMatch?.[1] || new Date().toISOString();
       const rawDesc = descMatch?.[1] || "";
       const summary = decodeHtml(rawDesc).slice(0, 320);
-      const image = imgMatch?.[1] || null;
 
       if (!title || title.length < 5 || !link) continue;
 
@@ -129,6 +145,14 @@ async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArt
         lower.includes("attack")
       ) {
         cat = "Breaking News";
+      }
+
+      const candidateImg = mediaMatch?.[1] || enclosureMatch?.[1] || imgTagMatch?.[1] || rawImgUrlMatch?.[0];
+      let image = CATEGORY_DEFAULT_IMAGES[cat];
+      if (candidateImg && candidateImg.startsWith("http")) {
+        image = candidateImg;
+      } else if (candidateImg && candidateImg.startsWith("//")) {
+        image = "https:" + candidateImg;
       }
 
       articles.push({

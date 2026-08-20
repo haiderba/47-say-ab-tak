@@ -36,9 +36,19 @@ import {
 import { getAggregatedNews } from "@/lib/news/get-news";
 import { getFullArticleContent, FullArticleData } from "@/lib/news/get-full-article";
 import { NewsArticle } from "@/lib/news/rss.server";
+import { getCategoryFallbackImage } from "@/lib/news/news-helpers";
 import { toast } from "sonner";
 
+export interface NewsSearchParams {
+  story?: string;
+}
+
 export const Route = createFileRoute("/news/")({
+  validateSearch: (search: Record<string, unknown>): NewsSearchParams => {
+    return {
+      story: typeof search.story === "string" ? search.story : undefined,
+    };
+  },
   loader: async () => {
     return await getAggregatedNews({ data: "all" });
   },
@@ -140,6 +150,18 @@ function NewsBlogPage() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
 
   const articles = initialData.articles;
+  const search = Route.useSearch();
+
+  // If a story is requested in the search params (e.g. from the Top Header News Ticker), open it immediately
+  useEffect(() => {
+    const storyId = search.story;
+    if (storyId && articles && articles.length > 0) {
+      const target = articles.find((a) => a.id === storyId || a.id.includes(storyId));
+      if (target) {
+        setSelectedArticle(target);
+      }
+    }
+  }, [search.story, articles]);
 
   // Load full article content whenever an article is selected in Reader
   useEffect(() => {
@@ -353,10 +375,14 @@ function NewsBlogPage() {
               {featuredArticle.image ? (
                 <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-primary/10">
                   <img
-                    src={featuredArticle.image}
+                    src={featuredArticle.image || getCategoryFallbackImage(featuredArticle.category)}
                     alt={featuredArticle.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
+                    loading="eager"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.src = getCategoryFallbackImage(featuredArticle.category);
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                   <div className="absolute top-4 left-4 flex items-center gap-2">
@@ -494,16 +520,18 @@ function NewsBlogPage() {
                       onClick={() => setSelectedArticle(art)}
                       className="group cursor-pointer rounded-3xl border border-border bg-surface p-6 shadow-sm hover:border-primary hover:shadow-xl transition-all duration-300 flex flex-col sm:flex-row gap-6 items-start"
                     >
-                      {art.image && (
-                        <div className="h-44 sm:h-36 w-full sm:w-56 shrink-0 overflow-hidden rounded-2xl bg-primary/5">
-                          <img
-                            src={art.image}
-                            alt={art.title}
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                          />
-                        </div>
-                      )}
+                      <div className="h-44 sm:h-36 w-full sm:w-56 shrink-0 overflow-hidden rounded-2xl bg-primary/5">
+                        <img
+                          src={art.image || getCategoryFallbackImage(art.category)}
+                          alt={art.title}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            e.currentTarget.src = getCategoryFallbackImage(art.category);
+                          }}
+                        />
+                      </div>
 
                       <div className="flex-1 flex flex-col justify-between space-y-2.5">
                         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
@@ -755,18 +783,21 @@ function NewsBlogPage() {
               </div>
 
               {/* Lead Image */}
-              {selectedArticle.image && (
-                <div className="overflow-hidden rounded-2xl border border-border bg-primary/5 shadow-md">
-                  <img
-                    src={selectedArticle.image}
-                    alt={selectedArticle.title}
-                    className="w-full max-h-[380px] object-cover"
-                  />
-                  <div className="p-2.5 bg-bg/80 text-[11px] text-muted text-center font-medium">
-                    Editorial Lead Photo • Verified Dispatch from {selectedArticle.site}
-                  </div>
+              <div className="overflow-hidden rounded-2xl border border-border bg-primary/5 shadow-md">
+                <img
+                  src={selectedArticle.image || getCategoryFallbackImage(selectedArticle.category)}
+                  alt={selectedArticle.title}
+                  className="w-full max-h-[380px] object-cover"
+                  loading="eager"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.src = getCategoryFallbackImage(selectedArticle.category);
+                  }}
+                />
+                <div className="p-2.5 bg-bg/80 text-[11px] text-muted text-center font-medium">
+                  Editorial Photo • Verified Dispatch from {selectedArticle.site}
                 </div>
-              )}
+              </div>
 
               {/* IN-ARTICLE GOOGLE ADSENSE MONETIZATION SLOT */}
               

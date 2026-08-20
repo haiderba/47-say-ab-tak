@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { CommandPalette } from "@/components/command-palette";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
 import { MobileNav } from "@/components/mobile-nav";
+import { NewsTicker } from "@/components/news-ticker";
 import { AdUnit } from "@/components/ads/ad-unit";
 import { listCategories, listGuides } from "@/lib/content";
 import appCss from "../styles.css?url";
@@ -127,6 +128,7 @@ function Root() {
         <PreviewHostBridge />
         <AuthProvider>
           <div className="flex min-h-screen flex-col">
+            <NewsTicker />
             <SiteHeader onOpenSearch={() => setSearchOpen(true)} />
             <main className="flex-1">
               <Outlet />
