@@ -1,27 +1,57 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Sparkles,
-  History,
-  MoveHorizontal,
-  Play,
-  Pause,
-} from "lucide-react";
+import { Sparkles, History, MoveHorizontal } from "lucide-react";
 
 interface Milestone {
   year: number;
   label: string;
   desc: string;
+  image: string;
 }
 
 const MILESTONES: Milestone[] = [
-  { year: 1947, label: "Independence & Manual Era", desc: "Paper basta records, physical gazettes & registry ledgers" },
-  { year: 1965, label: "National Archival System", desc: "Centralized physical documentation & manual ID passes" },
-  { year: 1973, label: "Constitutional Citizen Registry", desc: "Introduction of national identity card act & paper CNIC" },
-  { year: 1990, label: "Early Computerized Registries", desc: "Electromechanical database records & automated ledgers" },
-  { year: 2000, label: "Establishment of NADRA", desc: "Digital national database & automated biometric identity" },
-  { year: 2010, label: "Smart National Identity Cards", desc: "Microchip-embedded smart CNIC & multi-factor verification" },
-  { year: 2026, label: "Citizen Cloud & AI Vault", desc: "AES-256 cloud vaults, Pak-ID app & paperless public services" },
+  {
+    year: 1947,
+    label: "Independence & Manual Era",
+    desc: "Paper basta records, physical gazettes & registry ledgers",
+    image: "/eras/era-1947.jpg",
+  },
+  {
+    year: 1965,
+    label: "National Archival System",
+    desc: "Centralized physical documentation & manual ID passes",
+    image: "/eras/era-1965.jpg",
+  },
+  {
+    year: 1973,
+    label: "Constitutional Citizen Registry",
+    desc: "Introduction of national identity card act & paper CNIC",
+    image: "/eras/era-1973.jpg",
+  },
+  {
+    year: 1990,
+    label: "Early Computerized Registries",
+    desc: "Electromechanical database records & automated ledgers",
+    image: "/eras/era-1990.jpg",
+  },
+  {
+    year: 2000,
+    label: "Establishment of NADRA",
+    desc: "Digital national database & automated biometric identity",
+    image: "/eras/era-2000.jpg",
+  },
+  {
+    year: 2010,
+    label: "Smart National Identity Cards",
+    desc: "Microchip-embedded smart CNIC & multi-factor verification",
+    image: "/eras/era-2010.jpg",
+  },
+  {
+    year: 2026,
+    label: "Citizen Cloud & AI Vault",
+    desc: "AES-256 cloud vaults, Pak-ID app & paperless public services",
+    image: "/eras/era-2026.jpg",
+  },
 ];
 
 function getClosestMilestone(year: number): Milestone {
@@ -43,12 +73,13 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
   const videoRef = useRef<HTMLVideoElement>(null);
   const yearDisplayRef = useRef<HTMLSpanElement>(null);
   const milestoneDisplayRef = useRef<HTMLSpanElement>(null);
+  const descDisplayRef = useRef<HTMLSpanElement>(null);
   const progressFillRef = useRef<HTMLDivElement>(null);
   const progressThumbRef = useRef<HTMLDivElement>(null);
   const glareRef = useRef<HTMLDivElement>(null);
 
+  const [activeMilestone, setActiveMilestone] = useState<Milestone>(MILESTONES[0]);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   // Animation Refs
   const targetProgressRef = useRef<number>(0);
@@ -59,23 +90,19 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
   const currentRotYRef = useRef<number>(0);
   const isInteractingRef = useRef<boolean>(false);
   const animFrameRef = useRef<number | null>(null);
+  const lastActiveYearRef = useRef<number>(1947);
 
   // Mobile relative touch drag refs
   const touchStartXRef = useRef<number>(0);
   const touchStartProgressRef = useRef<number>(0);
 
-  // Auto-play journey animation loop
+  // Preload all era images immediately
   useEffect(() => {
-    if (!isPlaying) return;
-    const interval = setInterval(() => {
-      targetProgressRef.current += 0.008;
-      if (targetProgressRef.current >= 1) {
-        targetProgressRef.current = 0;
-      }
-      setHasInteracted(true);
-    }, 40);
-    return () => clearInterval(interval);
-  }, [isPlaying]);
+    MILESTONES.forEach((m) => {
+      const img = new Image();
+      img.src = m.image;
+    });
+  }, []);
 
   // Main Smooth Lerp Loop via requestAnimationFrame
   useEffect(() => {
@@ -84,22 +111,25 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
     const glare = glareRef.current;
     const yearDisplay = yearDisplayRef.current;
     const milestoneDisplay = milestoneDisplayRef.current;
+    const descDisplay = descDisplayRef.current;
     const progressFill = progressFillRef.current;
     const progressThumb = progressThumbRef.current;
 
-    const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const loop = () => {
       // 1. Smooth Progress Interpolation (lerp)
       const diff = targetProgressRef.current - currentProgressRef.current;
-      currentProgressRef.current += diff * 0.15;
+      currentProgressRef.current += diff * 0.2;
 
       const p = Math.max(0, Math.min(1, currentProgressRef.current));
 
-      // Update video frame
+      // Update video frame if available
       if (video && video.duration && !isNaN(video.duration) && video.duration > 0) {
         const targetTime = p * video.duration;
-        if (Math.abs(video.currentTime - targetTime) > 0.015) {
+        if (Math.abs(video.currentTime - targetTime) > 0.02) {
           video.currentTime = targetTime;
         }
       }
@@ -109,12 +139,21 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
       const currentYear = Math.round(exactYear);
       const closest = getClosestMilestone(currentYear);
 
+      // Trigger state change when crossing milestone boundaries
+      if (closest.year !== lastActiveYearRef.current) {
+        lastActiveYearRef.current = closest.year;
+        setActiveMilestone(closest);
+      }
+
       // Update Year text
       if (yearDisplay) {
         yearDisplay.textContent = String(currentYear);
       }
       if (milestoneDisplay) {
         milestoneDisplay.textContent = closest.label;
+      }
+      if (descDisplay) {
+        descDisplay.textContent = closest.desc;
       }
 
       // Update Progress Bar
@@ -131,12 +170,22 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
         currentRotXRef.current += (targetRotXRef.current - currentRotXRef.current) * 0.1;
         currentRotYRef.current += (targetRotYRef.current - currentRotYRef.current) * 0.1;
 
-        card.style.transform = "perspective(1200px) rotateX(" + currentRotXRef.current + "deg) rotateY(" + currentRotYRef.current + "deg)";
+        card.style.transform =
+          "perspective(1200px) rotateX(" +
+          currentRotXRef.current +
+          "deg) rotateY(" +
+          currentRotYRef.current +
+          "deg)";
 
         if (glare) {
           const glareX = percent;
           const glareY = 50 + currentRotXRef.current * 4;
-          glare.style.background = "radial-gradient(circle at " + glareX + "% " + glareY + "%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)";
+          glare.style.background =
+            "radial-gradient(circle at " +
+            glareX +
+            "% " +
+            glareY +
+            "%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)";
           glare.style.opacity = isInteractingRef.current ? "1" : "0";
         }
       }
@@ -153,32 +202,33 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
 
   // Jump to specific year
   const seekToYear = (year: number) => {
-    setIsPlaying(false);
     const p = (year - 1947) / (2026 - 1947);
     targetProgressRef.current = Math.max(0, Math.min(1, p));
     setHasInteracted(true);
   };
 
   // Desktop Mouse Movement
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    setIsPlaying(false);
-    const container = containerRef.current;
-    if (!container) return;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const container = containerRef.current;
+      if (!container) return;
 
-    if (!hasInteracted) setHasInteracted(true);
-    isInteractingRef.current = true;
+      if (!hasInteracted) setHasInteracted(true);
+      isInteractingRef.current = true;
 
-    const rect = container.getBoundingClientRect();
-    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+      const rect = container.getBoundingClientRect();
+      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
 
-    targetProgressRef.current = x / rect.width;
+      targetProgressRef.current = x / rect.width;
 
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    targetRotYRef.current = ((x - centerX) / centerX) * 4.5;
-    targetRotXRef.current = -((y - centerY) / centerY) * 2.5;
-  }, [hasInteracted]);
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      targetRotYRef.current = ((x - centerX) / centerX) * 4.5;
+      targetRotXRef.current = -((y - centerY) / centerY) * 2.5;
+    },
+    [hasInteracted]
+  );
 
   const handleMouseLeave = useCallback(() => {
     isInteractingRef.current = false;
@@ -191,7 +241,6 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
 
   // Mobile Touch Handlers: Smooth relative finger dragging
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    setIsPlaying(false);
     if (!e.touches[0]) return;
     touchStartXRef.current = e.touches[0].clientX;
     touchStartProgressRef.current = targetProgressRef.current;
@@ -204,7 +253,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
     const rect = containerRef.current.getBoundingClientRect();
     const currentX = e.touches[0].clientX;
     const deltaX = currentX - touchStartXRef.current;
-    const deltaProgress = deltaX / (rect.width * 0.95);
+    const deltaProgress = deltaX / (rect.width * 0.92);
     targetProgressRef.current = Math.max(0, Math.min(1, touchStartProgressRef.current + deltaProgress));
   };
 
@@ -214,7 +263,6 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
 
   // Direct Timeline Seek Click
   const handleTimelineSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    setIsPlaying(false);
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
     targetProgressRef.current = x / rect.width;
@@ -245,7 +293,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           </h1>
 
           <p className="mx-auto mt-2.5 max-w-2xl text-xs font-medium text-emerald-100/90 sm:text-base leading-relaxed">
-            Move cursor, drag, or <strong className="text-accent">tap any year</strong> to explore{" "}
+            Slide horizontally or <strong className="text-accent">tap any milestone year</strong> to explore{" "}
             <strong className="text-accent font-bold">1947 — 2026</strong> from paper ledgers to digital citizen portals.
           </p>
         </div>
@@ -265,7 +313,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           <div className="hidden sm:flex absolute -top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
             <div className="flex items-center gap-2 rounded-full border border-accent/60 bg-accent px-4 py-1.5 text-xs font-black uppercase tracking-wider text-primary shadow-xl animate-pulse">
               <MoveHorizontal className="size-4 text-primary" />
-              <span>Move Cursor to Explore 1947 — 2026</span>
+              <span>Slide Horizontally to Explore 1947 — 2026</span>
             </div>
           </div>
 
@@ -279,29 +327,33 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           >
             {/* Inner Precision Bezel Screen Window */}
             <div className="relative h-full w-full overflow-hidden rounded-[26px] sm:rounded-[42px] bg-black border border-white/20 shadow-inner">
-              {/* Scrubber Video Track */}
-              <video
-                ref={videoRef}
-                src="/historical-hero.mp4"
-                poster="/monument_thumb.jpg"
-                muted
-                playsInline
-                preload="metadata"
-                className="h-full w-full object-cover rounded-[26px] sm:rounded-[42px]"
-              />
+              {/* Dynamic Stack of Real Era Frame Images for instant 60fps sliding */}
+              {MILESTONES.map((m) => {
+                const isSelected = activeMilestone.year === m.year;
+                return (
+                  <img
+                    key={m.year}
+                    src={m.image}
+                    alt={m.label}
+                    className={"absolute inset-0 h-full w-full object-cover transition-opacity duration-300 " + (
+                      isSelected ? "opacity-100 z-10" : "opacity-0 z-0"
+                    )}
+                  />
+                );
+              })}
 
               {/* Holographic Light Glare Reflection */}
               <div
                 ref={glareRef}
-                className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+                className="pointer-events-none absolute inset-0 transition-opacity duration-300 z-20"
                 style={{ mixBlendMode: "overlay", opacity: 0 }}
               />
 
               {/* Subtle Vignette Overlay */}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-20" />
 
               {/* Overlaid Real-Time Holographic Metadata HUD */}
-              <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-6 pb-3.5 sm:pb-7">
+              <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-6 pb-3.5 sm:pb-7 z-30">
                 {/* Top Row: Year & Milestone Tag */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -319,7 +371,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
                     </div>
                   </div>
 
-                  <div className="text-right max-w-[130px] sm:max-w-xs">
+                  <div className="text-right max-w-[140px] sm:max-w-xs">
                     <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-accent/90 block">
                       MILESTONE MARKER
                     </span>
@@ -332,27 +384,30 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
                   </div>
                 </div>
 
-                {/* Bottom Row: Tappable Quick Era Badges */}
+                {/* Bottom Row: Context Description and Jump Badges */}
                 <div className="flex items-end justify-between gap-2 pointer-events-auto">
                   <button
                     type="button"
                     onClick={() => seekToYear(1947)}
-                    className="rounded-lg sm:rounded-xl border border-white/20 bg-black/50 hover:bg-black/80 active:scale-95 px-2.5 sm:px-3.5 py-1 sm:py-1.5 backdrop-blur-md transition-all text-left"
+                    className="rounded-lg sm:rounded-xl border border-white/20 bg-black/60 hover:bg-black/80 active:scale-95 px-2.5 sm:px-3.5 py-1 sm:py-1.5 backdrop-blur-md transition-all text-left"
                   >
                     <span className="text-[9px] sm:text-[10px] font-bold text-emerald-300 block leading-none">1947: Manual</span>
                     <p className="text-[10px] sm:text-xs font-bold sm:font-black text-white mt-0.5 leading-none">Paper Basta</p>
                   </button>
 
-                  <div className="hidden sm:block text-center pointer-events-none">
-                    <span className="rounded-full bg-accent/20 px-3 py-1 text-[11px] font-bold text-accent border border-accent/40 backdrop-blur-md">
-                      ↔ Swipe left / right to travel
+                  <div className="text-center px-2 max-w-[200px] sm:max-w-md hidden xs:block">
+                    <span
+                      ref={descDisplayRef}
+                      className="rounded-full bg-black/60 px-3 py-1 text-[10px] sm:text-[11px] font-medium text-emerald-200 border border-emerald-500/30 backdrop-blur-md inline-block truncate max-w-full"
+                    >
+                      {activeMilestone.desc}
                     </span>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => seekToYear(2026)}
-                    className="text-right rounded-lg sm:rounded-xl border border-white/20 bg-black/50 hover:bg-black/80 active:scale-95 px-2.5 sm:px-3.5 py-1 sm:py-1.5 backdrop-blur-md transition-all"
+                    className="text-right rounded-lg sm:rounded-xl border border-white/20 bg-black/60 hover:bg-black/80 active:scale-95 px-2.5 sm:px-3.5 py-1 sm:py-1.5 backdrop-blur-md transition-all"
                   >
                     <span className="text-[9px] sm:text-[10px] font-bold text-accent block leading-none">2026: Digital</span>
                     <p className="text-[10px] sm:text-xs font-bold sm:font-black text-white mt-0.5 leading-none">Citizen Cloud</p>
@@ -362,7 +417,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
             </div>
           </div>
 
-          {/* Interactive Progress Bar Scrubber with Auto-Play and Quick Year Jump */}
+          {/* Interactive Progress Bar Scrubber with Tappable Year Milestones */}
           <div className="mx-auto mt-6 max-w-4xl">
             {/* Scrubber Track */}
             <div
@@ -385,44 +440,25 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
               />
             </div>
 
-            {/* Controls Row: Play/Pause Auto-Play & Tappable Era Buttons */}
-            <div className="mt-2 flex items-center justify-between gap-2 px-1 text-[11px] font-bold">
-              {/* Play Journey Toggle Button */}
-              <button
-                type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
-                className={"inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-black transition-all border shadow-sm " + (
-                  isPlaying
-                    ? "bg-amber-400 text-black border-amber-300 animate-pulse"
-                    : "bg-accent text-primary border-accent/80 hover:bg-accent-hover"
-                )}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="size-3 fill-current" />
-                    <span>Pause Tour</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="size-3 fill-current" />
-                    <span>Play 79-Yr Tour</span>
-                  </>
-                )}
-              </button>
-
-              {/* Tappable Year Milestones */}
-              <div className="flex items-center gap-1 sm:gap-2">
-                {[1947, 1965, 1973, 1990, 2000, 2010, 2026].map((yr) => (
+            {/* Interactive Era Milestone Buttons Row */}
+            <div className="mt-1 flex items-center justify-between px-1">
+              {MILESTONES.map((m) => {
+                const isActive = activeMilestone.year === m.year;
+                return (
                   <button
-                    key={yr}
+                    key={m.year}
                     type="button"
-                    onClick={() => seekToYear(yr)}
-                    className="rounded px-1.5 py-0.5 font-mono text-[10px] sm:text-xs text-emerald-200/70 hover:text-accent hover:bg-white/10 active:scale-95 transition-all"
+                    onClick={() => seekToYear(m.year)}
+                    className={"rounded px-1.5 sm:px-2.5 py-1 font-mono text-[11px] sm:text-xs font-bold transition-all " + (
+                      isActive
+                        ? "bg-accent text-primary scale-110 shadow-sm"
+                        : "text-emerald-200/70 hover:text-accent hover:bg-white/10"
+                    )}
                   >
-                    {yr}
+                    {m.year}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
