@@ -280,42 +280,42 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
 
             {/* Overlaid Real-Time Holographic Metadata HUD */}
-            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-5 sm:p-7 pb-6 sm:pb-8">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-6 pb-3.5 sm:pb-7">
               {/* Top Row: Year & Milestone Tag */}
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className="text-xs font-black uppercase tracking-widest text-accent/90">
+                  <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider text-accent/90 block whitespace-nowrap">
                     HISTORICAL ERA
                   </span>
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-1.5 sm:gap-2">
                     <span
                       ref={yearDisplayRef}
-                      className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]"
+                      className="font-display text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                     >
                       1947
                     </span>
-                    <span className="text-xs font-bold text-accent">A.D.</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-accent">A.D.</span>
                   </div>
                 </div>
 
-                <div className="text-right max-w-[200px] sm:max-w-xs">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-accent/90">
+                <div className="text-right max-w-[130px] sm:max-w-xs">
+                  <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-accent/90 block">
                     MILESTONE MARKER
                   </span>
                   <span
                     ref={milestoneDisplayRef}
-                    className="block font-display text-sm sm:text-lg font-extrabold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                    className="block font-display text-xs sm:text-base md:text-lg font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] leading-tight"
                   >
                     Independence &amp; Manual Era
                   </span>
                 </div>
               </div>
 
-              {/* Bottom Row: Quick Era Jump Cards */}
-              <div className="flex items-end justify-between">
-                <div className="rounded-xl border border-white/20 bg-black/60 px-3.5 py-1.5 backdrop-blur-md">
-                  <span className="text-[10px] font-bold text-emerald-300">1947: Manual</span>
-                  <p className="text-xs font-black text-white">Paper Basta</p>
+              {/* Bottom Row: Compact Quick Era Jump Badges */}
+              <div className="flex items-end justify-between gap-2">
+                <div className="rounded-lg sm:rounded-xl border border-white/15 bg-black/40 sm:bg-black/60 px-2 sm:px-3.5 py-1 sm:py-1.5 backdrop-blur-md">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-emerald-300 block leading-none">1947: Manual</span>
+                  <p className="text-[10px] sm:text-xs font-bold sm:font-black text-white mt-0.5 leading-none">Paper Basta</p>
                 </div>
 
                 <div className="hidden sm:block text-center">
@@ -324,9 +324,9 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
                   </span>
                 </div>
 
-                <div className="text-right rounded-xl border border-white/20 bg-black/60 px-3.5 py-1.5 backdrop-blur-md">
-                  <span className="text-[10px] font-bold text-accent">2026: Digital</span>
-                  <p className="text-xs font-black text-white">Citizen Cloud</p>
+                <div className="text-right rounded-lg sm:rounded-xl border border-white/15 bg-black/40 sm:bg-black/60 px-2 sm:px-3.5 py-1 sm:py-1.5 backdrop-blur-md">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-accent block leading-none">2026: Digital</span>
+                  <p className="text-[10px] sm:text-xs font-bold sm:font-black text-white mt-0.5 leading-none">Citizen Cloud</p>
                 </div>
               </div>
             </div>
