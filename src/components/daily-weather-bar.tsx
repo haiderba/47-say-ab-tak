@@ -14,6 +14,11 @@ import {
   Moon,
   RefreshCw,
   ChevronDown,
+  Sparkles,
+  Fuel,
+  Coins,
+  DollarSign,
+  PhoneCall,
 } from "lucide-react";
 
 interface CityOption {
@@ -50,7 +55,6 @@ interface WeatherState {
   province?: string;
   isAutoLocation: boolean;
   loading: boolean;
-  error?: string;
 }
 
 function getWeatherIcon(code: number, className = "size-5") {
@@ -65,20 +69,20 @@ function getWeatherIcon(code: number, className = "size-5") {
 }
 
 function decodeWmoCode(code: number): { en: string; urdu: string } {
-  if (code === 0) return { en: "Clear Sky", urdu: "صاف آسمان" };
+  if (code === 0) return { en: "Sunny", urdu: "صاف دھوپ" };
   if (code === 1) return { en: "Mainly Clear", urdu: "زیادہ تر صاف" };
   if (code === 2) return { en: "Partly Cloudy", urdu: "جزوی ابر آلود" };
   if (code === 3) return { en: "Overcast", urdu: "مکمل ابر آلود" };
   if (code === 45 || code === 48) return { en: "Foggy / Haze", urdu: "دھند / غبار" };
   if (code >= 51 && code <= 55) return { en: "Light Drizzle", urdu: "ہلکی بوندا باندی" };
-  if (code >= 61 && code <= 65) return { en: "Rain Showers", urdu: "بارش" };
+  if (code >= 61 && code <= 65) return { en: "Rain", urdu: "بارش" };
   if (code >= 71 && code <= 75) return { en: "Snowfall", urdu: "برف باری" };
   if (code >= 80 && code <= 82) return { en: "Heavy Rain", urdu: "تیز بارش" };
-  if (code >= 95) return { en: "Thunderstorm", urdu: "گرج چمک کے ساتھ بارش" };
-  return { en: "Fair Weather", urdu: "خوشگوار موسم" };
+  if (code >= 95) return { en: "Thunderstorm", urdu: "گرج چمک" };
+  return { en: "Sunny", urdu: "صاف دھوپ" };
 }
 
-function getIslamicHijriDate(): { en: string; urdu: string } {
+function getIslamicHijriDate(): string {
   try {
     const today = new Date();
     const formatterEn = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
@@ -87,48 +91,40 @@ function getIslamicHijriDate(): { en: string; urdu: string } {
       year: "numeric",
     });
     const formatted = formatterEn.format(today);
-    const cleanEn = formatted.includes("AH") ? formatted : `${formatted} AH`;
-    return {
-      en: cleanEn,
-      urdu: "صفر ۱۴۴۸ ھ",
-    };
+    return formatted.includes("AH") ? formatted : `${formatted} AH`;
   } catch {
-    return {
-      en: "12 Safar 1448 AH",
-      urdu: "صفر ۱۴۴۸ ھ",
-    };
+    return "13 Rabiʻ I 1448 AH";
   }
 }
 
-function getGregorianDate(): { en: string; urdu: string } {
+function getGregorianDate(): string {
   const today = new Date();
-  const en = today.toLocaleDateString("en-PK", {
-    weekday: "short",
+  return today.toLocaleDateString("en-PK", {
+    weekday: "long",
     day: "numeric",
-    month: "short",
+    month: "long",
     year: "numeric",
   });
-  return { en, urdu: "" };
 }
 
 export function DailyWeatherBar() {
-  const [selectedCity, setSelectedCity] = useState<CityOption>(MAJOR_PAKISTAN_CITIES[0]);
+  const [selectedCity, setSelectedCity] = useState<CityOption>(MAJOR_PAKISTAN_CITIES[1]); // Default Lahore
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [weather, setWeather] = useState<WeatherState>({
-    temp: 31,
-    condition: "Clear Sky",
-    conditionUrdu: "صاف آسمان",
-    humidity: 54,
-    windSpeed: 12,
+    temp: 32,
+    condition: "Sunny",
+    conditionUrdu: "صاف دھوپ",
+    humidity: 48,
+    windSpeed: 10,
     weatherCode: 0,
-    cityName: "Islamabad",
-    province: "Federal Capital",
+    cityName: "Lahore",
+    province: "Punjab",
     isAutoLocation: false,
     loading: false,
   });
 
-  const hijri = getIslamicHijriDate();
-  const gregorian = getGregorianDate();
+  const hijriDate = getIslamicHijriDate();
+  const gregorianDate = getGregorianDate();
 
   const fetchWeather = useCallback(async (lat: number, lng: number, cityName: string, province?: string, isAuto = false) => {
     setWeather((prev) => ({ ...prev, loading: true }));
@@ -136,7 +132,7 @@ export function DailyWeatherBar() {
       const res = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia%2FKarachi`
       );
-      if (!res.ok) throw new Error("Weather service offline");
+      if (!res.ok) throw new Error("Weather offline");
       const data = await res.json();
       const current = data.current;
       const wmo = decodeWmoCode(current.weather_code);
@@ -154,12 +150,7 @@ export function DailyWeatherBar() {
         loading: false,
       });
     } catch {
-      setWeather((prev) => ({
-        ...prev,
-        loading: false,
-        cityName,
-        province,
-      }));
+      setWeather((prev) => ({ ...prev, loading: false, cityName, province }));
     }
   }, []);
 
@@ -170,7 +161,7 @@ export function DailyWeatherBar() {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
 
-          let closest = MAJOR_PAKISTAN_CITIES[0];
+          let closest = MAJOR_PAKISTAN_CITIES[1];
           let minDistance = Infinity;
           for (const city of MAJOR_PAKISTAN_CITIES) {
             const d = Math.hypot(city.lat - lat, city.lng - lng);
@@ -184,12 +175,12 @@ export function DailyWeatherBar() {
           fetchWeather(lat, lng, closest.name, closest.province, true);
         },
         () => {
-          fetchWeather(MAJOR_PAKISTAN_CITIES[0].lat, MAJOR_PAKISTAN_CITIES[0].lng, MAJOR_PAKISTAN_CITIES[0].name, MAJOR_PAKISTAN_CITIES[0].province, false);
+          fetchWeather(MAJOR_PAKISTAN_CITIES[1].lat, MAJOR_PAKISTAN_CITIES[1].lng, MAJOR_PAKISTAN_CITIES[1].name, MAJOR_PAKISTAN_CITIES[1].province, false);
         },
         { timeout: 5000 }
       );
     } else {
-      fetchWeather(MAJOR_PAKISTAN_CITIES[0].lat, MAJOR_PAKISTAN_CITIES[0].lng, MAJOR_PAKISTAN_CITIES[0].name, MAJOR_PAKISTAN_CITIES[0].province, false);
+      fetchWeather(MAJOR_PAKISTAN_CITIES[1].lat, MAJOR_PAKISTAN_CITIES[1].lng, MAJOR_PAKISTAN_CITIES[1].name, MAJOR_PAKISTAN_CITIES[1].province, false);
     }
   }, [fetchWeather]);
 
@@ -206,7 +197,7 @@ export function DailyWeatherBar() {
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          let closest = MAJOR_PAKISTAN_CITIES[0];
+          let closest = MAJOR_PAKISTAN_CITIES[1];
           let minDistance = Infinity;
           for (const city of MAJOR_PAKISTAN_CITIES) {
             const d = Math.hypot(city.lat - lat, city.lng - lng);
@@ -226,33 +217,37 @@ export function DailyWeatherBar() {
   };
 
   return (
-    <div className="relative border-b border-border/80 bg-gradient-to-r from-primary/15 via-surface to-primary/10 px-4 py-2.5 shadow-xs">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-xs">
-        {/* Left: Location & Live Weather */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Location & City Dropdown */}
+    <div className="border-b border-border/80 bg-surface px-4 py-3 shadow-2xs">
+      <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+        {/* 1. Left: Weather Column */}
+        <div className="flex items-center gap-3 shrink-0">
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowCityPicker(!showCityPicker)}
-              className="group inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-surface px-3 py-1 font-bold text-primary shadow-xs hover:border-primary transition-all"
-              title="Click to change city"
+              className="flex items-center gap-2 text-left group"
             >
-              <MapPin className="size-3.5 text-accent shrink-0" />
-              <span>{weather.cityName}</span>
-              {weather.isAutoLocation && (
-                <span className="rounded-full bg-accent/20 px-1.5 py-0.2 text-[9px] font-mono text-warn-fg">
-                  GPS
-                </span>
-              )}
-              <ChevronDown className="size-3 text-muted group-hover:text-primary transition-transform" />
+              <div className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-500 shadow-2xs">
+                {weather.loading ? (
+                  <RefreshCw className="size-4.5 animate-spin text-muted" />
+                ) : (
+                  getWeatherIcon(weather.weatherCode, "size-5")
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-1 font-display text-sm font-bold text-primary group-hover:text-primary-light transition-colors">
+                  <span>{weather.cityName} {weather.temp}°C</span>
+                  <ChevronDown className="size-3 text-muted" />
+                </div>
+                <div className="text-[11px] text-muted font-medium">{weather.condition}</div>
+              </div>
             </button>
 
             {/* City Dropdown Menu */}
             {showCityPicker && (
               <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-surface p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95">
                 <div className="flex items-center justify-between border-b border-border/80 px-3 py-1.5 text-[11px] font-bold text-muted">
-                  <span>Major Pakistani Cities</span>
+                  <span>Select City</span>
                   <button
                     type="button"
                     onClick={handleDetectLocation}
@@ -284,45 +279,40 @@ export function DailyWeatherBar() {
               </div>
             )}
           </div>
+        </div>
 
-          {/* Temperature & Weather Pill */}
-          <div className="flex items-center gap-2 rounded-full border border-border/70 bg-surface/90 px-3 py-1 shadow-xs">
-            {weather.loading ? (
-              <RefreshCw className="size-3.5 animate-spin text-muted" />
-            ) : (
-              getWeatherIcon(weather.weatherCode, "size-4")
-            )}
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-sm font-black text-primary">
-                {weather.temp}°C
-              </span>
-              <span className="hidden sm:inline text-[11px] font-semibold text-fg/80">
-                {weather.condition}
-              </span>
-            </div>
-            <div className="hidden md:flex items-center gap-2 border-l border-border/60 pl-2 text-[10px] text-muted font-medium">
-              <span className="inline-flex items-center gap-0.5">
-                <Droplets className="size-3 text-blue-500" /> {weather.humidity}%
-              </span>
-              <span className="inline-flex items-center gap-0.5">
-                <Wind className="size-3 text-cyan-600" /> {weather.windSpeed} km/h
-              </span>
-            </div>
+        {/* 2. Center: Today's Date (Gregorian + Hijri) */}
+        <div className="text-center md:border-x md:border-border/70 md:px-6 shrink-0 space-y-0.5">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Today's date</div>
+          <div className="font-semibold text-xs sm:text-sm text-fg">
+            <span>{gregorianDate}</span>
+            <span className="mx-1.5 text-muted">•</span>
+            <span className="text-primary font-bold">{hijriDate}</span>
           </div>
         </div>
 
-        {/* Right: Dual Gregorian & Islamic Hijri Calendar Date */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Gregorian Date */}
-          <div className="flex items-center gap-1.5 font-semibold text-fg">
-            <Calendar className="size-3.5 text-primary shrink-0" />
-            <span>{gregorian.en}</span>
+        {/* 3. Right: Live Daily Ticker */}
+        <div className="flex items-center gap-3 overflow-x-auto text-xs shrink-0 max-w-full">
+          <div className="text-right hidden xl:block">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Live daily ticker</div>
+            <div className="font-bold text-xs text-primary">
+              Petrol Rs 268.50, Gold 24K Rs 284,500, USD PKR 278.45
+            </div>
           </div>
 
-          {/* Islamic Hijri Date */}
-          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-bold text-warn-fg">
-            <Moon className="size-3 text-accent shrink-0" />
-            <span className="text-[11px]">{hijri.en}</span>
+          <div className="flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-400">
+              <Fuel className="size-3" />
+              <span>Petrol 268.50</span>
+            </div>
+            <div className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+              <DollarSign className="size-3" />
+              <span>USD 278.45</span>
+            </div>
+            <div className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-[11px] font-bold text-yellow-700 dark:text-yellow-400">
+              <Coins className="size-3" />
+              <span>Gold 284.5k</span>
+            </div>
           </div>
         </div>
       </div>
