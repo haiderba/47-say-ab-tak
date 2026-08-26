@@ -38,15 +38,14 @@ interface CacheEntry {
   timestamp: number;
 }
 let cachedFeed: CacheEntry | null = null;
-const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes cache for live breaking speed
+const CACHE_TTL_MS = 60 * 1000; // 60s cache for real-time live breaking speed
 
 const FEED_SOURCES = [
+  { name: "Geo News Pakistan", url: "https://www.geo.tv/rss/1/1" },
+  { name: "ARY News Pakistan", url: "https://arynews.tv/category/pakistan/feed/" },
   { name: "DAWN Pakistan", url: "https://www.dawn.com/feeds/pakistan" },
-  { name: "DAWN National", url: "https://www.dawn.com/feeds/home" },
-  { name: "DAWN Business", url: "https://www.dawn.com/feeds/business" },
-  { name: "The Express Tribune", url: "https://tribune.com.pk/feed/pakistan" },
-  { name: "The News National", url: "https://www.thenews.com.pk/rss/1/1" },
-  { name: "The News Business", url: "https://www.thenews.com.pk/rss/1/2" },
+  { name: "Express Tribune", url: "https://tribune.com.pk/feed/pakistan" },
+  { name: "The News Pakistan", url: "https://www.thenews.com.pk/rss/1/1" },
 ];
 
 export const CATEGORY_DEFAULT_IMAGES: Record<NewsArticle["category"], string> = {
@@ -127,7 +126,30 @@ async function fetchSingleFeed(sourceName: string, url: string): Promise<NewsArt
         lower.includes("gossip") ||
         lower.includes("horoscope");
 
-      if (isCelebrityGossip) continue;
+      const isForeignNonPakistan =
+        (lower.includes("white house") ||
+          lower.includes("us state dept") ||
+          lower.includes("trump") ||
+          lower.includes("biden") ||
+          lower.includes("gaza") ||
+          lower.includes("israel") ||
+          lower.includes("ukraine") ||
+          lower.includes("russia") ||
+          lower.includes("taiwan") ||
+          lower.includes("china president") ||
+          lower.includes("xi jinping") ||
+          lower.includes("bill gates") ||
+          lower.includes("nepal flood") ||
+          lower.includes("us army")) &&
+        !lower.includes("pakistan") &&
+        !lower.includes("islamabad") &&
+        !lower.includes("lahore") &&
+        !lower.includes("karachi") &&
+        !lower.includes("rawalpindi") &&
+        !lower.includes("peshawar") &&
+        !lower.includes("quetta");
+
+      if (isCelebrityGossip || isForeignNonPakistan) continue;
 
       // Smart topic categorization
       let cat: NewsArticle["category"] = "National";

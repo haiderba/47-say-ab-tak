@@ -58,9 +58,11 @@ function formatNewsDate(dateStr?: string | null): string {
 
 function getSiteBadgeColor(site: string) {
   const s = site.toLowerCase();
+  if (s.includes("geo")) return "text-blue-700 font-black";
+  if (s.includes("ary")) return "text-amber-700 font-black";
   if (s.includes("dawn")) return "text-[#01411c] font-black";
   if (s.includes("tribune")) return "text-red-700 font-black";
-  if (s.includes("the news")) return "text-blue-700 font-black";
+  if (s.includes("the news")) return "text-purple-700 font-black";
   return "text-primary font-black";
 }
 
