@@ -86,13 +86,15 @@ function getIslamicHijriDate(): { en: string; urdu: string } {
       month: "long",
       year: "numeric",
     });
+    const formatted = formatterEn.format(today);
+    const cleanEn = formatted.includes("AH") ? formatted : `${formatted} AH`;
     return {
-      en: formatterEn.format(today) + " AH",
+      en: cleanEn,
       urdu: "صفر ۱۴۴۸ ھ",
     };
   } catch {
     return {
-      en: "Safar 1448 AH",
+      en: "12 Safar 1448 AH",
       urdu: "صفر ۱۴۴۸ ھ",
     };
   }
