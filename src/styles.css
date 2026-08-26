@@ -48,3 +48,25 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+@keyframes marqueeSlow {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-ticker {
+  display: flex;
+  width: max-content;
+  animation: marqueeSlow 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-ticker:hover,
+.animate-marquee-ticker:active {
+  animation-play-state: paused;
+}
+

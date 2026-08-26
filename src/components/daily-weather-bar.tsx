@@ -346,58 +346,143 @@ export function DailyWeatherBar() {
         </div>
       </div>
 
-      {/* 📈 3. LIVE MARKET & STOCK EXCHANGE TICKER RIBBON */}
-      <div className="border-t border-border/70 bg-[#063318] text-surface px-4 py-2 text-xs">
-        <div className="mx-auto max-w-7xl flex items-center justify-between gap-4 overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-4 shrink-0">
-            {/* PSX KSE-100 */}
-            <div className="inline-flex items-center gap-1.5 font-bold">
-              <TrendingUp className="size-3.5 text-emerald-400" />
-              <span className="text-accent">{t("psxKse100")}:</span>
-              <span className="text-surface font-black">82,450.20</span>
-              <span className="text-[10px] text-emerald-400 font-mono">(+410.50)</span>
+      {/* 📈 3. LIVE MARKET & STOCK EXCHANGE CONTINUOUS SLOW MARQUEE TICKER RIBBON */}
+      <div className="border-t border-border/70 bg-[#063318] text-surface py-2 text-xs relative overflow-hidden select-none">
+        {/* Left and right gradient fade for premium look */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-[#063318] to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-[#063318] to-transparent z-10" />
+
+        <div className="flex items-center w-full overflow-hidden">
+          <div className="animate-marquee-ticker flex items-center gap-6 shrink-0 py-0.5">
+            {/* Set 1 */}
+            <div className="flex items-center gap-6 shrink-0">
+              {/* PSX KSE-100 */}
+              <div className="inline-flex items-center gap-1.5 font-bold">
+                <TrendingUp className="size-3.5 text-emerald-400" />
+                <span className="text-accent">{t("psxKse100")}:</span>
+                <span className="text-surface font-black">82,450.20</span>
+                <span className="text-[10px] text-emerald-400 font-mono">(+410.50)</span>
+              </div>
+
+              {/* Petrol */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <Fuel className="size-3 text-amber-400" />
+                <span>{t("petrol")}:</span>
+                <span className="text-accent font-black">Rs 268.50</span>
+              </div>
+
+              {/* Diesel */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <Fuel className="size-3 text-amber-300" />
+                <span>Diesel:</span>
+                <span className="text-surface font-black">Rs 276.40</span>
+              </div>
+
+              {/* USD */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <DollarSign className="size-3 text-emerald-400" />
+                <span>{t("usdPkr")}:</span>
+                <span className="text-surface font-black">Rs 278.45</span>
+              </div>
+
+              {/* SAR */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <span>🇸🇦 {t("sarPkr")}:</span>
+                <span className="text-surface font-black">Rs 74.20</span>
+              </div>
+
+              {/* AED */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <span>🇦🇪 {t("aedPkr")}:</span>
+                <span className="text-surface font-black">Rs 75.80</span>
+              </div>
+
+              {/* GBP */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <span>🇬🇧 GBP/PKR:</span>
+                <span className="text-surface font-black">Rs 365.10</span>
+              </div>
+
+              {/* Gold 24K */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <Coins className="size-3 text-yellow-400" />
+                <span>{t("gold24k")}:</span>
+                <span className="text-accent font-black">Rs 284,500</span>
+              </div>
+
+              {/* 24/7 Helplines */}
+              <div className="inline-flex items-center gap-2 border-l border-emerald-800 pl-3">
+                <span className="text-[11px] text-surface/80 font-bold">{t("helplines")}:</span>
+                <a href="tel:15" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">15 (Police)</a>
+                <a href="tel:1122" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1122 (Rescue)</a>
+                <a href="tel:1777" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1777 (NADRA)</a>
+              </div>
             </div>
 
-            {/* Petrol */}
-            <div className="inline-flex items-center gap-1 font-bold">
-              <Fuel className="size-3 text-amber-400" />
-              <span>{t("petrol")}:</span>
-              <span className="text-accent font-black">Rs 268.50</span>
-            </div>
+            {/* Set 2 (Duplicate for Seamless Infinite Marquee Loop) */}
+            <div className="flex items-center gap-6 shrink-0" aria-hidden="true">
+              {/* PSX KSE-100 */}
+              <div className="inline-flex items-center gap-1.5 font-bold">
+                <TrendingUp className="size-3.5 text-emerald-400" />
+                <span className="text-accent">{t("psxKse100")}:</span>
+                <span className="text-surface font-black">82,450.20</span>
+                <span className="text-[10px] text-emerald-400 font-mono">(+410.50)</span>
+              </div>
 
-            {/* USD */}
-            <div className="inline-flex items-center gap-1 font-bold">
-              <DollarSign className="size-3 text-emerald-400" />
-              <span>{t("usdPkr")}:</span>
-              <span className="text-surface font-black">Rs 278.45</span>
-            </div>
+              {/* Petrol */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <Fuel className="size-3 text-amber-400" />
+                <span>{t("petrol")}:</span>
+                <span className="text-accent font-black">Rs 268.50</span>
+              </div>
 
-            {/* SAR */}
-            <div className="inline-flex items-center gap-1 font-bold">
-              <span>🇸🇦 {t("sarPkr")}:</span>
-              <span className="text-surface font-black">Rs 74.20</span>
-            </div>
+              {/* Diesel */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <Fuel className="size-3 text-amber-300" />
+                <span>Diesel:</span>
+                <span className="text-surface font-black">Rs 276.40</span>
+              </div>
 
-            {/* AED */}
-            <div className="inline-flex items-center gap-1 font-bold">
-              <span>🇦🇪 {t("aedPkr")}:</span>
-              <span className="text-surface font-black">Rs 75.80</span>
-            </div>
+              {/* USD */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <DollarSign className="size-3 text-emerald-400" />
+                <span>{t("usdPkr")}:</span>
+                <span className="text-surface font-black">Rs 278.45</span>
+              </div>
 
-            {/* Gold */}
-            <div className="inline-flex items-center gap-1 font-bold">
-              <Coins className="size-3 text-yellow-400" />
-              <span>{t("gold24k")}:</span>
-              <span className="text-accent font-black">Rs 284,500</span>
-            </div>
-          </div>
+              {/* SAR */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <span>🇸🇦 {t("sarPkr")}:</span>
+                <span className="text-surface font-black">Rs 74.20</span>
+              </div>
 
-          {/* 24/7 Helplines */}
-          <div className="hidden lg:flex items-center gap-2 shrink-0 border-l border-emerald-800 pl-3">
-            <span className="text-[11px] text-surface/80 font-bold">{t("helplines")}:</span>
-            <a href="tel:15" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">15 (Police)</a>
-            <a href="tel:1122" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1122 (Rescue)</a>
-            <a href="tel:1777" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1777 (NADRA)</a>
+              {/* AED */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <span>🇦🇪 {t("aedPkr")}:</span>
+                <span className="text-surface font-black">Rs 75.80</span>
+              </div>
+
+              {/* GBP */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <span>🇬🇧 GBP/PKR:</span>
+                <span className="text-surface font-black">Rs 365.10</span>
+              </div>
+
+              {/* Gold 24K */}
+              <div className="inline-flex items-center gap-1 font-bold">
+                <Coins className="size-3 text-yellow-400" />
+                <span>{t("gold24k")}:</span>
+                <span className="text-accent font-black">Rs 284,500</span>
+              </div>
+
+              {/* 24/7 Helplines */}
+              <div className="inline-flex items-center gap-2 border-l border-emerald-800 pl-3">
+                <span className="text-[11px] text-surface/80 font-bold">{t("helplines")}:</span>
+                <a href="tel:15" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">15 (Police)</a>
+                <a href="tel:1122" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1122 (Rescue)</a>
+                <a href="tel:1777" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1777 (NADRA)</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
