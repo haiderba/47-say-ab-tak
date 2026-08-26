@@ -1,3 +1,15 @@
+export interface NewsArticle {
+  id: string;
+  title: string;
+  url: string;
+  published: string;
+  site: string;
+  category: "Breaking News" | "National" | "Legal & Courts" | "Economy & Trade" | "Citizen & Tech" | "Official Announcement";
+  image?: string | null;
+  summary: string;
+  sourceType: "live_rss" | "official_portal";
+}
+
 export const CATEGORY_DEFAULT_IMAGES: Record<string, string> = {
   "Breaking News": "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?q=80&w=800&auto=format&fit=crop",
   "National": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=800&auto=format&fit=crop",
