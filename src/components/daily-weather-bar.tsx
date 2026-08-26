@@ -18,8 +18,15 @@ import {
   Fuel,
   Coins,
   DollarSign,
+  TrendingUp,
+  Activity,
   PhoneCall,
+  Clock,
 } from "lucide-react";
+import { useLanguage } from "@/context/language-context";
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from "@/lib/i18n";
+import { formatDesiDateString } from "@/lib/desi-calendar";
+import { calculatePakistaniPrayerTimes, PrayerTimes } from "@/lib/prayer-times";
 
 interface CityOption {
   name: string;
@@ -44,42 +51,15 @@ export const MAJOR_PAKISTAN_CITIES: CityOption[] = [
   { name: "Muzaffarabad", nameUrdu: "مظفر آباد", lat: 34.3705, lng: 73.4711, province: "Azad Kashmir" },
 ];
 
-interface WeatherState {
-  temp: number;
-  condition: string;
-  conditionUrdu: string;
-  humidity: number;
-  windSpeed: number;
-  weatherCode: number;
-  cityName: string;
-  province?: string;
-  isAutoLocation: boolean;
-  loading: boolean;
-}
-
 function getWeatherIcon(code: number, className = "size-5") {
-  if (code === 0 || code === 1) return <Sun className={`${className} text-amber-500 animate-spin-slow`} />;
-  if (code === 2 || code === 3) return <Cloud className={`${className} text-slate-400`} />;
-  if (code >= 45 && code <= 48) return <CloudFog className={`${className} text-slate-400`} />;
-  if (code >= 51 && code <= 67) return <CloudRain className={`${className} text-blue-500`} />;
-  if (code >= 71 && code <= 77) return <Snowflake className={`${className} text-cyan-400`} />;
-  if (code >= 80 && code <= 82) return <CloudRain className={`${className} text-blue-600`} />;
-  if (code >= 95) return <CloudLightning className={`${className} text-amber-400`} />;
-  return <Sun className={`${className} text-amber-500`} />;
-}
-
-function decodeWmoCode(code: number): { en: string; urdu: string } {
-  if (code === 0) return { en: "Sunny", urdu: "صاف دھوپ" };
-  if (code === 1) return { en: "Mainly Clear", urdu: "زیادہ تر صاف" };
-  if (code === 2) return { en: "Partly Cloudy", urdu: "جزوی ابر آلود" };
-  if (code === 3) return { en: "Overcast", urdu: "مکمل ابر آلود" };
-  if (code === 45 || code === 48) return { en: "Foggy / Haze", urdu: "دھند / غبار" };
-  if (code >= 51 && code <= 55) return { en: "Light Drizzle", urdu: "ہلکی بوندا باندی" };
-  if (code >= 61 && code <= 65) return { en: "Rain", urdu: "بارش" };
-  if (code >= 71 && code <= 75) return { en: "Snowfall", urdu: "برف باری" };
-  if (code >= 80 && code <= 82) return { en: "Heavy Rain", urdu: "تیز بارش" };
-  if (code >= 95) return { en: "Thunderstorm", urdu: "گرج چمک" };
-  return { en: "Sunny", urdu: "صاف دھوپ" };
+  if (code === 0 || code === 1) return <Sun className={className + " text-amber-500 animate-spin-slow"} />;
+  if (code === 2 || code === 3) return <Cloud className={className + " text-slate-400"} />;
+  if (code >= 45 && code <= 48) return <CloudFog className={className + " text-slate-400"} />;
+  if (code >= 51 && code <= 67) return <CloudRain className={className + " text-blue-500"} />;
+  if (code >= 71 && code <= 77) return <Snowflake className={className + " text-cyan-400"} />;
+  if (code >= 80 && code <= 82) return <CloudRain className={className + " text-blue-600"} />;
+  if (code >= 95) return <CloudLightning className={className + " text-amber-400"} />;
+  return <Sun className={className + " text-amber-500"} />;
 }
 
 function getIslamicHijriDate(): string {
@@ -91,66 +71,95 @@ function getIslamicHijriDate(): string {
       year: "numeric",
     });
     const formatted = formatterEn.format(today);
-    return formatted.includes("AH") ? formatted : `${formatted} AH`;
+    return formatted.includes("AH") ? formatted : formatted + " AH";
   } catch {
     return "13 Rabiʻ I 1448 AH";
   }
 }
 
-function getGregorianDate(): string {
+function getGregorianDate(lang: SupportedLanguage): string {
   const today = new Date();
-  return today.toLocaleDateString("en-PK", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const localeMap: Record<SupportedLanguage, string> = {
+    en: "en-PK",
+    ur: "ur-PK",
+    pa: "pa-PK",
+    ps: "ps-AF",
+    sd: "sd-PK",
+  };
+  try {
+    return today.toLocaleDateString(localeMap[lang] || "en-PK", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return today.toLocaleDateString("en-PK", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
 }
 
 export function DailyWeatherBar() {
+  const { language, setLanguage, t, isRTL } = useLanguage();
   const [selectedCity, setSelectedCity] = useState<CityOption>(MAJOR_PAKISTAN_CITIES[1]); // Default Lahore
   const [showCityPicker, setShowCityPicker] = useState(false);
-  const [weather, setWeather] = useState<WeatherState>({
+  const [weather, setWeather] = useState({
     temp: 32,
-    condition: "Sunny",
-    conditionUrdu: "صاف دھوپ",
+    weatherCode: 0,
     humidity: 48,
     windSpeed: 10,
-    weatherCode: 0,
-    cityName: "Lahore",
-    province: "Punjab",
-    isAutoLocation: false,
+    aqi: 65,
     loading: false,
   });
 
+  const prayerTimes: PrayerTimes = calculatePakistaniPrayerTimes(selectedCity.lat, selectedCity.lng);
   const hijriDate = getIslamicHijriDate();
-  const gregorianDate = getGregorianDate();
+  const gregorianDate = getGregorianDate(language);
+  const desiDate = formatDesiDateString(language);
 
-  const fetchWeather = useCallback(async (lat: number, lng: number, cityName: string, province?: string, isAuto = false) => {
+  const fetchWeatherAndAqi = useCallback(async (lat: number, lng: number) => {
     setWeather((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia%2FKarachi`
+      // 1. Weather
+      const weatherRes = await fetch(
+        "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lng + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia%2FKarachi"
       );
-      if (!res.ok) throw new Error("Weather offline");
-      const data = await res.json();
-      const current = data.current;
-      const wmo = decodeWmoCode(current.weather_code);
+      const weatherData = weatherRes.ok ? await weatherRes.json() : null;
 
-      setWeather({
-        temp: Math.round(current.temperature_2m),
-        condition: wmo.en,
-        conditionUrdu: wmo.urdu,
-        humidity: Math.round(current.relative_humidity_2m),
-        windSpeed: Math.round(current.wind_speed_10m),
-        weatherCode: current.weather_code,
-        cityName,
-        province,
-        isAutoLocation: isAuto,
-        loading: false,
-      });
+      // 2. Air Quality AQI
+      let aqiVal = 65;
+      try {
+        const aqiRes = await fetch(
+          "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" + lat + "&longitude=" + lng + "&current=us_aqi&timezone=Asia%2FKarachi"
+        );
+        if (aqiRes.ok) {
+          const aqiData = await aqiRes.json();
+          if (aqiData?.current?.us_aqi) {
+            aqiVal = Math.round(aqiData.current.us_aqi);
+          }
+        }
+      } catch {
+        aqiVal = 65;
+      }
+
+      if (weatherData?.current) {
+        setWeather({
+          temp: Math.round(weatherData.current.temperature_2m),
+          weatherCode: weatherData.current.weather_code,
+          humidity: Math.round(weatherData.current.relative_humidity_2m),
+          windSpeed: Math.round(weatherData.current.wind_speed_10m),
+          aqi: aqiVal,
+          loading: false,
+        });
+      } else {
+        setWeather((prev) => ({ ...prev, loading: false, aqi: aqiVal }));
+      }
     } catch {
-      setWeather((prev) => ({ ...prev, loading: false, cityName, province }));
+      setWeather((prev) => ({ ...prev, loading: false }));
     }
   }, []);
 
@@ -160,7 +169,6 @@ export function DailyWeatherBar() {
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-
           let closest = MAJOR_PAKISTAN_CITIES[1];
           let minDistance = Infinity;
           for (const city of MAJOR_PAKISTAN_CITIES) {
@@ -170,91 +178,95 @@ export function DailyWeatherBar() {
               closest = city;
             }
           }
-
           setSelectedCity(closest);
-          fetchWeather(lat, lng, closest.name, closest.province, true);
+          fetchWeatherAndAqi(lat, lng);
         },
         () => {
-          fetchWeather(MAJOR_PAKISTAN_CITIES[1].lat, MAJOR_PAKISTAN_CITIES[1].lng, MAJOR_PAKISTAN_CITIES[1].name, MAJOR_PAKISTAN_CITIES[1].province, false);
+          fetchWeatherAndAqi(selectedCity.lat, selectedCity.lng);
         },
         { timeout: 5000 }
       );
     } else {
-      fetchWeather(MAJOR_PAKISTAN_CITIES[1].lat, MAJOR_PAKISTAN_CITIES[1].lng, MAJOR_PAKISTAN_CITIES[1].name, MAJOR_PAKISTAN_CITIES[1].province, false);
+      fetchWeatherAndAqi(selectedCity.lat, selectedCity.lng);
     }
-  }, [fetchWeather]);
+  }, [fetchWeatherAndAqi]);
 
   const handleCitySelect = (city: CityOption) => {
     setSelectedCity(city);
     setShowCityPicker(false);
-    fetchWeather(city.lat, city.lng, city.name, city.province, false);
+    fetchWeatherAndAqi(city.lat, city.lng);
   };
 
-  const handleDetectLocation = () => {
-    if (typeof window !== "undefined" && "geolocation" in navigator) {
-      setWeather((prev) => ({ ...prev, loading: true }));
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          let closest = MAJOR_PAKISTAN_CITIES[1];
-          let minDistance = Infinity;
-          for (const city of MAJOR_PAKISTAN_CITIES) {
-            const d = Math.hypot(city.lat - lat, city.lng - lng);
-            if (d < minDistance) {
-              minDistance = d;
-              closest = city;
-            }
-          }
-          setSelectedCity(closest);
-          fetchWeather(lat, lng, closest.name, closest.province, true);
-        },
-        () => {
-          fetchWeather(selectedCity.lat, selectedCity.lng, selectedCity.name, selectedCity.province, false);
-        }
-      );
-    }
+  const getAqiStatus = (aqi: number) => {
+    if (aqi <= 50) return { label: t("aqiGood"), color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30" };
+    if (aqi <= 100) return { label: t("aqiModerate"), color: "text-amber-600 bg-amber-500/10 border-amber-500/30" };
+    if (aqi <= 150) return { label: t("aqiSensitive"), color: "text-orange-600 bg-orange-500/10 border-orange-500/30" };
+    return { label: t("aqiUnhealthy"), color: "text-red-600 bg-red-500/10 border-red-500/30" };
   };
+
+  const aqiInfo = getAqiStatus(weather.aqi);
 
   return (
-    <div className="border-b border-border/80 bg-surface px-4 py-3 shadow-2xs">
-      <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-        {/* 1. Left: Weather Column */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="relative">
+    <div className="border-b border-border/80 bg-surface shadow-xs">
+      {/* 🌐 1. TOP 5-LANGUAGE SWITCHER HEADER */}
+      <div className="bg-[#032b13] px-4 py-2 text-surface border-b border-emerald-900/60">
+        <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-display font-black text-xs text-accent">47 Say Ab Tak</span>
+            <span className="text-[10px] text-surface/70 hidden sm:inline">• {t("portalSubtitle")}</span>
+          </div>
+
+          {/* 5-Language Toggle Pill */}
+          <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md rounded-full p-1 border border-emerald-500/30">
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => setLanguage(lang.code)}
+                className={
+                  "px-2.5 py-0.5 rounded-full text-xs font-bold transition-all " +
+                  (language === lang.code
+                    ? "bg-accent text-[#01411c] shadow-sm font-black scale-105"
+                    : "text-surface/80 hover:text-surface hover:bg-surface/10")
+                }
+              >
+                {lang.nativeName}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 🌦️ 2. SMART 4-WIDGET DASHBOARD BAR (WEATHER + TRIPLE DATE + AQI + NAMAZ) */}
+      <div className="px-4 py-3 bg-gradient-to-r from-primary/5 via-surface to-primary/5">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          {/* WIDGET 1: LIVE WEATHER */}
+          <div className="relative flex items-center justify-between rounded-2xl border border-border/80 bg-surface/90 p-3 shadow-2xs">
             <button
               type="button"
               onClick={() => setShowCityPicker(!showCityPicker)}
-              className="flex items-center gap-2 text-left group"
+              className="flex items-center gap-3 text-left group w-full"
             >
-              <div className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-500 shadow-2xs">
+              <div className="grid size-10 place-items-center rounded-xl bg-amber-500/10 text-amber-500 shadow-2xs shrink-0">
                 {weather.loading ? (
-                  <RefreshCw className="size-4.5 animate-spin text-muted" />
+                  <RefreshCw className="size-5 animate-spin text-muted" />
                 ) : (
-                  getWeatherIcon(weather.weatherCode, "size-5")
+                  getWeatherIcon(weather.weatherCode, "size-6")
                 )}
               </div>
-              <div>
-                <div className="flex items-center gap-1 font-display text-sm font-bold text-primary group-hover:text-primary-light transition-colors">
-                  <span>{weather.cityName} {weather.temp}°C</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1 font-display text-sm font-black text-primary group-hover:text-primary-light transition-colors">
+                  <span>{language === "en" ? selectedCity.name : selectedCity.nameUrdu} {weather.temp}°C</span>
                   <ChevronDown className="size-3 text-muted" />
                 </div>
-                <div className="text-[11px] text-muted font-medium">{weather.condition}</div>
+                <div className="text-[11px] text-muted font-medium truncate">{t("weatherTitle")} • {weather.humidity}% Hum</div>
               </div>
             </button>
 
-            {/* City Dropdown Menu */}
             {showCityPicker && (
               <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-surface p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95">
                 <div className="flex items-center justify-between border-b border-border/80 px-3 py-1.5 text-[11px] font-bold text-muted">
-                  <span>Select City</span>
-                  <button
-                    type="button"
-                    onClick={handleDetectLocation}
-                    className="inline-flex items-center gap-1 text-primary hover:underline"
-                  >
-                    <Compass className="size-3" /> Auto Detect
-                  </button>
+                  <span>{t("weatherTitle")}</span>
                 </div>
                 <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
                   {MAJOR_PAKISTAN_CITIES.map((city) => (
@@ -262,16 +274,12 @@ export function DailyWeatherBar() {
                       key={city.name}
                       type="button"
                       onClick={() => handleCitySelect(city)}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-xs transition-colors ${
-                        selectedCity.name === city.name
-                          ? "bg-primary text-surface font-bold"
-                          : "text-fg hover:bg-bg"
-                      }`}
+                      className={
+                        "flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-xs transition-colors " +
+                        (selectedCity.name === city.name ? "bg-primary text-surface font-bold" : "text-fg hover:bg-bg")
+                      }
                     >
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{city.name}</span>
-                        <span className="text-[10px] opacity-70">{city.province}</span>
-                      </div>
+                      <span>{city.name}</span>
                       <span className="font-serif text-sm opacity-90">{city.nameUrdu}</span>
                     </button>
                   ))}
@@ -279,40 +287,117 @@ export function DailyWeatherBar() {
               </div>
             )}
           </div>
-        </div>
 
-        {/* 2. Center: Today's Date (Gregorian + Hijri) */}
-        <div className="text-center md:border-x md:border-border/70 md:px-6 shrink-0 space-y-0.5">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Today's date</div>
-          <div className="font-semibold text-xs sm:text-sm text-fg">
-            <span>{gregorianDate}</span>
-            <span className="mx-1.5 text-muted">•</span>
-            <span className="text-primary font-bold">{hijriDate}</span>
-          </div>
-        </div>
-
-        {/* 3. Right: Live Daily Ticker */}
-        <div className="flex items-center gap-3 overflow-x-auto text-xs shrink-0 max-w-full">
-          <div className="text-right hidden xl:block">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Live daily ticker</div>
-            <div className="font-bold text-xs text-primary">
-              Petrol Rs 268.50, Gold 24K Rs 284,500, USD PKR 278.45
+          {/* WIDGET 2: TRIPLE CALENDAR (GREGORIAN + HIJRI + DESI SOLAR MONTH) */}
+          <div className="flex items-center gap-3 rounded-2xl border border-border/80 bg-surface/90 p-3 shadow-2xs">
+            <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
+              <Calendar className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-display text-xs font-black text-primary truncate">
+                {gregorianDate}
+              </div>
+              <div className="text-[11px] font-bold text-accent truncate">
+                {hijriDate}
+              </div>
+              <div className="text-[10px] text-muted font-medium truncate">
+                🌾 {t("desiMonth")}: {desiDate}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <div className="inline-flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-400">
-              <Fuel className="size-3" />
-              <span>Petrol 268.50</span>
+          {/* WIDGET 3: LIVE AQI SPEEDOMETER / METER */}
+          <div className="flex items-center gap-3 rounded-2xl border border-border/80 bg-surface/90 p-3 shadow-2xs">
+            <div className="grid size-10 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
+              <Activity className="size-5" />
             </div>
-            <div className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-              <DollarSign className="size-3" />
-              <span>USD 278.45</span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-[11px] font-bold text-muted uppercase">{t("aqiTitle")}</span>
+                <span className={"px-2 py-0.5 rounded-md text-[10px] font-black border " + aqiInfo.color}>
+                  {aqiInfo.label}
+                </span>
+              </div>
+              <div className="font-display text-sm font-black text-fg mt-0.5">
+                AQI {weather.aqi}
+              </div>
             </div>
-            <div className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-[11px] font-bold text-yellow-700 dark:text-yellow-400">
-              <Coins className="size-3" />
-              <span>Gold 284.5k</span>
+          </div>
+
+          {/* WIDGET 4: NAMAZ PRAYER TIMINGS STRIP */}
+          <div className="flex items-center gap-2.5 rounded-2xl border border-border/80 bg-surface/90 p-2.5 shadow-2xs">
+            <div className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
+              <Moon className="size-4" />
             </div>
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="flex items-center justify-between text-[10px] text-muted font-bold">
+                <span>{t("namazTitle")}</span>
+                <span className="text-primary font-black">{t("nextPrayer")}: {prayerTimes.nextPrayerName}</span>
+              </div>
+              <div className="grid grid-cols-5 gap-1 text-center font-mono text-[9px]">
+                <div className="rounded bg-bg p-0.5"><div className="font-bold text-muted">{t("fajr")}</div><div>{prayerTimes.fajr.split(" ")[0]}</div></div>
+                <div className="rounded bg-bg p-0.5"><div className="font-bold text-muted">{t("zuhr")}</div><div>{prayerTimes.zuhr.split(" ")[0]}</div></div>
+                <div className="rounded bg-bg p-0.5"><div className="font-bold text-muted">{t("asr")}</div><div>{prayerTimes.asr.split(" ")[0]}</div></div>
+                <div className="rounded bg-bg p-0.5"><div className="font-bold text-muted">{t("maghrib")}</div><div>{prayerTimes.maghrib.split(" ")[0]}</div></div>
+                <div className="rounded bg-bg p-0.5"><div className="font-bold text-muted">{t("isha")}</div><div>{prayerTimes.isha.split(" ")[0]}</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 📈 3. LIVE MARKET & STOCK EXCHANGE TICKER RIBBON */}
+      <div className="border-t border-border/70 bg-[#063318] text-surface px-4 py-2 text-xs">
+        <div className="mx-auto max-w-7xl flex items-center justify-between gap-4 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-4 shrink-0">
+            {/* PSX KSE-100 */}
+            <div className="inline-flex items-center gap-1.5 font-bold">
+              <TrendingUp className="size-3.5 text-emerald-400" />
+              <span className="text-accent">{t("psxKse100")}:</span>
+              <span className="text-surface font-black">82,450.20</span>
+              <span className="text-[10px] text-emerald-400 font-mono">(+410.50)</span>
+            </div>
+
+            {/* Petrol */}
+            <div className="inline-flex items-center gap-1 font-bold">
+              <Fuel className="size-3 text-amber-400" />
+              <span>{t("petrol")}:</span>
+              <span className="text-accent font-black">Rs 268.50</span>
+            </div>
+
+            {/* USD */}
+            <div className="inline-flex items-center gap-1 font-bold">
+              <DollarSign className="size-3 text-emerald-400" />
+              <span>{t("usdPkr")}:</span>
+              <span className="text-surface font-black">Rs 278.45</span>
+            </div>
+
+            {/* SAR */}
+            <div className="inline-flex items-center gap-1 font-bold">
+              <span>🇸🇦 {t("sarPkr")}:</span>
+              <span className="text-surface font-black">Rs 74.20</span>
+            </div>
+
+            {/* AED */}
+            <div className="inline-flex items-center gap-1 font-bold">
+              <span>🇦🇪 {t("aedPkr")}:</span>
+              <span className="text-surface font-black">Rs 75.80</span>
+            </div>
+
+            {/* Gold */}
+            <div className="inline-flex items-center gap-1 font-bold">
+              <Coins className="size-3 text-yellow-400" />
+              <span>{t("gold24k")}:</span>
+              <span className="text-accent font-black">Rs 284,500</span>
+            </div>
+          </div>
+
+          {/* 24/7 Helplines */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0 border-l border-emerald-800 pl-3">
+            <span className="text-[11px] text-surface/80 font-bold">{t("helplines")}:</span>
+            <a href="tel:15" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">15 (Police)</a>
+            <a href="tel:1122" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1122 (Rescue)</a>
+            <a href="tel:1777" className="px-1.5 py-0.5 rounded bg-surface/10 hover:bg-surface/20 text-accent font-bold text-[10px]">1777 (NADRA)</a>
           </div>
         </div>
       </div>

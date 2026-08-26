@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthProvider } from "@/lib/auth/provider";
+import { LanguageProvider } from "@/context/language-context";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -127,22 +128,24 @@ function Root() {
       </head>
       <body className="min-h-screen bg-bg text-fg pb-16 md:pb-0">
         <PreviewHostBridge />
-        <AuthProvider>
-          <div className="flex min-h-screen flex-col">
-            <NewsTicker />
-            <SiteHeader onOpenSearch={() => setSearchOpen(true)} />
-            <main className="flex-1">
-              <Outlet />
-            </main>
-            <SiteFooter />
-            <MobileNav />
-            <CommandPalette
-              open={searchOpen}
-              setOpen={setSearchOpen}
-            />
-            <PwaInstallBanner />
-          </div>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <div className="flex min-h-screen flex-col">
+              <NewsTicker />
+              <SiteHeader onOpenSearch={() => setSearchOpen(true)} />
+              <main className="flex-1">
+                <Outlet />
+              </main>
+              <SiteFooter />
+              <MobileNav />
+              <CommandPalette
+                open={searchOpen}
+                setOpen={setSearchOpen}
+              />
+              <PwaInstallBanner />
+            </div>
+          </AuthProvider>
+        </LanguageProvider>
         <Scripts />
       </body>
     </html>
