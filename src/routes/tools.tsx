@@ -372,7 +372,7 @@ function ToolsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search 42 citizen tools (English / Roman Urdu / اردو)... & APIs..."
+                placeholder="Search 42 citizen tools (English / Roman Urdu / اردو)..."
                 className="w-full rounded-2xl bg-surface text-fg pl-10 pr-4 py-3 text-xs sm:text-sm font-semibold outline-none shadow-md placeholder:text-muted focus:ring-2 focus:ring-accent"
               />
               {searchQuery && (

@@ -3,6 +3,7 @@ import { Clock, Filter, Fingerprint, Search, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { listCategories, listGuides } from "@/lib/content";
 import { AdUnit } from "@/components/ads/ad-unit";
+import { searchWithRomanUrdu } from "@/lib/roman-urdu-search";
 
 export const Route = createFileRoute("/guides/")({
   loader: async () => {
@@ -25,6 +26,9 @@ function GuidesIndex() {
   const filtered = useMemo(() => {
     const n = q.trim().toLowerCase();
     if (!Array.isArray(guides)) return [];
+    const romanUrduMatches = n ? searchWithRomanUrdu(n) : [];
+    const matchedGuideSlugs = new Set(romanUrduMatches.map((r) => r.targetGuideSlug).filter(Boolean));
+
     return guides.filter((g) => {
       if (!g) return false;
       const matchCat = selectedCat === "all" || g.category_slug === selectedCat;
@@ -33,7 +37,8 @@ function GuidesIndex() {
         (g.title && g.title.toLowerCase().includes(n)) ||
         (g.summary && g.summary.toLowerCase().includes(n)) ||
         (g.department && g.department.toLowerCase().includes(n)) ||
-        (g.category_name && g.category_name.toLowerCase().includes(n));
+        (g.category_name && g.category_name.toLowerCase().includes(n)) ||
+        matchedGuideSlugs.has(g.slug);
       return matchCat && matchSearch;
     });
   }, [guides, q, selectedCat]);
