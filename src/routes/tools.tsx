@@ -40,6 +40,7 @@ import {
   Receipt,
   Building2,
   CloudRain,
+  Globe,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 
@@ -91,6 +92,8 @@ import { FbrAtlVerifier } from "@/components/fbr-atl-verifier";
 import { SecpCompanyVerifier } from "@/components/secp-company-verifier";
 import { NdmaDisasterAlerts } from "@/components/ndma-disaster-alerts";
 import { NadraTrackingGuide } from "@/components/nadra-tracking-guide";
+import { OverseasMofaPortal } from "@/components/overseas-mofa-portal";
+import { searchWithRomanUrdu } from "@/lib/roman-urdu-search";
 
 export const Route = createFileRoute("/tools")({
   component: ToolsPage,
@@ -118,6 +121,7 @@ const MASTER_TOOLS: ToolItem[] = [
   { id: "secp_check", name: "SECP Company Fraud Detector", nameUrdu: "رجسٹرڈ کمپنی تصدیق", desc: "Search Builders, Agents & LLPs", icon: Building2, category: "gov_apis", badge: "SECP Portal", colorClass: "bg-purple-500/15 text-purple-600 border-purple-500/30" },
   { id: "ndma_alerts", name: "National Hazard & Smog Tracker", nameUrdu: "قدرتی آفات و سموگ الرٹ", desc: "PMD Alerts, Flood & 1129 Help", icon: CloudRain, category: "gov_apis", badge: "PMD/NDMA", colorClass: "bg-rose-500/15 text-rose-600 border-rose-500/30" },
   { id: "nadra_tracking", name: "NADRA Pak-ID Tracking Gateway", nameUrdu: "نادرا درخواست ٹریکنگ", desc: "Track 12-Digit CNIC & FRC ID", icon: IdCard, category: "gov_apis", badge: "Pak-ID", colorClass: "bg-teal-500/15 text-teal-600 border-teal-500/30" },
+  { id: "overseas_mofa", name: "Overseas Pakistani & MOFA Portal", nameUrdu: "اوورسیز و وزارت خارجہ پورٹل", desc: "MOFA QR, Digital PoA & POC", icon: Globe, category: "overseas_travel", badge: "MOFA/OPF", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
 
   // 2. Solar & Energy
   { id: "solar", name: "Solar Net-Metering Calculator", nameUrdu: "سولر نیٹ میٹرنگ و یونٹ بچت", desc: "System Size, ROI & Payback", icon: Sun, category: "solar_energy", badge: "DISCO 3-Phase", colorClass: "bg-amber-500/15 text-amber-600 border-amber-500/30" },
@@ -279,6 +283,7 @@ function ToolsPage() {
           {activeToolObj.id === "secp_check" && <SecpCompanyVerifier />}
           {activeToolObj.id === "ndma_alerts" && <NdmaDisasterAlerts />}
           {activeToolObj.id === "nadra_tracking" && <NadraTrackingGuide />}
+          {activeToolObj.id === "overseas_mofa" && <OverseasMofaPortal />}
 
           {/* Utilities & Calculators */}
           {activeToolObj.id === "solar" && <SolarNetMeteringCalculator />}
@@ -349,7 +354,7 @@ function ToolsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-surface/15 px-3.5 py-1 text-xs font-bold text-accent">
-              <Sparkles className="size-3.5" /> 41 Citizen Utilities & Government Verification Gateways
+              <Sparkles className="size-3.5" /> 42 Citizen Utilities & Government Verification Gateways
             </div>
             <h1 className="mt-2 font-display text-2xl sm:text-4xl font-black tracking-tight text-surface">
               Pakistan Citizen Tools Hub
@@ -367,7 +372,7 @@ function ToolsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search 41 citizen tools & APIs..."
+                placeholder="Search 42 citizen tools (English / Roman Urdu / اردو)... & APIs..."
                 className="w-full rounded-2xl bg-surface text-fg pl-10 pr-4 py-3 text-xs sm:text-sm font-semibold outline-none shadow-md placeholder:text-muted focus:ring-2 focus:ring-accent"
               />
               {searchQuery && (
@@ -387,7 +392,7 @@ function ToolsPage() {
       {/* Category Filter Chips Carousel */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {[
-          { id: "all", label: "All Utilities (41)", icon: Sparkles },
+          { id: "all", label: "All Utilities (42)", icon: Sparkles },
           { id: "gov_apis", label: "🏛️ Govt APIs & Verifiers", icon: Receipt },
           { id: "solar_energy", label: "☀️ Solar & Energy", icon: Sun },
           { id: "tax_finance", label: "💰 Taxes & Finance", icon: Calculator },
