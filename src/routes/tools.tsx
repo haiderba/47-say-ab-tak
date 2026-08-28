@@ -1,19 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
-  ArrowRight,
   Calculator,
   Calendar,
+  Car,
   CheckCircle2,
-  Clock,
+  Coins,
   Compass,
   ExternalLink,
   FileCheck,
   FileCheck2,
-  HardDrive,
-  Landmark,
+  FileText,
+  IdCard,
   Lock,
   MapPin,
-  Receipt,
   Scale,
   Search,
   ShieldAlert,
@@ -21,7 +20,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { CitizenVault } from "@/components/citizen-vault";
 import { FeeCalculator } from "@/components/fee-calculator";
 import { InheritanceCalculator } from "@/components/inheritance-calculator";
@@ -30,11 +29,141 @@ import { CentersMap } from "@/components/centers-map";
 import { ScamRadar } from "@/components/scam-radar";
 import { FileReadinessChecker } from "@/components/file-readiness-checker";
 import { DocumentExpiryTracker } from "@/components/document-expiry-tracker";
-import { AdUnit } from "@/components/ads/ad-unit";
+import { SalaryTaxCalculator } from "@/components/salary-tax-calculator";
+import { CnicDecoder } from "@/components/cnic-decoder";
+import { ZakatCalculator } from "@/components/zakat-calculator";
+import { PowerOfAttorneyGenerator } from "@/components/power-of-attorney-generator";
+import { VehicleTaxCalculator } from "@/components/vehicle-tax-calculator";
 
 export const Route = createFileRoute("/tools")({
   component: ToolsPage,
 });
+
+type ToolCategory = "all" | "finance" | "legal" | "identity" | "verification";
+
+interface ToolItem {
+  id: string;
+  name: string;
+  nameUrdu: string;
+  desc: string;
+  icon: any;
+  category: ToolCategory;
+  badge?: string;
+}
+
+const MASTER_TOOLS: ToolItem[] = [
+  {
+    id: "salary_tax",
+    name: "Salary Income Tax",
+    nameUrdu: "تنخواہ انکم ٹیکس",
+    desc: "FY 2025–2026 FBR Slabs",
+    icon: Calculator,
+    category: "finance",
+    badge: "FBR 2026",
+  },
+  {
+    id: "cnic_decoder",
+    name: "CNIC 13-Digit Decoder",
+    nameUrdu: "شناختی کارڈ تجزیہ",
+    desc: "Province, Division & Origin",
+    icon: IdCard,
+    category: "identity",
+    badge: "100% Private",
+  },
+  {
+    id: "zakat",
+    name: "Zakat & Ushr",
+    nameUrdu: "زکوٰۃ و عشر کیلکولیٹر",
+    desc: "Gold, Silver & Live Nisab",
+    icon: Coins,
+    category: "finance",
+    badge: "Live Nisab",
+  },
+  {
+    id: "poa",
+    name: "Power of Attorney",
+    nameUrdu: "مختار نامہ عام و خاص",
+    desc: "Property, Courts & MOFA",
+    icon: Scale,
+    category: "legal",
+    badge: "e-Stamp Deed",
+  },
+  {
+    id: "vehicle_tax",
+    name: "Vehicle Transfer & Token",
+    nameUrdu: "گاڑی ٹرانسفر و ٹوکن ٹیکس",
+    desc: "Filer vs Non-Filer WHT PSID",
+    icon: Car,
+    category: "finance",
+    badge: "e-Pay 1Bill",
+  },
+  {
+    id: "vault",
+    name: "Encrypted Vault",
+    nameUrdu: "محفوظ دستاویزات والٹ",
+    desc: "Client-Side AES-256-GCM",
+    icon: Lock,
+    category: "identity",
+    badge: "Encrypted",
+  },
+  {
+    id: "affidavit",
+    name: "Affidavit Drafter",
+    nameUrdu: "حلف نامہ / بیان حلفی",
+    desc: "5 Legal E-Stamp Templates",
+    icon: FileCheck,
+    category: "legal",
+    badge: "Judicial",
+  },
+  {
+    id: "fee",
+    name: "Fee Calculator",
+    nameUrdu: "سرکاری فیس کیلکولیٹر",
+    desc: "NADRA, Passport, DLIMS, Land",
+    icon: Zap,
+    category: "finance",
+  },
+  {
+    id: "readiness",
+    name: "Check My File",
+    nameUrdu: "فائل آڈٹ و جانچ",
+    desc: "Interactive Document Checklist",
+    icon: FileCheck2,
+    category: "identity",
+  },
+  {
+    id: "tracker",
+    name: "Expiry Tracker",
+    nameUrdu: "تجدید و معیاد ٹریکر",
+    desc: "CNIC, Passport & License Renewal",
+    icon: Calendar,
+    category: "identity",
+  },
+  {
+    id: "centers",
+    name: "24/7 Mega Centers",
+    nameUrdu: "نادرا میگا سینٹرز",
+    desc: "Executive Centers & Timings",
+    icon: MapPin,
+    category: "verification",
+  },
+  {
+    id: "scams",
+    name: "Scam Radar",
+    nameUrdu: "ایجنٹ فراڈ راڈار",
+    desc: "Agent Blacklist & Red Flags",
+    icon: ShieldAlert,
+    category: "verification",
+  },
+  {
+    id: "inheritance",
+    name: "Inheritance Calculator",
+    nameUrdu: "اسلامی وراثت تقسیم",
+    desc: "Shariah Faraid Shares",
+    icon: FileText,
+    category: "legal",
+  },
+];
 
 const OFFICIAL_DIRECT_SERVICES = [
   {
@@ -82,34 +211,88 @@ const OFFICIAL_DIRECT_SERVICES = [
 ];
 
 function ToolsPage() {
-  const [activeTool, setActiveTool] = useState<"vault" | "fee" | "readiness" | "tracker" | "centers" | "scams" | "inheritance" | "affidavit">("vault");
+  const [activeTool, setActiveTool] = useState<string>("salary_tax");
+  const [activeCategory, setActiveCategory] = useState<ToolCategory>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredTools = useMemo(() => {
+    return MASTER_TOOLS.filter((t) => {
+      const matchCat = activeCategory === "all" || t.category === activeCategory;
+      const matchSearch =
+        searchQuery.trim() === "" ||
+        t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.nameUrdu.includes(searchQuery) ||
+        t.desc.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [activeCategory, searchQuery]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12 space-y-10">
       {/* Page Header */}
-      <div className="text-center">
+      <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-          <Sparkles className="size-3.5" /> 8 Complete Citizen Utilities & Encrypted Vault
+          <Sparkles className="size-3.5" /> 13 Complete Citizen Utilities & Legal Command Center
         </div>
-        <h1 className="mt-3 font-display text-4xl font-extrabold text-primary sm:text-5xl">
-          Citizen Tools & Encrypted Vault
+        <h1 className="font-display text-3xl font-black text-primary sm:text-5xl tracking-tight">
+          Citizen Civic Tools & Encrypted Vault
         </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-base text-muted">
-          Upload and seal your citizen documents with AES-256-GCM encryption, audit physical files, track document expiries, locate 24/7 Mega Centers, calculate fees, and draft affidavits.
+        <p className="mx-auto max-w-2xl text-xs sm:text-sm text-muted leading-relaxed font-medium">
+          Calculate FBR income tax deductions, decode CNIC jurisdictions, calculate Zakat & Ushr against live Nisab, draft Power of Attorney deeds, calculate vehicle token tax, and seal sensitive documents with AES-256 encryption.
         </p>
 
-        {/* Master Tool Switcher Grid (Responsive 2-col on mobile, 4-col on desktop) */}
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 rounded-3xl border-2 border-primary/20 bg-surface p-2.5 sm:p-3 shadow-card">
-          {[
-            { id: "vault", name: "Encrypted Vault", icon: Lock, desc: "AES-256 Vault" },
-            { id: "affidavit", name: "Affidavit Drafter", icon: FileCheck, desc: "E-Stamp Paper" },
-            { id: "fee", name: "Fee Calculator", icon: Calculator, desc: "Tax & Stamping" },
-            { id: "readiness", name: "Check My File", icon: FileCheck2, desc: "File Audit" },
-            { id: "tracker", name: "Expiry Tracker", icon: Calendar, desc: "Document Expiry" },
-            { id: "centers", name: "24/7 Centers", icon: MapPin, desc: "NADRA Centers" },
-            { id: "scams", name: "Scam Radar", icon: ShieldAlert, desc: "Agent Scam Check" },
-            { id: "inheritance", name: "Inheritance", icon: Scale, desc: "Faraid Calculator" },
-          ].map((t) => {
+        {/* Search & Category Filter Header Bar */}
+        <div className="mx-auto mt-6 max-w-3xl space-y-3">
+          {/* Search Input */}
+          <div className="relative flex items-center">
+            <Search className="absolute left-4 size-4 text-muted pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search 13 tools (e.g. Salary tax, CNIC decoder, Zakat, Power of Attorney, Vehicle tax, NADRA)..."
+              className="w-full rounded-2xl border border-primary/30 bg-surface pl-11 pr-4 py-3 text-xs sm:text-sm font-medium text-fg shadow-sm outline-none focus:border-primary transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 rounded-lg bg-bg px-2 py-1 text-[11px] font-bold text-muted hover:text-fg"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+            {[
+              { id: "all", label: "All Utilities (13)" },
+              { id: "finance", label: "💰 Taxes & Financial" },
+              { id: "legal", label: "📄 Legal & Affidavits" },
+              { id: "identity", label: "🪪 Identity & Security" },
+              { id: "verification", label: "🏛️ Centers & Scam Radar" },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCategory(cat.id as any)}
+                className={
+                  "rounded-xl px-3 py-1.5 text-xs font-bold transition-all " +
+                  (activeCategory === cat.id
+                    ? "bg-primary text-surface shadow-xs scale-105"
+                    : "bg-surface border border-border text-muted hover:text-fg hover:border-primary/40")
+                }
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Master Tool Switcher Grid */}
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 rounded-3xl border-2 border-primary/20 bg-surface p-2.5 sm:p-3 shadow-card">
+          {filteredTools.map((t) => {
             const Icon = t.icon;
             const isActive = activeTool === t.id;
             return (
@@ -117,14 +300,14 @@ function ToolsPage() {
                 key={t.id}
                 type="button"
                 onClick={() => {
-                  setActiveTool(t.id as any);
+                  setActiveTool(t.id);
                   const el = document.getElementById("active-utility-section");
                   if (el && window.innerWidth < 768) {
                     el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }
                 }}
                 className={
-                  "flex flex-col sm:flex-row items-start sm:items-center gap-2 rounded-2xl p-2.5 sm:p-3 text-left transition-all border " +
+                  "flex flex-col sm:flex-row items-start sm:items-center gap-2.5 rounded-2xl p-3 text-left transition-all border relative overflow-hidden " +
                   (isActive
                     ? "bg-primary text-surface border-primary shadow-md scale-[1.02]"
                     : "bg-bg/40 hover:bg-bg border-border text-fg hover:border-primary/40")
@@ -132,17 +315,29 @@ function ToolsPage() {
               >
                 <div
                   className={
-                    "grid size-8 place-items-center rounded-xl shrink-0 " +
+                    "grid size-8 sm:size-9 place-items-center rounded-xl shrink-0 " +
                     (isActive ? "bg-white/20 text-accent" : "bg-primary/10 text-primary")
                   }
                 >
                   <Icon className="size-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block text-xs font-bold truncate">{t.name}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="block text-xs font-black truncate">{t.name}</span>
+                    {t.badge && (
+                      <span
+                        className={
+                          "hidden xl:inline-block rounded-md px-1.5 py-0.2 text-[9px] font-black uppercase " +
+                          (isActive ? "bg-accent text-[#01411c]" : "bg-primary/10 text-primary")
+                        }
+                      >
+                        {t.badge}
+                      </span>
+                    )}
+                  </div>
                   <span
                     className={
-                      "hidden sm:block text-[10px] truncate " +
+                      "block text-[10px] font-medium truncate " +
                       (isActive ? "text-white/80" : "text-muted")
                     }
                   >
@@ -155,8 +350,13 @@ function ToolsPage() {
         </div>
       </div>
 
-      {/* Active Civic Utility */}
+      {/* Active Civic Utility Panel */}
       <div id="active-utility-section" className="mt-8 scroll-mt-20">
+        {activeTool === "salary_tax" && <SalaryTaxCalculator />}
+        {activeTool === "cnic_decoder" && <CnicDecoder />}
+        {activeTool === "zakat" && <ZakatCalculator />}
+        {activeTool === "poa" && <PowerOfAttorneyGenerator />}
+        {activeTool === "vehicle_tax" && <VehicleTaxCalculator />}
         {activeTool === "vault" && <CitizenVault />}
         {activeTool === "fee" && <FeeCalculator />}
         {activeTool === "readiness" && <FileReadinessChecker />}
@@ -168,12 +368,12 @@ function ToolsPage() {
       </div>
 
       {/* Official Government Direct Service Endpoints */}
-      <div className="mt-20">
+      <div className="mt-20 border-t border-border/80 pt-12">
         <div className="text-center">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
             <ShieldCheck className="size-3.5" /> Direct Service Directory
           </div>
-          <h2 className="mt-2 font-display text-3xl font-bold text-primary">
+          <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold text-primary">
             Official Portals & Verification APIs
           </h2>
           <p className="mt-1 text-xs text-muted">
@@ -181,7 +381,7 @@ function ToolsPage() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {OFFICIAL_DIRECT_SERVICES.map((svc) => (
             <div
               key={svc.name}
