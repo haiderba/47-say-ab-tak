@@ -37,9 +37,9 @@ import {
   Copy,
   ArrowLeft,
   ChevronRight,
-  Download,
-  FileDown,
-  Check,
+  Receipt,
+  Building2,
+  CloudRain,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 
@@ -58,7 +58,7 @@ import { ZakatCalculator } from "@/components/zakat-calculator";
 import { PowerOfAttorneyGenerator } from "@/components/power-of-attorney-generator";
 import { VehicleTaxCalculator } from "@/components/vehicle-tax-calculator";
 
-// New Suite Components
+// Suite Components
 import { SolarNetMeteringCalculator } from "@/components/solar-net-metering-calculator";
 import { ElectricityBillCalculator } from "@/components/electricity-bill-calculator";
 import { GasBillCalculator } from "@/components/gas-bill-calculator";
@@ -84,11 +84,20 @@ import { ConsumerCourtNoticeDrafter } from "@/components/consumer-court-notice-d
 import { FiaCybercrimeDrafter } from "@/components/fia-cybercrime-drafter";
 import { DistrictCivicDirectory } from "@/components/district-civic-directory";
 
+// New Government API & Verifiers
+import { Psid1BillChallanVerifier } from "@/components/psid-1bill-challan-verifier";
+import { PtaImeiChecker } from "@/components/pta-imei-checker";
+import { MtmisVehicleVerifier } from "@/components/mtmis-vehicle-verifier";
+import { FbrAtlVerifier } from "@/components/fbr-atl-verifier";
+import { SecpCompanyVerifier } from "@/components/secp-company-verifier";
+import { NdmaDisasterAlerts } from "@/components/ndma-disaster-alerts";
+import { NadraTrackingGuide } from "@/components/nadra-tracking-guide";
+
 export const Route = createFileRoute("/tools")({
   component: ToolsPage,
 });
 
-type ToolCategory = "all" | "solar_energy" | "tax_finance" | "legal_contracts" | "property_living" | "overseas_travel" | "jobs_youth" | "emergency_safety";
+type ToolCategory = "all" | "gov_apis" | "solar_energy" | "tax_finance" | "legal_contracts" | "property_living" | "overseas_travel" | "jobs_youth" | "emergency_safety";
 
 interface ToolItem {
   id: string;
@@ -102,12 +111,21 @@ interface ToolItem {
 }
 
 const MASTER_TOOLS: ToolItem[] = [
-  // 1. Solar & Energy
+  // 1. Official Government APIs & Verifiers
+  { id: "psid_1bill", name: "17-Digit PSID / 1Bill Verifier", nameUrdu: "سرکاری چالان و بل تصدیق", desc: "e-Pay, FBR, ICT & DISCO Dues", icon: Receipt, category: "gov_apis", badge: "1Link API", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
+  { id: "pta_imei", name: "PTA DIRBS IMEI & Stolen Check", nameUrdu: "موبائل تصدیق و چوری چیک", desc: "15-Digit TAC & Custom Tax", icon: Smartphone, category: "gov_apis", badge: "8484 SMS", colorClass: "bg-indigo-500/15 text-indigo-600 border-indigo-500/30" },
+  { id: "mtmis_vehicle", name: "MTMIS Vehicle Ownership Hub", nameUrdu: "گاڑی تصدیق و ٹوکن ریکارڈ", desc: "Punjab, Sindh, ICT & KP MTMIS", icon: Car, category: "gov_apis", badge: "4-Province", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
+  { id: "fbr_atl", name: "FBR Active Taxpayer (ATL) Check", nameUrdu: "ایکٹیو ٹیکس دہندہ تصدیق", desc: "9966 SMS & Filer Tax Benefits", icon: Calculator, category: "gov_apis", badge: "FBR 9966", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
+  { id: "secp_check", name: "SECP Company Fraud Detector", nameUrdu: "رجسٹرڈ کمپنی تصدیق", desc: "Search Builders, Agents & LLPs", icon: Building2, category: "gov_apis", badge: "SECP Portal", colorClass: "bg-purple-500/15 text-purple-600 border-purple-500/30" },
+  { id: "ndma_alerts", name: "National Hazard & Smog Tracker", nameUrdu: "قدرتی آفات و سموگ الرٹ", desc: "PMD Alerts, Flood & 1129 Help", icon: CloudRain, category: "gov_apis", badge: "PMD/NDMA", colorClass: "bg-rose-500/15 text-rose-600 border-rose-500/30" },
+  { id: "nadra_tracking", name: "NADRA Pak-ID Tracking Gateway", nameUrdu: "نادرا درخواست ٹریکنگ", desc: "Track 12-Digit CNIC & FRC ID", icon: IdCard, category: "gov_apis", badge: "Pak-ID", colorClass: "bg-teal-500/15 text-teal-600 border-teal-500/30" },
+
+  // 2. Solar & Energy
   { id: "solar", name: "Solar Net-Metering Calculator", nameUrdu: "سولر نیٹ میٹرنگ و یونٹ بچت", desc: "System Size, ROI & Payback", icon: Sun, category: "solar_energy", badge: "DISCO 3-Phase", colorClass: "bg-amber-500/15 text-amber-600 border-amber-500/30" },
   { id: "electricity", name: "NEPRA Electricity Bill Slabs", nameUrdu: "بجلی بل و سلیب", desc: "NEPRA Slabs & FPA", icon: Zap, category: "solar_energy", badge: "FY 2026", colorClass: "bg-yellow-500/15 text-yellow-600 border-yellow-500/30" },
   { id: "gas", name: "Gas Bill Estimator", nameUrdu: "گیس بل کیلکولیٹر", desc: "SNGPL & SSGC Slabs", icon: Flame, category: "solar_energy", colorClass: "bg-orange-500/15 text-orange-600 border-orange-500/30" },
   
-  // 2. AI & Legal
+  // 3. AI & Legal
   { id: "pak_wakil", name: "PakWakil AI Legal Assistant", nameUrdu: "پاک وکیل معاون", desc: "AI Legal & Civic Bot", icon: Bot, category: "legal_contracts", badge: "AI Smart", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
   { id: "rent_agreement", name: "Residential Rent Agreement", nameUrdu: "کرایہ نامہ برائے رہائش", desc: "Punjab Rented Premises Act", icon: Scale, category: "legal_contracts", badge: "e-Stamp", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
   { id: "vehicle_sale", name: "Vehicle Sale Receipt", nameUrdu: "اقرار نامہ بیع گاڑی", desc: "Legal Seller Indemnity", icon: Car, category: "legal_contracts", colorClass: "bg-indigo-500/15 text-indigo-600 border-indigo-500/30" },
@@ -118,7 +136,7 @@ const MASTER_TOOLS: ToolItem[] = [
   { id: "consumer_court", name: "Consumer Court 15-Day Notice", nameUrdu: "صارف عدالت نوٹس", desc: "15-Day Statutory Notice", icon: Scale, category: "legal_contracts", colorClass: "bg-rose-500/15 text-rose-600 border-rose-500/30" },
   { id: "fia_cybercrime", name: "FIA Cybercrime Complaint", nameUrdu: "ایف آئی اے سائبر کرائم", desc: "OTP & Online Scam Report", icon: ShieldAlert, category: "legal_contracts", colorClass: "bg-red-500/15 text-red-600 border-red-500/30" },
 
-  // 3. Tax & Finance
+  // 4. Tax & Finance
   { id: "salary_tax", name: "Salary Income Tax Calculator", nameUrdu: "تنخواہ انکم ٹیکس", desc: "FBR Slabs & Surcharge", icon: Calculator, category: "tax_finance", badge: "FBR 2026", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
   { id: "freelancer", name: "Freelancer 0.25% Tax Suite", nameUrdu: "فری لانسر آئی ٹی ٹیکس", desc: "PSEB & International Invoice", icon: Laptop, category: "tax_finance", badge: "0.25% IT", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
   { id: "zakat", name: "Zakat & Ushr Calculator", nameUrdu: "زکوٰۃ و عشر کیلکولیٹر", desc: "Gold, Silver & Live Nisab", icon: Coins, category: "tax_finance", badge: "Live Nisab", colorClass: "bg-amber-500/15 text-amber-600 border-amber-500/30" },
@@ -127,27 +145,27 @@ const MASTER_TOOLS: ToolItem[] = [
   { id: "fee", name: "Official Government Fee Guide", nameUrdu: "سرکاری فیس گائیڈ", desc: "NADRA, Passport, DLIMS", icon: Zap, category: "tax_finance", colorClass: "bg-green-500/15 text-green-600 border-green-500/30" },
   { id: "inheritance", name: "Inheritance Calculator (وراثت)", nameUrdu: "اسلامی وراثت تقسیم", desc: "Shariah Faraid Shares", icon: FileText, category: "tax_finance", colorClass: "bg-teal-500/15 text-teal-600 border-teal-500/30" },
 
-  // 4. Property & Construction
+  // 5. Property & Construction
   { id: "construction", name: "Construction Cost Estimator", nameUrdu: "گھر کی تعمیر لاگت", desc: "Grey vs Turnkey Material", icon: Hammer, category: "property_living", badge: "2026 Rates", colorClass: "bg-amber-500/15 text-amber-600 border-amber-500/30" },
   { id: "water_boring", name: "Water Boring & Tankers", nameUrdu: "پانی کی بورنگ و ٹینکر", desc: "Depth & Official Helplines", icon: Droplet, category: "property_living", colorClass: "bg-cyan-500/15 text-cyan-600 border-cyan-500/30" },
   { id: "motorway", name: "Motorway Toll & M-Tag", nameUrdu: "موٹروے ٹول ٹیکس", desc: "M-1 to M-9 NHA Rates", icon: Compass, category: "property_living", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
 
-  // 5. Identity & Security
+  // 6. Identity & Security
   { id: "cnic_decoder", name: "CNIC 13-Digit Decoder", nameUrdu: "شناختی کارڈ تجزیہ", desc: "Province, Division & Origin", icon: IdCard, category: "overseas_travel", badge: "100% Private", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
   { id: "vault", name: "Citizen Encrypted Vault", nameUrdu: "محفوظ دستاویزات والٹ", desc: "Client-Side AES-256-GCM", icon: Lock, category: "overseas_travel", badge: "Encrypted", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
   { id: "readiness", name: "Check My File Audit", nameUrdu: "فائل آڈٹ و جانچ", desc: "Document Readiness Audit", icon: FileCheck2, category: "overseas_travel", colorClass: "bg-purple-500/15 text-purple-600 border-purple-500/30" },
   { id: "tracker", name: "Expiry & Renewal Tracker", nameUrdu: "تجدید و معیاد ٹریکر", desc: "CNIC, Passport & DLIMS", icon: Calendar, category: "overseas_travel", colorClass: "bg-orange-500/15 text-orange-600 border-orange-500/30" },
 
-  // 6. Overseas & Travel
+  // 7. Overseas & Travel
   { id: "pta_tax", name: "PTA Mobile Tax (DIRBS)", nameUrdu: "پی ٹی اے موبائل ٹیکس", desc: "Passport vs CNIC DIRBS", icon: Smartphone, category: "overseas_travel", badge: "DIRBS", colorClass: "bg-indigo-500/15 text-indigo-600 border-indigo-500/30" },
   { id: "protector", name: "Protector of Emigrants", nameUrdu: "پروٹیکٹر و ایئرپورٹ", desc: "State Life & Exit Rules", icon: Plane, category: "overseas_travel", colorClass: "bg-sky-500/15 text-sky-600 border-sky-500/30" },
 
-  // 7. Jobs & Youth
+  // 8. Jobs & Youth
   { id: "sarkari_job", name: "Sarkari Job Bio-Data Drafter", nameUrdu: "سرکاری نوکری بائیو ڈیٹا", desc: "PPSC / FPSC Print Form", icon: Briefcase, category: "jobs_youth", colorClass: "bg-teal-500/15 text-teal-600 border-teal-500/30" },
   { id: "css_age", name: "CSS & PMS Age Checker", nameUrdu: "سی ایس ایس عمر اہلیت", desc: "31st Dec Cutoff & Relaxations", icon: GraduationCap, category: "jobs_youth", colorClass: "bg-purple-500/15 text-purple-600 border-purple-500/30" },
   { id: "ibcc", name: "IBCC Equivalence Calculator", nameUrdu: "تعلیمی مساوات کیلکولیٹر", desc: "O/A Level to Matric/FSc", icon: GraduationCap, category: "jobs_youth", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
 
-  // 8. Health & Emergency
+  // 9. Health & Emergency
   { id: "blood_appeal", name: "Urgent Blood Appeal Generator", nameUrdu: "ایمرجنسی خون اپیل", desc: "WhatsApp Broadcast & 1122", icon: HeartHandshake, category: "emergency_safety", badge: "Emergency", colorClass: "bg-rose-500/15 text-rose-600 border-rose-500/30" },
   { id: "sehat_card", name: "Sehat Sahulat Card Guide", nameUrdu: "صحت کارڈ علاج گائیڈ", desc: "8500 SMS & PKR 1M Limit", icon: ShieldPlus, category: "emergency_safety", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
   { id: "pocket_card", name: "Printable Emergency Card", nameUrdu: "ایمرجنسی شناختی کارڈ", desc: "Printable Wallet Card", icon: IdCard, category: "emergency_safety", colorClass: "bg-red-500/15 text-red-600 border-red-500/30" },
@@ -160,7 +178,6 @@ function ToolsPage() {
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ToolCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [copiedLink, setCopiedLink] = useState(false);
 
   // Sync with URL query parameter ?tool=id if present
   useEffect(() => {
@@ -219,7 +236,6 @@ function ToolsPage() {
   // VIEW MODE A: DEDICATED STANDALONE TOOL PAGE
   // ==========================================
   if (activeToolObj) {
-    const Icon = activeToolObj.icon;
     return (
       <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
         {/* Top Back Navigation Banner */}
@@ -230,7 +246,7 @@ function ToolsPage() {
               onClick={backToAllTools}
               className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-surface hover:bg-primary-light transition-all shadow-xs"
             >
-              <ArrowLeft className="size-4" /> Back to All 35 Citizen Tools
+              <ArrowLeft className="size-4" /> Back to All Citizen Tools
             </button>
             <div className="hidden sm:block text-xs font-medium text-muted">
               Tools Hub / <span className="font-bold text-primary">{activeToolObj.name}</span>
@@ -258,6 +274,16 @@ function ToolsPage() {
 
         {/* Dedicated Tool Canvas */}
         <div className="space-y-6">
+          {/* Government API Verifiers */}
+          {activeToolObj.id === "psid_1bill" && <Psid1BillChallanVerifier />}
+          {activeToolObj.id === "pta_imei" && <PtaImeiChecker />}
+          {activeToolObj.id === "mtmis_vehicle" && <MtmisVehicleVerifier />}
+          {activeToolObj.id === "fbr_atl" && <FbrAtlVerifier />}
+          {activeToolObj.id === "secp_check" && <SecpCompanyVerifier />}
+          {activeToolObj.id === "ndma_alerts" && <NdmaDisasterAlerts />}
+          {activeToolObj.id === "nadra_tracking" && <NadraTrackingGuide />}
+
+          {/* Utilities & Calculators */}
           {activeToolObj.id === "solar" && <SolarNetMeteringCalculator />}
           {activeToolObj.id === "pak_wakil" && <PakWakilAi />}
           {activeToolObj.id === "electricity" && <ElectricityBillCalculator />}
@@ -310,7 +336,7 @@ function ToolsPage() {
             onClick={backToAllTools}
             className="inline-flex items-center gap-2 rounded-2xl bg-surface border border-border px-6 py-3 text-xs font-bold text-primary hover:bg-bg transition-all shadow-xs"
           >
-            <ArrowLeft className="size-4" /> Explore All Other 34 Pakistani Citizen Utilities
+            <ArrowLeft className="size-4" /> Explore All Other 41 Pakistani Citizen Utilities
           </button>
         </div>
       </div>
@@ -327,13 +353,13 @@ function ToolsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-surface/15 px-3.5 py-1 text-xs font-bold text-accent">
-              <Sparkles className="size-3.5" /> 35 Complete Citizen Utilities & Legal Apps
+              <Sparkles className="size-3.5" /> 42 Citizen Utilities &amp; Government Verification Gateways
             </div>
             <h1 className="mt-2 font-display text-2xl sm:text-4xl font-black tracking-tight text-surface">
               Pakistan Citizen Tools Hub
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-surface/85 max-w-xl">
-              Tap any tool icon below to open its dedicated full-screen calculator or legal deed generator.
+              Tap any official tool or verification gateway below to open its dedicated full-screen calculator or legal deed generator.
             </p>
           </div>
 
@@ -345,7 +371,7 @@ function ToolsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search all 35 citizen tools..."
+                placeholder="Search 42 citizen tools &amp; APIs..."
                 className="w-full rounded-2xl bg-surface text-fg pl-10 pr-4 py-3 text-xs sm:text-sm font-semibold outline-none shadow-md placeholder:text-muted focus:ring-2 focus:ring-accent"
               />
               {searchQuery && (
@@ -365,14 +391,15 @@ function ToolsPage() {
       {/* Category Filter Chips Carousel */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {[
-          { id: "all", label: "All Utilities (35)", icon: Sparkles },
-          { id: "solar_energy", label: "☀️ Solar & Energy", icon: Sun },
-          { id: "tax_finance", label: "💰 Taxes & Finance", icon: Calculator },
+          { id: "all", label: "All Utilities (42)", icon: Sparkles },
+          { id: "gov_apis", label: "🏛️ Govt APIs &amp; Verifiers", icon: Receipt },
+          { id: "solar_energy", label: "☀️ Solar &amp; Energy", icon: Sun },
+          { id: "tax_finance", label: "💰 Taxes &amp; Finance", icon: Calculator },
           { id: "legal_contracts", label: "📜 Legal Agreements", icon: Scale },
-          { id: "property_living", label: "🏗️ Property & Living", icon: Building },
-          { id: "overseas_travel", label: "📱 Overseas & Travel", icon: Smartphone },
-          { id: "jobs_youth", label: "🎓 Jobs & Youth", icon: GraduationCap },
-          { id: "emergency_safety", label: "🏥 Emergency & Safety", icon: HeartHandshake },
+          { id: "property_living", label: "🏗️ Property &amp; Living", icon: Building },
+          { id: "overseas_travel", label: "📱 Overseas &amp; Travel", icon: Smartphone },
+          { id: "jobs_youth", label: "🎓 Jobs &amp; Youth", icon: GraduationCap },
+          { id: "emergency_safety", label: "🏥 Emergency &amp; Safety", icon: HeartHandshake },
         ].map((cat) => {
           const isSelected = activeCategory === cat.id;
           return (
