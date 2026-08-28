@@ -70,3 +70,59 @@
   animation-play-state: paused;
 }
 
+
+/* ==========================================================================
+   OFFICIAL BLACK & WHITE CITIZEN PDF PRINT STYLES
+   ========================================================================== */
+@media print {
+  /* Hide all website chrome, navigation, headers, footers, and interactive controls */
+  header, footer, nav, .no-print, .ad-unit, button:not(.print-include) {
+    display: none !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Times New Roman', Times, serif, system-ui !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Make print document fill page cleanly */
+  .printable-document {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    border: 2px solid #000000 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .printable-document * {
+    color: #000000 !important;
+    border-color: #000000 !important;
+    background: transparent !important;
+  }
+
+  .printable-document table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .printable-document th,
+  .printable-document td {
+    border: 1px solid #000000 !important;
+    padding: 8px !important;
+    text-align: left !important;
+    font-size: 11pt !important;
+  }
+
+  .printable-document th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold !important;
+  }
+}
