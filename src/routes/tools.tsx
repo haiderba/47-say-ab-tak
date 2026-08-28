@@ -19,8 +19,23 @@ import {
   ShieldCheck,
   Sparkles,
   Zap,
+  Sun,
+  Flame,
+  Laptop,
+  Hammer,
+  Droplet,
+  Smartphone,
+  Plane,
+  HeartHandshake,
+  ShieldPlus,
+  Briefcase,
+  GraduationCap,
+  Bot,
+  Building,
 } from "lucide-react";
 import { useState, useMemo } from "react";
+
+// Existing Components
 import { CitizenVault } from "@/components/citizen-vault";
 import { FeeCalculator } from "@/components/fee-calculator";
 import { InheritanceCalculator } from "@/components/inheritance-calculator";
@@ -35,11 +50,37 @@ import { ZakatCalculator } from "@/components/zakat-calculator";
 import { PowerOfAttorneyGenerator } from "@/components/power-of-attorney-generator";
 import { VehicleTaxCalculator } from "@/components/vehicle-tax-calculator";
 
+// New Suite Components
+import { SolarNetMeteringCalculator } from "@/components/solar-net-metering-calculator";
+import { ElectricityBillCalculator } from "@/components/electricity-bill-calculator";
+import { GasBillCalculator } from "@/components/gas-bill-calculator";
+import { FreelancerTaxCalculator } from "@/components/freelancer-tax-calculator";
+import { MotorwayTollCalculator } from "@/components/motorway-toll-calculator";
+import { RentAgreementGenerator } from "@/components/rent-agreement-generator";
+import { VehicleSaleAgreementGenerator } from "@/components/vehicle-sale-agreement-generator";
+import { PropertyBayanaGenerator } from "@/components/property-bayana-generator";
+import { ShajraNasabBuilder } from "@/components/shajra-nasab-builder";
+import { CourtFeeCalculator } from "@/components/court-fee-calculator";
+import { ConstructionCostCalculator } from "@/components/construction-cost-calculator";
+import { WaterBoringTankerGuide } from "@/components/water-boring-tanker-guide";
+import { PtaMobileTaxCalculator } from "@/components/pta-mobile-tax-calculator";
+import { OverseasProtectorGuide } from "@/components/overseas-protector-guide";
+import { EmergencyBloodAppealGenerator } from "@/components/emergency-blood-appeal-generator";
+import { SehatCardGuide } from "@/components/sehat-card-guide";
+import { PocketEmergencyCard } from "@/components/pocket-emergency-card";
+import { SarkariJobBiodataGenerator } from "@/components/sarkari-job-biodata-generator";
+import { CssPmsEligibilityChecker } from "@/components/css-pms-eligibility-checker";
+import { IbccEquivalenceCalculator } from "@/components/ibcc-equivalence-calculator";
+import { PakWakilAi } from "@/components/pak-wakil-ai";
+import { ConsumerCourtNoticeDrafter } from "@/components/consumer-court-notice-drafter";
+import { FiaCybercrimeDrafter } from "@/components/fia-cybercrime-drafter";
+import { DistrictCivicDirectory } from "@/components/district-civic-directory";
+
 export const Route = createFileRoute("/tools")({
   component: ToolsPage,
 });
 
-type ToolCategory = "all" | "finance" | "legal" | "identity" | "verification";
+type ToolCategory = "all" | "solar_energy" | "tax_finance" | "legal_contracts" | "property_living" | "overseas_travel" | "jobs_youth" | "emergency_safety";
 
 interface ToolItem {
   id: string;
@@ -52,166 +93,64 @@ interface ToolItem {
 }
 
 const MASTER_TOOLS: ToolItem[] = [
-  {
-    id: "salary_tax",
-    name: "Salary Income Tax",
-    nameUrdu: "تنخواہ انکم ٹیکس",
-    desc: "FY 2025–2026 FBR Slabs",
-    icon: Calculator,
-    category: "finance",
-    badge: "FBR 2026",
-  },
-  {
-    id: "cnic_decoder",
-    name: "CNIC 13-Digit Decoder",
-    nameUrdu: "شناختی کارڈ تجزیہ",
-    desc: "Province, Division & Origin",
-    icon: IdCard,
-    category: "identity",
-    badge: "100% Private",
-  },
-  {
-    id: "zakat",
-    name: "Zakat & Ushr",
-    nameUrdu: "زکوٰۃ و عشر کیلکولیٹر",
-    desc: "Gold, Silver & Live Nisab",
-    icon: Coins,
-    category: "finance",
-    badge: "Live Nisab",
-  },
-  {
-    id: "poa",
-    name: "Power of Attorney",
-    nameUrdu: "مختار نامہ عام و خاص",
-    desc: "Property, Courts & MOFA",
-    icon: Scale,
-    category: "legal",
-    badge: "e-Stamp Deed",
-  },
-  {
-    id: "vehicle_tax",
-    name: "Vehicle Transfer & Token",
-    nameUrdu: "گاڑی ٹرانسفر و ٹوکن ٹیکس",
-    desc: "Filer vs Non-Filer WHT PSID",
-    icon: Car,
-    category: "finance",
-    badge: "e-Pay 1Bill",
-  },
-  {
-    id: "vault",
-    name: "Encrypted Vault",
-    nameUrdu: "محفوظ دستاویزات والٹ",
-    desc: "Client-Side AES-256-GCM",
-    icon: Lock,
-    category: "identity",
-    badge: "Encrypted",
-  },
-  {
-    id: "affidavit",
-    name: "Affidavit Drafter",
-    nameUrdu: "حلف نامہ / بیان حلفی",
-    desc: "5 Legal E-Stamp Templates",
-    icon: FileCheck,
-    category: "legal",
-    badge: "Judicial",
-  },
-  {
-    id: "fee",
-    name: "Fee Calculator",
-    nameUrdu: "سرکاری فیس کیلکولیٹر",
-    desc: "NADRA, Passport, DLIMS, Land",
-    icon: Zap,
-    category: "finance",
-  },
-  {
-    id: "readiness",
-    name: "Check My File",
-    nameUrdu: "فائل آڈٹ و جانچ",
-    desc: "Interactive Document Checklist",
-    icon: FileCheck2,
-    category: "identity",
-  },
-  {
-    id: "tracker",
-    name: "Expiry Tracker",
-    nameUrdu: "تجدید و معیاد ٹریکر",
-    desc: "CNIC, Passport & License Renewal",
-    icon: Calendar,
-    category: "identity",
-  },
-  {
-    id: "centers",
-    name: "24/7 Mega Centers",
-    nameUrdu: "نادرا میگا سینٹرز",
-    desc: "Executive Centers & Timings",
-    icon: MapPin,
-    category: "verification",
-  },
-  {
-    id: "scams",
-    name: "Scam Radar",
-    nameUrdu: "ایجنٹ فراڈ راڈار",
-    desc: "Agent Blacklist & Red Flags",
-    icon: ShieldAlert,
-    category: "verification",
-  },
-  {
-    id: "inheritance",
-    name: "Inheritance Calculator",
-    nameUrdu: "اسلامی وراثت تقسیم",
-    desc: "Shariah Faraid Shares",
-    icon: FileText,
-    category: "legal",
-  },
-];
+  // 1. AI & Core Legal
+  { id: "pak_wakil", name: "PakWakil AI", nameUrdu: "پاک وکیل معاون", desc: "AI Legal & Civic Bot", icon: Bot, category: "legal_contracts", badge: "AI Smart" },
+  
+  // 2. Solar & Energy
+  { id: "solar", name: "Solar Net-Metering", nameUrdu: "سولر نیٹ میٹرنگ", desc: "System Size & ROI", icon: Sun, category: "solar_energy", badge: "DISCO 3-Phase" },
+  { id: "electricity", name: "Electricity Bill", nameUrdu: "بجلی بل و سلیب", desc: "NEPRA Slabs & FPA", icon: Zap, category: "solar_energy", badge: "FY 2026" },
+  { id: "gas", name: "Gas Bill Estimator", nameUrdu: "گیس بل کیلکولیٹر", desc: "SNGPL & SSGC Slabs", icon: Flame, category: "solar_energy" },
+  
+  // 3. Tax & Finance
+  { id: "salary_tax", name: "Salary Income Tax", nameUrdu: "تنخواہ انکم ٹیکس", desc: "FBR Slabs & Surcharge", icon: Calculator, category: "tax_finance", badge: "FBR 2026" },
+  { id: "freelancer", name: "Freelancer 0.25% Tax", nameUrdu: "فری لانسر آئی ٹی ٹیکس", desc: "PSEB & International Invoice", icon: Laptop, category: "tax_finance", badge: "0.25% IT" },
+  { id: "zakat", name: "Zakat & Ushr", nameUrdu: "زکوٰۃ و عشر کیلکولیٹر", desc: "Gold, Silver & Live Nisab", icon: Coins, category: "tax_finance", badge: "Live Nisab" },
+  { id: "vehicle_tax", name: "Vehicle Token Tax", nameUrdu: "گاڑی ٹوکن و ٹرانسفر", desc: "Filer vs Non-Filer WHT", icon: Car, category: "tax_finance" },
+  { id: "court_fee", name: "Court Fee Schedule", nameUrdu: "عدالتی کورٹ فیس", desc: "7.5% Ad-valorem Stamps", icon: Scale, category: "tax_finance" },
+  { id: "fee", name: "Official Fee Guide", nameUrdu: "سرکاری فیس گائیڈ", desc: "NADRA, Passport, DLIMS", icon: Zap, category: "tax_finance" },
+  { id: "inheritance", name: "Inheritance Calculator", nameUrdu: "اسلامی وراثت تقسیم", desc: "Shariah Faraid Shares", icon: FileText, category: "tax_finance" },
 
-const OFFICIAL_DIRECT_SERVICES = [
-  {
-    name: "Pak-ID Portal (NADRA)",
-    dept: "NADRA Federal",
-    url: "https://id.nadra.gov.pk",
-    desc: "Apply online for CNIC renewal, lost duplicate, FRC, and succession certificate without visiting centers.",
-    features: ["Digital Fingerprint Mobile Capture", "International Home Delivery", "Online Fee via Card"],
-  },
-  {
-    name: "e-Pay Punjab (1Bill PSID Generator)",
-    dept: "Finance Department",
-    url: "https://epay.punjab.gov.pk",
-    desc: "Generate 17-digit PSID for Token Tax, Vehicle Transfer, Driving License, and E-Stamping.",
-    features: ["Instant PSID Generation", "Pay via EasyPaisa / JazzCash", "Zero Bank Counter Queue"],
-  },
-  {
-    name: "DLIMS License Verification",
-    dept: "Traffic Police",
-    url: "https://dlims.punjab.gov.pk",
-    desc: "Verify driving license authenticity, check penalty points, and track card delivery.",
-    features: ["Check by CNIC", "Track Courier Dispatch", "Learner Expiry Reminder"],
-  },
-  {
-    name: "e-Stamping Portal (Punjab / Sindh)",
-    dept: "Board of Revenue",
-    url: "https://es.punjab.gov.pk",
-    desc: "Generate Challan 32-A and verify the 16-character security code of judicial/non-judicial stamp papers.",
-    features: ["DC Rate Property Calculator", "16-Digit QR Code Verification", "Direct Bank Payment"],
-  },
-  {
-    name: "FBR Active Taxpayer (ATL) Inquiry",
-    dept: "Federal Board of Revenue",
-    url: "https://iris.fbr.gov.pk",
-    desc: "Check active filer status to qualify for reduced tax rates on property and vehicle purchases.",
-    features: ["Instant ATL Status via CNIC", "Online NTN Verification", "Save 50% on Withholding Tax"],
-  },
-  {
-    name: "DGIP Passport Online Tracking",
-    dept: "Passport Directorate",
-    url: "https://onlinemrp.dgip.gov.pk",
-    desc: "Track the printing and regional delivery progress of machine readable passports.",
-    features: ["11-Digit Token Tracking", "SMS Notification Status", "Executive Center Queue Info"],
-  },
+  // 4. Legal Contracts & Deeds
+  { id: "rent_agreement", name: "Rent Agreement", nameUrdu: "کرایہ نامہ برائے رہائش", desc: "Punjab Rented Premises Act", icon: Scale, category: "legal_contracts", badge: "e-Stamp" },
+  { id: "vehicle_sale", name: "Vehicle Sale Receipt", nameUrdu: "اقرار نامہ بیع گاڑی", desc: "Legal Seller Indemnity", icon: Car, category: "legal_contracts" },
+  { id: "property_bayana", name: "Property Bayana", nameUrdu: "بیعانہ اقرار نامہ", desc: "Earnest Token Money", icon: Building, category: "legal_contracts" },
+  { id: "shajra_nasab", name: "Shajra-e-Nasab", nameUrdu: "شجرہ نسب چارٹ", desc: "Succession Family Tree", icon: Sparkles, category: "legal_contracts" },
+  { id: "poa", name: "Power of Attorney", nameUrdu: "مختار نامہ عام و خاص", desc: "Property, Courts & MOFA", icon: FileCheck, category: "legal_contracts" },
+  { id: "affidavit", name: "Affidavit Drafter", nameUrdu: "حلف نامہ / بیان حلفی", desc: "5 Legal E-Stamp Deeds", icon: FileCheck2, category: "legal_contracts" },
+  { id: "consumer_court", name: "Consumer Court Notice", nameUrdu: "صارف عدالت نوٹس", desc: "15-Day Statutory Notice", icon: Scale, category: "legal_contracts" },
+  { id: "fia_cybercrime", name: "FIA Cybercrime Drafter", nameUrdu: "ایف آئی اے سائبر کرائم", desc: "OTP & Online Scam Report", icon: ShieldAlert, category: "legal_contracts" },
+
+  // 5. Property & Living
+  { id: "construction", name: "Construction Cost", nameUrdu: "گھر کی تعمیر لاگت", desc: "Grey vs Turnkey Material", icon: Hammer, category: "property_living", badge: "2026 Rates" },
+  { id: "water_boring", name: "Water Boring & Tankers", nameUrdu: "پانی کی بورنگ و ٹینکر", desc: "Depth & Official Helplines", icon: Droplet, category: "property_living" },
+  { id: "motorway", name: "Motorway Toll & M-Tag", nameUrdu: "موٹروے ٹول ٹیکس", desc: "M-1 to M-9 NHA Rates", icon: Compass, category: "property_living" },
+
+  // 6. Identity & Security
+  { id: "cnic_decoder", name: "CNIC 13-Digit Decoder", nameUrdu: "شناختی کارڈ تجزیہ", desc: "Province, Division & Origin", icon: IdCard, category: "overseas_travel", badge: "Private" },
+  { id: "vault", name: "Encrypted Vault", nameUrdu: "محفوظ دستاویزات والٹ", desc: "Client-Side AES-256-GCM", icon: Lock, category: "overseas_travel", badge: "Encrypted" },
+  { id: "readiness", name: "Check My File", nameUrdu: "فائل آڈٹ و جانچ", desc: "Document Readiness Audit", icon: FileCheck2, category: "overseas_travel" },
+  { id: "tracker", name: "Expiry Tracker", nameUrdu: "تجدید و معیاد ٹریکر", desc: "CNIC, Passport & DLIMS", icon: Calendar, category: "overseas_travel" },
+
+  // 7. Overseas & Travel
+  { id: "pta_tax", name: "PTA Mobile Tax", nameUrdu: "پی ٹی اے موبائل ٹیکس", desc: "Passport vs CNIC DIRBS", icon: Smartphone, category: "overseas_travel", badge: "DIRBS" },
+  { id: "protector", name: "Overseas Protector", nameUrdu: "پروٹیکٹر و ایئرپورٹ", desc: "State Life & Exit Rules", icon: Plane, category: "overseas_travel" },
+
+  // 8. Jobs & Youth
+  { id: "sarkari_job", name: "Sarkari Job Bio-Data", nameUrdu: "سرکاری نوکری بائیو ڈیٹا", desc: "PPSC / FPSC Print Form", icon: Briefcase, category: "jobs_youth" },
+  { id: "css_age", name: "CSS & PMS Eligibility", nameUrdu: "سی ایس ایس عمر اہلیت", desc: "31st Dec Cutoff & Relaxations", icon: GraduationCap, category: "jobs_youth" },
+  { id: "ibcc", name: "IBCC Equivalence", nameUrdu: "تعلیمی مساوات کیلکولیٹر", desc: "O/A Level to Matric/FSc", icon: GraduationCap, category: "jobs_youth" },
+
+  // 9. Health & Safety
+  { id: "blood_appeal", name: "Urgent Blood Appeal", nameUrdu: "ایمرجنسی خون اپیل", desc: "WhatsApp Broadcast & 1122", icon: HeartHandshake, category: "emergency_safety", badge: "Emergency" },
+  { id: "sehat_card", name: "Sehat Sahulat Card", nameUrdu: "صحت کارڈ علاج گائیڈ", desc: "8500 SMS & PKR 1M Limit", icon: ShieldPlus, category: "emergency_safety" },
+  { id: "pocket_card", name: "Emergency Citizen Card", nameUrdu: "ایمرجنسی شناختی کارڈ", desc: "Printable Wallet Card", icon: IdCard, category: "emergency_safety" },
+  { id: "district_dir", name: "District Directory", nameUrdu: "ضلعی دفاتر ڈائریکٹری", desc: "DC, PLRA & Police Khidmat", icon: MapPin, category: "emergency_safety" },
+  { id: "centers", name: "24/7 Mega Centers", nameUrdu: "نادرا میگا سینٹرز", desc: "Executive Centers Map", icon: MapPin, category: "emergency_safety" },
+  { id: "scams", name: "Agent Scam Radar", nameUrdu: "ایجنٹ فراڈ راڈار", desc: "Blacklist & Red Flags", icon: ShieldAlert, category: "emergency_safety" },
 ];
 
 function ToolsPage() {
-  const [activeTool, setActiveTool] = useState<string>("salary_tax");
+  const [activeTool, setActiveTool] = useState<string>("pak_wakil");
   const [activeCategory, setActiveCategory] = useState<ToolCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -229,28 +168,27 @@ function ToolsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12 space-y-10">
-      {/* Page Header */}
+      {/* Header */}
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-          <Sparkles className="size-3.5" /> 13 Complete Citizen Utilities & Legal Command Center
+          <Sparkles className="size-3.5" /> 35 Complete Citizen Utilities & Legal Command Center
         </div>
         <h1 className="font-display text-3xl font-black text-primary sm:text-5xl tracking-tight">
-          Citizen Civic Tools & Encrypted Vault
+          Pakistan Citizen Utilities & Legal Hub
         </h1>
-        <p className="mx-auto max-w-2xl text-xs sm:text-sm text-muted leading-relaxed font-medium">
-          Calculate FBR income tax deductions, decode CNIC jurisdictions, calculate Zakat & Ushr against live Nisab, draft Power of Attorney deeds, calculate vehicle token tax, and seal sensitive documents with AES-256 encryption.
+        <p className="mx-auto max-w-3xl text-xs sm:text-sm text-muted leading-relaxed font-medium">
+          Accurate real-time calculators for Solar Net-Metering, Electricity & Gas Slabs, Salary Tax, Legal Agreements, Construction Costs, PTA Mobile Tax, Court Fees, and Shajra-e-Nasab.
         </p>
 
-        {/* Search & Category Filter Header Bar */}
+        {/* Search & Category Pills */}
         <div className="mx-auto mt-6 max-w-3xl space-y-3">
-          {/* Search Input */}
           <div className="relative flex items-center">
             <Search className="absolute left-4 size-4 text-muted pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search 13 tools (e.g. Salary tax, CNIC decoder, Zakat, Power of Attorney, Vehicle tax, NADRA)..."
+              placeholder="Search 35 citizen tools (e.g. Solar, Electricity bill, Rent agreement, Salary tax, PTA tax, Blood appeal)..."
               className="w-full rounded-2xl border border-primary/30 bg-surface pl-11 pr-4 py-3 text-xs sm:text-sm font-medium text-fg shadow-sm outline-none focus:border-primary transition-all"
             />
             {searchQuery && (
@@ -264,14 +202,16 @@ function ToolsPage() {
             )}
           </div>
 
-          {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
             {[
-              { id: "all", label: "All Utilities (13)" },
-              { id: "finance", label: "💰 Taxes & Financial" },
-              { id: "legal", label: "📄 Legal & Affidavits" },
-              { id: "identity", label: "🪪 Identity & Security" },
-              { id: "verification", label: "🏛️ Centers & Scam Radar" },
+              { id: "all", label: "All Utilities (35)" },
+              { id: "solar_energy", label: "☀️ Solar & Energy" },
+              { id: "tax_finance", label: "💰 Taxes & Finance" },
+              { id: "legal_contracts", label: "📜 Legal Agreements" },
+              { id: "property_living", label: "🏗️ Property & Living" },
+              { id: "overseas_travel", label: "📱 Overseas & Travel" },
+              { id: "jobs_youth", label: "🎓 Jobs & Youth" },
+              { id: "emergency_safety", label: "🏥 Emergency & Safety" },
             ].map((cat) => (
               <button
                 key={cat.id}
@@ -291,7 +231,7 @@ function ToolsPage() {
         </div>
 
         {/* Master Tool Switcher Grid */}
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 rounded-3xl border-2 border-primary/20 bg-surface p-2.5 sm:p-3 shadow-card">
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 rounded-3xl border-2 border-primary/20 bg-surface p-2.5 sm:p-3 shadow-card max-h-[420px] overflow-y-auto">
           {filteredTools.map((t) => {
             const Icon = t.icon;
             const isActive = activeTool === t.id;
@@ -352,74 +292,49 @@ function ToolsPage() {
 
       {/* Active Civic Utility Panel */}
       <div id="active-utility-section" className="mt-8 scroll-mt-20">
+        {activeTool === "pak_wakil" && <PakWakilAi />}
+        {activeTool === "solar" && <SolarNetMeteringCalculator />}
+        {activeTool === "electricity" && <ElectricityBillCalculator />}
+        {activeTool === "gas" && <GasBillCalculator />}
+        {activeTool === "freelancer" && <FreelancerTaxCalculator />}
         {activeTool === "salary_tax" && <SalaryTaxCalculator />}
-        {activeTool === "cnic_decoder" && <CnicDecoder />}
         {activeTool === "zakat" && <ZakatCalculator />}
-        {activeTool === "poa" && <PowerOfAttorneyGenerator />}
         {activeTool === "vehicle_tax" && <VehicleTaxCalculator />}
-        {activeTool === "vault" && <CitizenVault />}
+        {activeTool === "court_fee" && <CourtFeeCalculator />}
         {activeTool === "fee" && <FeeCalculator />}
+        {activeTool === "inheritance" && <InheritanceCalculator />}
+        
+        {activeTool === "rent_agreement" && <RentAgreementGenerator />}
+        {activeTool === "vehicle_sale" && <VehicleSaleAgreementGenerator />}
+        {activeTool === "property_bayana" && <PropertyBayanaGenerator />}
+        {activeTool === "shajra_nasab" && <ShajraNasabBuilder />}
+        {activeTool === "poa" && <PowerOfAttorneyGenerator />}
+        {activeTool === "affidavit" && <AffidavitGenerator />}
+        {activeTool === "consumer_court" && <ConsumerCourtNoticeDrafter />}
+        {activeTool === "fia_cybercrime" && <FiaCybercrimeDrafter />}
+
+        {activeTool === "construction" && <ConstructionCostCalculator />}
+        {activeTool === "water_boring" && <WaterBoringTankerGuide />}
+        {activeTool === "motorway" && <MotorwayTollCalculator />}
+
+        {activeTool === "cnic_decoder" && <CnicDecoder />}
+        {activeTool === "vault" && <CitizenVault />}
         {activeTool === "readiness" && <FileReadinessChecker />}
         {activeTool === "tracker" && <DocumentExpiryTracker />}
+
+        {activeTool === "pta_tax" && <PtaMobileTaxCalculator />}
+        {activeTool === "protector" && <OverseasProtectorGuide />}
+
+        {activeTool === "sarkari_job" && <SarkariJobBiodataGenerator />}
+        {activeTool === "css_age" && <CssPmsEligibilityChecker />}
+        {activeTool === "ibcc" && <IbccEquivalenceCalculator />}
+
+        {activeTool === "blood_appeal" && <EmergencyBloodAppealGenerator />}
+        {activeTool === "sehat_card" && <SehatCardGuide />}
+        {activeTool === "pocket_card" && <PocketEmergencyCard />}
+        {activeTool === "district_dir" && <DistrictCivicDirectory />}
         {activeTool === "centers" && <CentersMap />}
         {activeTool === "scams" && <ScamRadar />}
-        {activeTool === "inheritance" && <InheritanceCalculator />}
-        {activeTool === "affidavit" && <AffidavitGenerator />}
-      </div>
-
-      {/* Official Government Direct Service Endpoints */}
-      <div className="mt-20 border-t border-border/80 pt-12">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-            <ShieldCheck className="size-3.5" /> Direct Service Directory
-          </div>
-          <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold text-primary">
-            Official Portals & Verification APIs
-          </h2>
-          <p className="mt-1 text-xs text-muted">
-            Direct authenticated links to official Pakistani government portals.
-          </p>
-        </div>
-
-        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {OFFICIAL_DIRECT_SERVICES.map((svc) => (
-            <div
-              key={svc.name}
-              className="flex flex-col justify-between rounded-2xl border border-border bg-surface p-6 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-bg px-2.5 py-0.5 text-[10px] font-bold text-accent">
-                    {svc.dept}
-                  </span>
-                  <ExternalLink className="size-4 text-muted" />
-                </div>
-                <h3 className="mt-3 font-display text-lg font-bold text-primary">{svc.name}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted">{svc.desc}</p>
-
-                <div className="mt-4 space-y-1.5 border-t border-border/80 pt-3">
-                  {svc.features.map((f, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-[11px] text-fg/80">
-                      <CheckCircle2 className="size-3 text-primary shrink-0" />
-                      <span>{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 border-t border-border pt-4">
-                <a
-                  href={svc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-xl bg-bg px-4 py-2 text-xs font-semibold text-primary hover:bg-primary hover:text-surface transition-colors"
-                >
-                  Open Official Portal <ExternalLink className="size-3.5" />
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
