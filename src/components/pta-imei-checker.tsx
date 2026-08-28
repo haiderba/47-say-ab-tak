@@ -263,10 +263,10 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=pta_imei)`;
       <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 md:flex-row md:items-center">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-indigo-600">
-            <Smartphone className="size-3.5" /> GSMA TAC Database &amp; PTA DIRBS Verification Engine
+            <Smartphone className="size-3.5" /> GSMA TAC Database & PTA DIRBS Verification Engine
           </div>
           <h2 className="mt-2 font-display text-2xl font-black text-primary sm:text-3xl">
-            Live Device Hardware &amp; PTA Status Inspector
+            Live Device Hardware & PTA Status Inspector
           </h2>
           <p className="mt-1 text-xs text-muted">
             Resolves exact phone model from 15-digit IMEI, validates GSMA TAC allocation, computes 2026 PTA taxes, and checks for CPID/patch tampering.
@@ -278,7 +278,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=pta_imei)`;
             onClick={() => window.print()}
             className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-surface hover:bg-primary-light shadow-xs"
           >
-            <Printer className="size-4" /> Print B&amp;W Official Report
+            <Printer className="size-4" /> Print B&W Official Report
           </button>
         </div>
       </div>
@@ -395,14 +395,14 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=pta_imei)`;
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
           <div className="rounded-2xl border border-indigo-500/20 bg-surface p-3.5 space-y-1">
             <div className="flex items-center gap-1 text-muted text-[10px] font-bold uppercase">
-              <Cpu className="size-3 text-indigo-600" /> Processor &amp; AI Engine
+              <Cpu className="size-3 text-indigo-600" /> Processor & AI Engine
             </div>
             <span className="font-bold text-fg block text-xs truncate">{device.chipset}</span>
           </div>
 
           <div className="rounded-2xl border border-indigo-500/20 bg-surface p-3.5 space-y-1">
             <div className="flex items-center gap-1 text-muted text-[10px] font-bold uppercase">
-              <Radio className="size-3 text-indigo-600" /> Cellular &amp; SIM
+              <Radio className="size-3 text-indigo-600" /> Cellular & SIM
             </div>
             <span className="font-bold text-fg block text-xs truncate">{device.network}</span>
           </div>
@@ -428,7 +428,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=pta_imei)`;
             <CheckCircle2 className="size-6 text-emerald-600 shrink-0" />
             <div>
               <span className="font-bold text-emerald-950 block text-xs">
-                PTA Approved &amp; GSMA Compliant (Permanent Status)
+                PTA Approved & GSMA Compliant (Permanent Status)
               </span>
               <p className="text-[11px] text-emerald-800 mt-0.5">
                 This device is officially registered in Pakistan. All 4G/5G SIMs (Jazz, Zong, Telenor, Ufone, SCOM) work with zero risk of blocking.
@@ -516,7 +516,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=pta_imei)`;
         <div className="flex items-center gap-2">
           <ShieldAlert className="size-4 text-rose-600" />
           <span className="font-bold text-rose-950 text-xs uppercase">
-            Anti-Fraud CPID &amp; Patched IMEI Warning
+            Anti-Fraud CPID & Patched IMEI Warning
           </span>
         </div>
         <p className="text-xs text-rose-900 leading-relaxed">

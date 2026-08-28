@@ -85,7 +85,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=fbr_atl)`;
             <Calculator className="size-3.5" /> FBR Active Taxpayer List (ATL) Verification Engine
           </div>
           <h2 className="mt-2 font-display text-2xl font-black text-primary sm:text-3xl">
-            FBR Active Taxpayer (ATL) &amp; NTN Status Verifier
+            FBR Active Taxpayer (ATL) & NTN Status Verifier
           </h2>
           <p className="mt-1 text-xs text-muted">
             Inspect real-time ATL compliance, Regional Tax Office (RTO) jurisdiction, return filing status, and exact withholding tax reductions.
@@ -96,7 +96,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=fbr_atl)`;
           onClick={() => window.print()}
           className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-surface hover:bg-primary-light shadow-xs"
         >
-          <Printer className="size-4" /> Print B&amp;W Official Status
+          <Printer className="size-4" /> Print B&W Official Status
         </button>
       </div>
 
@@ -242,7 +242,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=fbr_atl)`;
               <AlertCircle className="size-6 text-rose-600 shrink-0" />
               <div>
                 <span className="font-bold text-rose-950 block text-xs">
-                  Inactive / Non-Filer Status (Heavy Penalties &amp; 10.5% Tax Apply)
+                  Inactive / Non-Filer Status (Heavy Penalties & 10.5% Tax Apply)
                 </span>
                 <p className="text-[11px] text-rose-800 mt-0.5">
                   Annual return for Tax Year 2024/2025 is missing. Subject to 10.5% Section 236K property tax, 0.9% bank cash deduction, and doubled vehicle token taxes.
@@ -273,7 +273,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=fbr_atl)`;
             </div>
             <div className="rounded-2xl border border-emerald-500/20 bg-surface p-3.5 space-y-1">
               <span className="text-muted block text-[10px] font-bold uppercase">Tax Filing Year</span>
-              <span className="font-bold text-fg block text-xs">Tax Year 2024 &amp; 2025</span>
+              <span className="font-bold text-fg block text-xs">Tax Year 2024 & 2025</span>
             </div>
             <div className="rounded-2xl border border-emerald-500/20 bg-surface p-3.5 space-y-1">
               <span className="text-muted block text-[10px] font-bold uppercase">ATL Validity Date</span>

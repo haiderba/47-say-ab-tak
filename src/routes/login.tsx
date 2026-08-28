@@ -74,7 +74,7 @@ function LoginPage() {
               to="/profile"
               className="flex items-center justify-center gap-2 w-full rounded-xl border border-primary text-primary py-2.5 text-xs font-bold hover:bg-primary/5 transition-colors"
             >
-              <User className="size-4" /> Manage Profile &amp; Password
+              <User className="size-4" /> Manage Profile & Password
             </Link>
 
             {isAdmin && (
@@ -422,7 +422,7 @@ function LoginPage() {
                   </>
                 ) : mode === "signup" ? (
                   <>
-                    <Sparkles className="size-4" /> Register &amp; Send 6-Digit OTP
+                    <Sparkles className="size-4" /> Register & Send 6-Digit OTP
                   </>
                 ) : resetStep === 1 ? (
                   <>
@@ -430,7 +430,7 @@ function LoginPage() {
                   </>
                 ) : (
                   <>
-                    <Lock className="size-4" /> Reset Password &amp; Sign In
+                    <Lock className="size-4" /> Reset Password & Sign In
                   </>
                 )}
               </button>

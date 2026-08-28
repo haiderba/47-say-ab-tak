@@ -220,10 +220,10 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=secp_compan
       <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 md:flex-row md:items-center">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-purple-600">
-            <Building2 className="size-3.5" /> SECP Corporate Registry &amp; Fraud Prevention Engine
+            <Building2 className="size-3.5" /> SECP Corporate Registry & Fraud Prevention Engine
           </div>
           <h2 className="mt-2 font-display text-2xl font-black text-primary sm:text-3xl">
-            Live Corporate Registry &amp; Company Fraud Inspector
+            Live Corporate Registry & Company Fraud Inspector
           </h2>
           <p className="mt-1 text-xs text-muted">
             Search 150,000+ SECP-registered companies, inspect CUIN registration, check authorized business activities, and detect illegal investment schemes on-screen.
@@ -234,7 +234,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=secp_compan
           onClick={() => window.print()}
           className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-surface hover:bg-primary-light shadow-xs"
         >
-          <Printer className="size-4" /> Print B&amp;W Record
+          <Printer className="size-4" /> Print B&W Record
         </button>
       </div>
 
@@ -425,7 +425,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=secp_compan
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-4 text-primary" />
             <h4 className="font-display text-sm font-black uppercase tracking-wider text-primary">
-              Citizen Scam Prevention &amp; Due-Diligence Checklist
+              Citizen Scam Prevention & Due-Diligence Checklist
             </h4>
           </div>
           <span className="text-[10px] font-bold text-muted uppercase">Section 84 Protection</span>
@@ -440,7 +440,7 @@ Verified via 47 Say Ab Tak Portal (https://47sayabtak.com/tools?tool=secp_compan
           </div>
 
           <div className="rounded-2xl border border-border bg-bg/50 p-4 space-y-1.5">
-            <span className="font-bold text-fg block text-xs">2. Real Estate &amp; Builders</span>
+            <span className="font-bold text-fg block text-xs">2. Real Estate & Builders</span>
             <p className="text-muted leading-relaxed text-[11px]">
               SECP registration alone does not permit housing societies to sell plots. They must also have an approved NOC from RDA/LDA/KDA/CDA.
             </p>

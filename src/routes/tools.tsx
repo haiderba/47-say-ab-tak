@@ -353,7 +353,7 @@ function ToolsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-surface/15 px-3.5 py-1 text-xs font-bold text-accent">
-              <Sparkles className="size-3.5" /> 42 Citizen Utilities &amp; Government Verification Gateways
+              <Sparkles className="size-3.5" /> 42 Citizen Utilities & Government Verification Gateways
             </div>
             <h1 className="mt-2 font-display text-2xl sm:text-4xl font-black tracking-tight text-surface">
               Pakistan Citizen Tools Hub
@@ -371,7 +371,7 @@ function ToolsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search 42 citizen tools &amp; APIs..."
+                placeholder="Search 42 citizen tools & APIs..."
                 className="w-full rounded-2xl bg-surface text-fg pl-10 pr-4 py-3 text-xs sm:text-sm font-semibold outline-none shadow-md placeholder:text-muted focus:ring-2 focus:ring-accent"
               />
               {searchQuery && (
@@ -392,14 +392,14 @@ function ToolsPage() {
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {[
           { id: "all", label: "All Utilities (42)", icon: Sparkles },
-          { id: "gov_apis", label: "🏛️ Govt APIs &amp; Verifiers", icon: Receipt },
-          { id: "solar_energy", label: "☀️ Solar &amp; Energy", icon: Sun },
-          { id: "tax_finance", label: "💰 Taxes &amp; Finance", icon: Calculator },
+          { id: "gov_apis", label: "🏛️ Govt APIs & Verifiers", icon: Receipt },
+          { id: "solar_energy", label: "☀️ Solar & Energy", icon: Sun },
+          { id: "tax_finance", label: "💰 Taxes & Finance", icon: Calculator },
           { id: "legal_contracts", label: "📜 Legal Agreements", icon: Scale },
-          { id: "property_living", label: "🏗️ Property &amp; Living", icon: Building },
-          { id: "overseas_travel", label: "📱 Overseas &amp; Travel", icon: Smartphone },
-          { id: "jobs_youth", label: "🎓 Jobs &amp; Youth", icon: GraduationCap },
-          { id: "emergency_safety", label: "🏥 Emergency &amp; Safety", icon: HeartHandshake },
+          { id: "property_living", label: "🏗️ Property & Living", icon: Building },
+          { id: "overseas_travel", label: "📱 Overseas & Travel", icon: Smartphone },
+          { id: "jobs_youth", label: "🎓 Jobs & Youth", icon: GraduationCap },
+          { id: "emergency_safety", label: "🏥 Emergency & Safety", icon: HeartHandshake },
         ].map((cat) => {
           const isSelected = activeCategory === cat.id;
           return (

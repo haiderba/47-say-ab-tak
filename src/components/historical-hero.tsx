@@ -286,7 +286,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
           </div>
 
           <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-md">
-            Pakistan's Governance &amp;{" "}
+            Pakistan's Governance &{" "}
             <span className="bg-gradient-to-r from-accent via-amber-200 to-white bg-clip-text text-transparent">
               Documentation Evolution
             </span>
@@ -379,7 +379,7 @@ export function HistoricalHero({ onSearch }: { onSearch?: (q: string) => void })
                       ref={milestoneDisplayRef}
                       className="block font-display text-xs sm:text-base md:text-lg font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] leading-tight"
                     >
-                      Independence &amp; Manual Era
+                      Independence & Manual Era
                     </span>
                   </div>
                 </div>

@@ -216,7 +216,7 @@ export function CitizenVault() {
               to="/profile"
               className="rounded-xl border border-primary/30 bg-surface px-4 py-2 text-xs font-bold text-primary hover:bg-primary/5 transition-colors"
             >
-              My Profile &amp; Password
+              My Profile & Password
             </Link>
           </div>
         </div>

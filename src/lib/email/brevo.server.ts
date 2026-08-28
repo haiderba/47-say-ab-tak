@@ -49,7 +49,7 @@ export async function sendBrevoVerificationEmail({
     "        <tr><td style=\"background:#01411c;padding:36px 30px;text-align:center;\">" +
     "          <div style=\"display:inline-block;background-color:#c9a227;color:#01411c;font-weight:bold;font-size:14px;padding:6px 18px;border-radius:50px;letter-spacing:1px;\">47 SY AB TAK</div>" +
     "          <h1 style=\"color:#ffffff;margin:16px 0 0 0;font-size:24px;font-weight:800;\">Citizen Verification Code</h1>" +
-    "          <p style=\"color:#d5e2d8;margin:6px 0 0 0;font-size:13px;\">Pakistan Citizen Documentation &amp; Governance Portal</p>" +
+    "          <p style=\"color:#d5e2d8;margin:6px 0 0 0;font-size:13px;\">Pakistan Citizen Documentation & Governance Portal</p>" +
     "        </td></tr>" +
     "        <tr><td style=\"padding:36px 32px;\">" +
     "          <p style=\"font-size:16px;margin:0 0 14px 0;color:#01411c;font-weight:bold;\">Assalam-o-Alaikum, " +
@@ -178,7 +178,7 @@ export async function sendBrevoPasswordResetEmail({
     "        <tr><td style=\"background:#01411c;padding:36px 30px;text-align:center;\">" +
     "          <div style=\"display:inline-block;background-color:#c9a227;color:#01411c;font-weight:bold;font-size:14px;padding:6px 18px;border-radius:50px;letter-spacing:1px;\">47 SY AB TAK</div>" +
     "          <h1 style=\"color:#ffffff;margin:16px 0 0 0;font-size:24px;font-weight:800;\">Password Reset Code</h1>" +
-    "          <p style=\"color:#d5e2d8;margin:6px 0 0 0;font-size:13px;\">Citizen Security &amp; Account Recovery</p>" +
+    "          <p style=\"color:#d5e2d8;margin:6px 0 0 0;font-size:13px;\">Citizen Security & Account Recovery</p>" +
     "        </td></tr>" +
     "        <tr><td style=\"padding:36px 32px;\">" +
     "          <p style=\"font-size:16px;margin:0 0 14px 0;color:#01411c;font-weight:bold;\">Assalam-o-Alaikum, " +

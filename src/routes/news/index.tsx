@@ -317,7 +317,7 @@ function NewsBlogPage() {
             </span>
             <span className="hidden sm:inline text-muted">•</span>
             <span className="truncate font-medium text-fg/80">
-              Pakistan National &amp; Breaking Press Feed (DAWN, Express Tribune, The News)
+              Pakistan National & Breaking Press Feed (DAWN, Express Tribune, The News)
             </span>
           </div>
 
@@ -346,10 +346,10 @@ function NewsBlogPage() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-bold text-primary shadow-sm backdrop-blur-md">
               <Newspaper className="size-3.5 text-accent" />
-              <span>The Citizen Dispatch • Pakistan News &amp; Legal Gazette</span>
+              <span>The Citizen Dispatch • Pakistan News & Legal Gazette</span>
             </div>
             <h1 className="mt-3 font-display text-4xl sm:text-5xl font-black text-primary tracking-tight">
-              Pakistan Breaking News &amp; Law
+              Pakistan Breaking News & Law
             </h1>
             <p className="mt-2 max-w-2xl text-sm sm:text-base text-muted leading-relaxed">
               In-depth reporting from verified national correspondents. Read complete articles in-app without leaving the portal.
@@ -659,7 +659,7 @@ function NewsBlogPage() {
                   <h4 className="font-display text-base font-black text-accent">
                     The Daily Citizen Digest
                   </h4>
-                  <p className="text-[11px] text-surface/80">Get daily legal &amp; breaking briefs</p>
+                  <p className="text-[11px] text-surface/80">Get daily legal & breaking briefs</p>
                 </div>
               </div>
 

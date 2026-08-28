@@ -255,7 +255,7 @@ function ProfilePage() {
         {/* Card 2: Security & Password Management */}
         <div className="rounded-3xl border border-border bg-surface p-6 shadow-card">
           <div className="flex items-center gap-2.5 text-primary font-display text-lg font-bold">
-            <KeyRound className="size-5 text-accent" /> Password &amp; Security
+            <KeyRound className="size-5 text-accent" /> Password & Security
           </div>
           <p className="mt-1 text-xs text-muted">
             Update your account password or reset securely via Brevo 6-Digit OTP.

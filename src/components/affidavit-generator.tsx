@@ -265,10 +265,10 @@ Name & CNIC: ${witness2}`;
       <div className="flex flex-col justify-between gap-4 border-b border-border pb-5 md:flex-row md:items-center">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-            <FileCheck className="size-3.5" /> Legal Instruments &amp; Stamp Paper
+            <FileCheck className="size-3.5" /> Legal Instruments & Stamp Paper
           </div>
           <h2 className="mt-2 font-display text-2xl font-bold text-primary sm:text-3xl">
-            Legal Affidavit &amp; Undertaking Generator
+            Legal Affidavit & Undertaking Generator
           </h2>
           <p className="mt-1 text-xs text-muted">
             Draft standardized Pakistani legal affidavits ready for printing on PKR 50 / 100 / 1200 E-Stamp Paper.
@@ -425,7 +425,7 @@ Name & CNIC: ${witness2}`;
             {template === "loss" && (
               <>
                 <div>
-                  <label className="text-xs font-medium text-muted">Lost Document Title &amp; Details</label>
+                  <label className="text-xs font-medium text-muted">Lost Document Title & Details</label>
                   <input
                     value={lostDocName}
                     onChange={(e) => setLostDocName(e.target.value)}
@@ -457,7 +457,7 @@ Name & CNIC: ${witness2}`;
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted">In Favor of (Beneficiary Name &amp; Relation)</label>
+                  <label className="text-xs font-medium text-muted">In Favor of (Beneficiary Name & Relation)</label>
                   <input
                     value={beneficiaryName}
                     onChange={(e) => setBeneficiaryName(e.target.value)}
@@ -564,7 +564,7 @@ Name & CNIC: ${witness2}`;
                 className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 px-6 text-sm font-bold text-surface hover:bg-primary-light transition-all shadow-lg active:scale-95"
               >
                 <Eye className="size-4 text-accent" />
-                <span>View &amp; Download Official Stamp Paper</span>
+                <span>View & Download Official Stamp Paper</span>
               </button>
             ) : (
               <div className="rounded-2xl border-2 border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">

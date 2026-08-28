@@ -52,7 +52,7 @@ export function PwaInstallBanner() {
           </div>
           <div>
             <h4 className="text-xs font-black text-primary">47 Say Ab Tak Mobile App</h4>
-            <p className="text-[11px] text-muted">Install offline citizen vault &amp; real-time news</p>
+            <p className="text-[11px] text-muted">Install offline citizen vault & real-time news</p>
           </div>
         </div>
 
