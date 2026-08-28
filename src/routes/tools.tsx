@@ -79,7 +79,6 @@ import { PocketEmergencyCard } from "@/components/pocket-emergency-card";
 import { SarkariJobBiodataGenerator } from "@/components/sarkari-job-biodata-generator";
 import { CssPmsEligibilityChecker } from "@/components/css-pms-eligibility-checker";
 import { IbccEquivalenceCalculator } from "@/components/ibcc-equivalence-calculator";
-import { PakWakilAi } from "@/components/pak-wakil-ai";
 import { ConsumerCourtNoticeDrafter } from "@/components/consumer-court-notice-drafter";
 import { FiaCybercrimeDrafter } from "@/components/fia-cybercrime-drafter";
 import { DistrictCivicDirectory } from "@/components/district-civic-directory";
@@ -125,8 +124,6 @@ const MASTER_TOOLS: ToolItem[] = [
   { id: "electricity", name: "NEPRA Electricity Bill Slabs", nameUrdu: "بجلی بل و سلیب", desc: "NEPRA Slabs & FPA", icon: Zap, category: "solar_energy", badge: "FY 2026", colorClass: "bg-yellow-500/15 text-yellow-600 border-yellow-500/30" },
   { id: "gas", name: "Gas Bill Estimator", nameUrdu: "گیس بل کیلکولیٹر", desc: "SNGPL & SSGC Slabs", icon: Flame, category: "solar_energy", colorClass: "bg-orange-500/15 text-orange-600 border-orange-500/30" },
   
-  // 3. AI & Legal
-  { id: "pak_wakil", name: "PakWakil AI Legal Assistant", nameUrdu: "پاک وکیل معاون", desc: "AI Legal & Civic Bot", icon: Bot, category: "legal_contracts", badge: "AI Smart", colorClass: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
   { id: "rent_agreement", name: "Residential Rent Agreement", nameUrdu: "کرایہ نامہ برائے رہائش", desc: "Punjab Rented Premises Act", icon: Scale, category: "legal_contracts", badge: "e-Stamp", colorClass: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
   { id: "vehicle_sale", name: "Vehicle Sale Receipt", nameUrdu: "اقرار نامہ بیع گاڑی", desc: "Legal Seller Indemnity", icon: Car, category: "legal_contracts", colorClass: "bg-indigo-500/15 text-indigo-600 border-indigo-500/30" },
   { id: "property_bayana", name: "Property Bayana Agreement", nameUrdu: "بیعانہ اقرار نامہ", desc: "Earnest Token Money", icon: Building, category: "legal_contracts", colorClass: "bg-teal-500/15 text-teal-600 border-teal-500/30" },
@@ -285,7 +282,6 @@ function ToolsPage() {
 
           {/* Utilities & Calculators */}
           {activeToolObj.id === "solar" && <SolarNetMeteringCalculator />}
-          {activeToolObj.id === "pak_wakil" && <PakWakilAi />}
           {activeToolObj.id === "electricity" && <ElectricityBillCalculator />}
           {activeToolObj.id === "gas" && <GasBillCalculator />}
           {activeToolObj.id === "freelancer" && <FreelancerTaxCalculator />}
@@ -353,7 +349,7 @@ function ToolsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-surface/15 px-3.5 py-1 text-xs font-bold text-accent">
-              <Sparkles className="size-3.5" /> 42 Citizen Utilities & Government Verification Gateways
+              <Sparkles className="size-3.5" /> 41 Citizen Utilities & Government Verification Gateways
             </div>
             <h1 className="mt-2 font-display text-2xl sm:text-4xl font-black tracking-tight text-surface">
               Pakistan Citizen Tools Hub
@@ -371,7 +367,7 @@ function ToolsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search 42 citizen tools & APIs..."
+                placeholder="Search 41 citizen tools & APIs..."
                 className="w-full rounded-2xl bg-surface text-fg pl-10 pr-4 py-3 text-xs sm:text-sm font-semibold outline-none shadow-md placeholder:text-muted focus:ring-2 focus:ring-accent"
               />
               {searchQuery && (
@@ -391,7 +387,7 @@ function ToolsPage() {
       {/* Category Filter Chips Carousel */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {[
-          { id: "all", label: "All Utilities (42)", icon: Sparkles },
+          { id: "all", label: "All Utilities (41)", icon: Sparkles },
           { id: "gov_apis", label: "🏛️ Govt APIs & Verifiers", icon: Receipt },
           { id: "solar_energy", label: "☀️ Solar & Energy", icon: Sun },
           { id: "tax_finance", label: "💰 Taxes & Finance", icon: Calculator },
