@@ -8,12 +8,12 @@ export function ZakatCalculator() {
   const [goldWeight, setGoldWeight] = useState<number>(0);
   const [goldUnit, setGoldUnit] = useState<"tola" | "gram">("tola");
   const [goldKarat, setGoldKarat] = useState<"24" | "22" | "21" | "18">("24");
-  const [goldRatePerTola, setGoldRatePerTola] = useState<number>(284500); // live default PKR
+  const [goldRatePerTola, setGoldRatePerTola] = useState<number>(304500); // live default PKR
 
   // Silver holdings
   const [silverWeight, setSilverWeight] = useState<number>(0);
   const [silverUnit, setSilverUnit] = useState<"tola" | "gram">("tola");
-  const [silverRatePerTola, setSilverRatePerTola] = useState<number>(3500);
+  const [silverRatePerTola, setSilverRatePerTola] = useState<number>(3450);
 
   // Cash & Financial Assets
   const [cashInHand, setCashInHand] = useState<number>(0);

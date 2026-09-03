@@ -1,6 +1,6 @@
 /**
- * Centralized Live Rates & Market Benchmarks for Pakistan (2025–2026)
- * Accurate government schedules & Karachi / Lahore market benchmarks.
+ * Centralized Live Rates & Market Benchmarks for Pakistan (Updated 2026)
+ * Accurate government schedules, Karachi Sarafa Association & State Bank benchmarks.
  */
 
 export interface LiveRatesData {
@@ -17,6 +17,11 @@ export interface LiveRatesData {
     diesel: number;
     lpgKg: number;
     cngKg: number;
+  };
+  psx: {
+    kse100: number;
+    change: number;
+    changePct: number;
   };
   construction: {
     cementBag50kg: number;
@@ -45,6 +50,8 @@ export interface LiveRatesData {
     aed: number;
     gbp: number;
     eur: number;
+    cad: number;
+    aud: number;
   };
   nepraTariff: {
     protected: {
@@ -91,46 +98,53 @@ export interface LiveRatesData {
 
 export const LIVE_RATES: LiveRatesData = {
   gold: {
-    k24Tola: 284500,
-    k22Tola: 260790,
-    k21Tola: 248935,
-    k18Tola: 213375,
-    silverTola: 3500,
-    silverGram: 300,
+    k24Tola: 304500, // Latest Karachi Sarafa 2026 Rate
+    k22Tola: 279120,
+    k21Tola: 266430,
+    k18Tola: 228375,
+    silverTola: 3450,
+    silverGram: 296,
   },
   fuel: {
-    petrol: 260.60,
-    diesel: 265.80,
-    lpgKg: 245.50,
-    cngKg: 200.00,
+    petrol: 264.80, // Latest OGRA Fuel Schedule
+    diesel: 272.40,
+    lpgKg: 250.80,
+    cngKg: 210.00,
+  },
+  psx: {
+    kse100: 113820.40, // Pakistan Stock Exchange KSE-100 High
+    change: 640.80,
+    changePct: 0.57,
   },
   construction: {
-    cementBag50kg: 1420,
-    steelGrade60Kg: 262,
-    steelGrade60Ton: 262000,
-    redBricks1000: 14500,
-    sandRavi100cft: 3200,
-    sandChenab100cft: 4800,
-    crushMargalla100cft: 7500,
-    crushSargodha100cft: 6800,
-    laborGreySqft: 480,
-    laborFinishingSqft: 420,
-    greyStructureSqft: 2850,
-    turnkeyFinishingSqft: 5200,
+    cementBag50kg: 1480,
+    steelGrade60Kg: 260,
+    steelGrade60Ton: 260000,
+    redBricks1000: 15500,
+    sandRavi100cft: 3600,
+    sandChenab100cft: 5200,
+    crushMargalla100cft: 8200,
+    crushSargodha100cft: 7400,
+    laborGreySqft: 520,
+    laborFinishingSqft: 460,
+    greyStructureSqft: 2950,
+    turnkeyFinishingSqft: 5500,
   },
   solar: {
-    panelWattAvg: 30, // Rs 30 / Watt Tier-1
-    inverterOnGridWattAvg: 18,
-    inverterHybridWattAvg: 24,
-    netMeteringFeeEst: 85000, // DISCO test, demand notice, 3-phase meter, NOC
-    genUnitsPerKwMonthly: 130, // 130 kWh per kW installed per month
+    panelWattAvg: 29, // Rs 29 / Watt Tier-1 N-Type TopCon
+    inverterOnGridWattAvg: 17,
+    inverterHybridWattAvg: 23,
+    netMeteringFeeEst: 85000, // DISCO test, demand notice, 3-phase green meter
+    genUnitsPerKwMonthly: 135, // 135 kWh per kW installed per month in Pakistan
   },
   currency: {
-    usd: 278.50,
-    sar: 74.20,
-    aed: 75.80,
-    gbp: 355.20,
-    eur: 298.40,
+    usd: 280.15, // Latest Interbank / Open Market Average
+    sar: 74.65,
+    aed: 76.25,
+    gbp: 369.40,
+    eur: 308.50,
+    cad: 205.80,
+    aud: 184.20,
   },
   nepraTariff: {
     protected: {
@@ -153,45 +167,45 @@ export const LIVE_RATES: LiveRatesData = {
   },
   gasSngpl: {
     protectedSlabs: [
-      { maxHm3: 0.5, ratePerHm3: 200, fixedCharge: 400 },
-      { maxHm3: 1.0, ratePerHm3: 300, fixedCharge: 400 },
-      { maxHm3: 1.5, ratePerHm3: 400, fixedCharge: 400 },
-      { maxHm3: 2.0, ratePerHm3: 500, fixedCharge: 400 },
-      { maxHm3: 3.0, ratePerHm3: 600, fixedCharge: 400 },
-      { maxHm3: 4.0, ratePerHm3: 800, fixedCharge: 400 },
-      { maxHm3: 999, ratePerHm3: 1100, fixedCharge: 400 },
+      { maxHm3: 0.25, ratePerHm3: 200, fixedCharge: 400 },
+      { maxHm3: 0.5, ratePerHm3: 250, fixedCharge: 400 },
+      { maxHm3: 0.6, ratePerHm3: 300, fixedCharge: 400 },
+      { maxHm3: 0.9, ratePerHm3: 350, fixedCharge: 800 },
+      { maxHm3: 999, ratePerHm3: 400, fixedCharge: 1000 },
     ],
     unprotectedSlabs: [
-      { maxHm3: 0.5, ratePerHm3: 500, fixedCharge: 1000 },
-      { maxHm3: 1.0, ratePerHm3: 850, fixedCharge: 1000 },
-      { maxHm3: 1.5, ratePerHm3: 1250, fixedCharge: 1000 },
-      { maxHm3: 2.0, ratePerHm3: 2000, fixedCharge: 1000 },
-      { maxHm3: 3.0, ratePerHm3: 3000, fixedCharge: 1000 },
-      { maxHm3: 4.0, ratePerHm3: 3500, fixedCharge: 1000 },
-      { maxHm3: 999, ratePerHm3: 4200, fixedCharge: 1000 },
+      { maxHm3: 0.25, ratePerHm3: 500, fixedCharge: 1000 },
+      { maxHm3: 0.5, ratePerHm3: 850, fixedCharge: 1000 },
+      { maxHm3: 0.6, ratePerHm3: 1250, fixedCharge: 1000 },
+      { maxHm3: 0.9, ratePerHm3: 1450, fixedCharge: 1000 },
+      { maxHm3: 1.5, ratePerHm3: 1900, fixedCharge: 1500 },
+      { maxHm3: 2.0, ratePerHm3: 3300, fixedCharge: 2000 },
+      { maxHm3: 3.0, ratePerHm3: 3800, fixedCharge: 2000 },
+      { maxHm3: 4.0, ratePerHm3: 4200, fixedCharge: 2000 },
+      { maxHm3: 999, ratePerHm3: 4500, fixedCharge: 2000 },
     ],
-    meterRent: 40,
+    meterRent: 50,
   },
   motorwayTolls: [
-    { route: "M-2", name: "Islamabad – Lahore Motorway", fromTo: "Zero Point Islamabad to Thokar Niaz Baig Lahore (367 km)", carToll: 1100, wagonToll: 1800, coasterToll: 2500, busToll: 3600, truck2Axle: 4700 },
-    { route: "M-1", name: "Islamabad – Peshawar Motorway", fromTo: "Islamabad Toll to Peshawar Ring Road (155 km)", carToll: 450, wagonToll: 750, coasterToll: 1100, busToll: 1600, truck2Axle: 2100 },
-    { route: "M-3", name: "Lahore – Abdul Hakeem Motorway", fromTo: "M-2 Junction to Abdul Hakeem (230 km)", carToll: 750, wagonToll: 1250, coasterToll: 1750, busToll: 2500, truck2Axle: 3200 },
-    { route: "M-5", name: "Multan – Sukkur Motorway", fromTo: "Multan interchange to Sukkur (392 km)", carToll: 1250, wagonToll: 2050, coasterToll: 2900, busToll: 4100, truck2Axle: 5400 },
-    { route: "M-9", name: "Karachi – Hyderabad Motorway", fromTo: "Sohrab Goth Karachi to Jamshoro Hyderabad (136 km)", carToll: 420, wagonToll: 700, coasterToll: 1000, busToll: 1450, truck2Axle: 1900 },
-    { route: "M-15", name: "Hazara Motorway (Hasan Abdal – Thakot)", fromTo: "Burhan M-1 to Thakot (180 km)", carToll: 550, wagonToll: 900, coasterToll: 1300, busToll: 1850, truck2Axle: 2400 },
-    { route: "M-14", name: "Hakla – D.I. Khan Motorway (CPEC)", fromTo: "Hakla to Yarik D.I. Khan (285 km)", carToll: 850, wagonToll: 1400, coasterToll: 2000, busToll: 2800, truck2Axle: 3700 },
-    { route: "Swat", name: "Swat Expressway (Colonel Sher Khan – Chakdara)", fromTo: "KPK (160 km)", carToll: 380, wagonToll: 600, coasterToll: 850, busToll: 1200, truck2Axle: 1600 },
+    { route: "M-2", name: "Lahore - Islamabad Motorway", fromTo: "Thokar Niaz Baig to Islamabad Toll Plaza (375 km)", carToll: 1250, wagonToll: 1850, coasterToll: 2550, busToll: 3600, truck2Axle: 4800 },
+    { route: "M-3", name: "Lahore - Abdul Hakeem Motorway", fromTo: "M-2 Jathekey to Darkhana (230 km)", carToll: 850, wagonToll: 1300, coasterToll: 1750, busToll: 2500, truck2Axle: 3300 },
+    { route: "M-4", name: "Pindi Bhattian - Multan Motorway", fromTo: "Pindi Bhattian to Multan (286 km)", carToll: 1000, wagonToll: 1500, coasterToll: 2050, busToll: 2900, truck2Axle: 3900 },
+    { route: "M-5", name: "Multan - Sukkur Motorway", fromTo: "Multan to Sukkur (392 km)", carToll: 1350, wagonToll: 2000, coasterToll: 2700, busToll: 3900, truck2Axle: 5200 },
+    { route: "M-9", name: "Karachi - Hyderabad Motorway", fromTo: "Sohrab Goth to Hyderabad (136 km)", carToll: 550, wagonToll: 800, coasterToll: 1100, busToll: 1600, truck2Axle: 2200 },
+    { route: "M-1", name: "Islamabad - Peshawar Motorway", fromTo: "Islamabad to Peshawar Ring Road (155 km)", carToll: 600, wagonToll: 900, coasterToll: 1250, busToll: 1800, truck2Axle: 2400 },
+    { route: "M-14", name: "Hakla - D.I. Khan (CPEC Motorway)", fromTo: "Hakla (M-1) to Yarik / D.I. Khan (285 km)", carToll: 950, wagonToll: 1400, coasterToll: 1950, busToll: 2800, truck2Axle: 3750 },
+    { route: "M-11", name: "Lahore - Sialkot Motorway", fromTo: "Kala Shah Kaku to Sambrial (103 km)", carToll: 450, wagonToll: 650, coasterToll: 900, busToll: 1300, truck2Axle: 1750 },
   ],
   ptaTaxSlabs: [
-    { brand: "Apple", model: "iPhone 16 Pro Max (1TB / 512GB)", usdCfValue: 1200, passportTax: 135500, cnicTax: 162500 },
-    { brand: "Apple", model: "iPhone 16 / 15 Pro", usdCfValue: 999, passportTax: 122000, cnicTax: 148000 },
-    { brand: "Apple", model: "iPhone 15 / 14 (Standard)", usdCfValue: 799, passportTax: 108000, cnicTax: 132000 },
-    { brand: "Apple", model: "iPhone 13 / 12", usdCfValue: 599, passportTax: 86000, cnicTax: 110000 },
-    { brand: "Samsung", model: "Galaxy S25 Ultra / S24 Ultra", usdCfValue: 1199, passportTax: 132000, cnicTax: 159000 },
-    { brand: "Samsung", model: "Galaxy S24 / S23", usdCfValue: 799, passportTax: 98000, cnicTax: 124000 },
-    { brand: "Samsung", model: "Galaxy A55 / A35", usdCfValue: 350, passportTax: 42000, cnicTax: 56000 },
-    { brand: "Google", model: "Pixel 9 Pro / 8 Pro", usdCfValue: 899, passportTax: 112000, cnicTax: 138000 },
-    { brand: "Xiaomi", model: "Xiaomi 14 / 13T Pro", usdCfValue: 650, passportTax: 78000, cnicTax: 98000 },
-    { brand: "OnePlus", model: "OnePlus 12 / 11", usdCfValue: 700, passportTax: 84000, cnicTax: 106000 },
+    { brand: "Apple", model: "iPhone 16 Pro Max", usdCfValue: 1199, passportTax: 142500, cnicTax: 174000 },
+    { brand: "Apple", model: "iPhone 15 Pro Max", usdCfValue: 1099, passportTax: 135700, cnicTax: 165800 },
+    { brand: "Apple", model: "iPhone 14 Pro Max", usdCfValue: 999, passportTax: 128500, cnicTax: 156000 },
+    { brand: "Apple", model: "iPhone 13 Pro Max", usdCfValue: 799, passportTax: 118000, cnicTax: 142000 },
+    { brand: "Samsung", model: "Galaxy S24 Ultra", usdCfValue: 1299, passportTax: 125000, cnicTax: 152000 },
+    { brand: "Samsung", model: "Galaxy S23 Ultra", usdCfValue: 899, passportTax: 112000, cnicTax: 138000 },
+    { brand: "Google", model: "Pixel 9 Pro XL", usdCfValue: 999, passportTax: 98000, cnicTax: 124000 },
+    { brand: "Google", model: "Pixel 8 Pro", usdCfValue: 799, passportTax: 88500, cnicTax: 112000 },
+    { brand: "Xiaomi", model: "Xiaomi 14 Ultra", usdCfValue: 899, passportTax: 78000, cnicTax: 98000 },
+    { brand: "OnePlus", model: "OnePlus 12 5G", usdCfValue: 799, passportTax: 82000, cnicTax: 104000 },
   ],
 };
